@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../../partials/head', { title: 'Data Bin' }) %>
+  <style>
+    /* Gradient Header Styles */
+    :root {
+      --primary-color: #f9a825;
+      --primary-light: #ffd54f;
+      --primary-dark: #f57f17;
+    }
+
+    .gradient-header {
+      background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-light) 100%
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.6;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .animate-pulse-soft {
+      animation: pulse-soft 3s ease-in-out infinite;
+    }
+
+    .bg-primary-gradient {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    }
+
+    .text-primary {
+      color: var(--primary-color);
+    }
+
+    .text-primary-dark {
+      color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../../partials/navbar') %>
+  <%- include('../../partials/sidebar') %>
+
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 lg:p-8 transition-all duration-300 min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-yellow-50">
+    <!-- Page Header - Ultra Modern Design (Dashboard Style) -->
+    <div class="mb-8 animate-fadeInUp">
+      <div class="rounded-2xl overflow-hidden shadow-2xl">
+        <div class="gradient-header text-white p-8 md:p-10">
+          
+          <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <!-- Modern Logo Container -->
+              <div class="flex-none">
+                <div class="relative group">
+                  <div class="absolute inset-0 bg-white opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
+                  <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                    <img src="/images/logo.png" alt="Logo" class="max-h-16 md:max-h-20 max-w-full object-contain">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Text Content -->
+              <div class="flex-1 text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-black leading-tight text-white mb-2 tracking-tight">
+                  Data Bin Gudang
+                </h1>
+                <p class="text-base md:text-lg text-white/90 font-medium max-w-2xl">
+                  Kelola bin di setiap rak untuk organisasi storage optimal
+                </p>
+              </div>
+
+              <!-- Quick Stats Badge & Action Button -->
+              <div class="flex-none hidden lg:block">
+                <div class="rounded-2xl p-4">
+                  <button onclick="openCreateModal()" class="w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105 mb-3">
+                    <i class="fas fa-plus mr-2"></i>Tambah Bin
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Action Button -->
+            <div class="flex-none lg:hidden w-full md:w-auto mt-4">
+              <button onclick="openCreateModal()" class="w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                <i class="fas fa-plus mr-2"></i>Tambah Bin
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+      <input type="text" id="searchInput" placeholder="🔍 Cari bin..." class="max-w-6xl px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-primary-gradient text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Kode Bin</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Nama Bin</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Rak</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Lokasi</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Posisi</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Kapasitas</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200" id="binsTable">
+            <% if (bins && bins.length > 0) { %>
+              <% bins.forEach((bin, index) => { %>
+                <tr class="hover:bg-gray-50 transition-colors bin-row" data-code="<%= bin.bin_code %>" data-name="<%= bin.bin_name %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="font-mono text-sm font-semibold text-gray-800 bg-gray-100 px-2 py-1 rounded"><%= bin.bin_code %></span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="font-medium text-gray-900"><%= bin.bin_name %></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-gray-700"><%= bin.rack_name || '-' %></span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center">
+                      <i class="fas fa-warehouse text-primary mr-2"></i>
+                      <span><%= bin.location_name || '-' %></span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="text-sm text-gray-700">L<%= bin.position_level || '-' %>/C<%= bin.position_column || '-' %></span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if (bin.capacity_items) { %>
+                      <span class="text-sm text-gray-700"><%= bin.capacity_items %> pcs</span>
+                    <% } else { %>
+                      <span class="text-sm text-gray-400">-</span>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if (bin.is_active) { %>
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i> Aktif
+                      </span>
+                    <% } else { %>
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                        <i class="fas fa-times-circle mr-1"></i> Nonaktif
+                      </span>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <button onclick="openEditModal(<%= bin.id %>)" class="text-blue-600 hover:text-blue-900 mr-3">
+                      <i class="fas fa-edit text-lg"></i>
+                    </button>
+                    <button onclick="deleteBin(<%= bin.id %>)" class="text-red-600 hover:text-red-900">
+                      <i class="fas fa-trash text-lg"></i>
+                    </button>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="8" class="px-6 py-12 text-center">
+                  <i class="fas fa-boxes text-gray-300 text-6xl mb-4"></i>
+                  <p class="text-gray-500 text-lg">Belum ada data bin</p>
+                  <button onclick="openCreateModal()" class="mt-4 text-primary hover:text-primary-dark">
+                    <i class="fas fa-plus mr-2"></i>Tambah Bin Pertama
+                  </button>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create/Edit Modal -->
+  <div id="binModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-primary-gradient text-white px-6 py-4 flex justify-between items-center">
+        <h2 id="modalTitle" class="text-xl font-bold">
+          <i class="fas fa-boxes mr-2"></i>Tambah Bin
+        </h2>
+        <button onclick="closeModal()" class="text-white hover:text-gray-200">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <form id="binForm" method="POST" data-ajax="true" class="p-6">
+        <input type="hidden" id="binId" name="id">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-th mr-1 text-primary"></i>Rak Gudang *
+            </label>
+            <select name="rack_id" id="rack_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="">Pilih Rak</option>
+              <% if (typeof racks !== 'undefined' && racks.length > 0) { %>
+                <% racks.forEach(rack => { %>
+                  <option value="<%= rack.id %>"><%= rack.rack_code %> - <%= rack.rack_name %> - <%= rack.location_name %></option>
+                <% }); %>
+              <% } %>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-code mr-1 text-primary"></i>Kode Bin *
+            </label>
+            <input type="text" name="bin_code" id="bin_code" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="BIN-001">
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-tag mr-1 text-primary"></i>Nama Bin *
+            </label>
+            <input type="text" name="bin_name" id="bin_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Bin A1">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-layer-group mr-1 text-primary"></i>Level Posisi
+            </label>
+            <input type="number" name="position_level" id="position_level" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="1">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-columns mr-1 text-primary"></i>Kolom Posisi
+            </label>
+            <input type="number" name="position_column" id="position_column" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="1">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-boxes mr-1 text-primary"></i>Kapasitas (pcs)
+            </label>
+            <input type="number" name="capacity_items" id="capacity_items" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="100">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-toggle-on mr-1 text-primary"></i>Status
+            </label>
+            <select name="is_active" id="is_active" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="1">Aktif</option>
+              <option value="0">Nonaktif</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeModal()" class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit" class="flex-1 px-6 py-3 bg-primary-gradient text-white rounded-lg hover:from-primary-dark hover:to-primary transition font-medium shadow-lg">
+            <i class="fas fa-save mr-2"></i>Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const rows = document.querySelectorAll('.bin-row');
+      rows.forEach(row => {
+        const code = row.dataset.code.toLowerCase();
+        const name = row.dataset.name.toLowerCase();
+        if (code.includes(searchTerm) || name.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // Modal functions
+    function openCreateModal() {
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-boxes mr-2"></i>Tambah Bin';
+      document.getElementById('binForm').reset();
+      document.getElementById('binId').value = '';
+      document.getElementById('binForm').action = '/warehouse/bins';
+      document.getElementById('binModal').classList.remove('hidden');
+    }
+
+    async function openEditModal(id) {
+      try {
+        const response = await fetch(`/warehouse/bins/${id}/data`);
+        const bin = await response.json();
+
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit mr-2"></i>Edit Bin';
+        document.getElementById('binId').value = bin.id;
+        document.getElementById('rack_id').value = bin.rack_id;
+        document.getElementById('bin_code').value = bin.bin_code;
+        document.getElementById('bin_name').value = bin.bin_name;
+        document.getElementById('position_level').value = bin.position_level || '';
+        document.getElementById('position_column').value = bin.position_column || '';
+        document.getElementById('capacity_items').value = bin.capacity_items || '';
+        document.getElementById('is_active').value = bin.is_active;
+
+        document.getElementById('binForm').action = `/warehouse/bins/update/${id}`;
+        document.getElementById('binModal').classList.remove('hidden');
+      } catch (error) {
+        swalError('Gagal memuat data bin');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('binModal').classList.add('hidden');
+      document.getElementById('binForm').reset();
+    }
+
+    async function deleteBin(id) {
+      swalConfirmFetch(`/warehouse/bins/delete/${id}`, { method: 'POST' }, 'Bin berhasil dihapus', 'Gagal menghapus bin');
+    }
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+  <%- include('../../partials/footer') %>
+  <%- include('../../partials/scripts') %>
+</body>
+</html>

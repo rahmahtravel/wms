@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { title: 'Barang Masuk' }) %>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/sidebar') %>
+
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 min-h-screen transition-all duration-300">
+    <div class="mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-arrow-down text-green-600 mr-3"></i>
+            Barang Masuk
+          </h1>
+          <p class="text-gray-600 mt-1">Kelola penerimaan barang dari supplier</p>
+        </div>
+        <button onclick="openCreateModal()" class="inline-flex items-center px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all shadow-md hover:shadow-lg">
+          <i class="fas fa-plus mr-2"></i>Tambah Barang Masuk
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <input type="text" id="searchInput" placeholder="🔍 Cari barang masuk..." class="max-w-6xl px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gradient-to-r from-green-600 to-green-500 text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Tanggal</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">No. Invoice</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Supplier</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Barang</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Qty</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Lokasi</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Total</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200" id="incomingTable">
+            <% if (incoming && incoming.length > 0) { %>
+              <% incoming.forEach((item, index) => { %>
+                <tr class="hover:bg-gray-50 transition-colors incoming-row" 
+                    data-invoice="<%= item.no_invoice || '' %>" 
+                    data-barang="<%= item.nama_barang || '' %>"
+                    data-supplier="<%= item.nama_supplier || '' %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= new Date(item.tanggal_masuk).toLocaleDateString('id-ID') %>
+                    </div>
+                    <% if (item.tanggal_kadaluarsa) { %>
+                      <div class="text-xs text-orange-600">
+                        <i class="fas fa-calendar-times mr-1"></i>
+                        Exp: <%= new Date(item.tanggal_kadaluarsa).toLocaleDateString('id-ID') %>
+                      </div>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4">
+                    <span class="font-mono text-sm font-semibold text-gray-800 bg-gray-100 px-2 py-1 rounded">
+                      <%= item.no_invoice || '-' %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900"><%= item.nama_supplier || '-' %></div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="font-medium text-gray-900"><%= item.nama_barang %></div>
+                    <div class="text-xs text-gray-500"><%= item.kode_barang %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm font-semibold text-green-600">
+                      <%= item.quantity %> <%= item.satuan || 'pcs' %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="text-sm text-gray-700">
+                      <i class="fas fa-warehouse text-primary mr-1"></i><%= item.nama_lokasi || '-' %>
+                    </div>
+                    <% if (item.nama_rak) { %>
+                      <div class="text-xs text-gray-500">
+                        Rak: <%= item.nama_rak %><%= item.nama_bin ? ' / Bin: ' + item.nama_bin : '' %>
+                      </div>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-semibold text-gray-900">
+                      Rp <%= (item.total_harga || 0).toLocaleString('id-ID') %>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                      @ Rp <%= (item.harga_satuan || 0).toLocaleString('id-ID') %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="flex justify-center gap-2">
+                      <button onclick="openEditModal(<%= item.id %>)" 
+                              class="btn-edit p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                              data-id="<%= item.id %>" title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button onclick="deleteIncoming(<%= item.id %>)" 
+                              class="btn-delete p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                              data-id="<%= item.id %>" title="Hapus">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                  <i class="fas fa-inbox text-4xl mb-2"></i>
+                  <p>Belum ada data barang masuk</p>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Form -->
+  <div id="incomingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-gradient-to-r from-green-600 to-green-500 text-white p-6 rounded-t-xl z-10">
+        <h2 id="modalTitle" class="text-2xl font-bold"><i class="fas fa-arrow-down mr-2"></i>Tambah Barang Masuk</h2>
+      </div>
+
+      <form id="incomingForm" data-ajax="true" method="POST" action="/incoming/create" class="p-6">
+        <input type="hidden" id="incomingId" name="id">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-truck mr-1 text-green-600"></i>Supplier *
+            </label>
+            <select name="supplier_id" id="supplier_id" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="">-- Pilih Supplier --</option>
+              <% suppliers.forEach(supplier => { %>
+                <option value="<%= supplier.id %>"><%= supplier.name %></option>
+              <% }); %>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-box mr-1 text-green-600"></i>Barang *
+            </label>
+            <select name="id_barang" id="id_barang" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="">-- Pilih Barang --</option>
+              <% barang.forEach(item => { %>
+                <option value="<%= item.id_barang %>"><%= item.nama_barang %> (<%= item.kode_barang %>)</option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-calendar mr-1 text-green-600"></i>Tanggal Masuk *
+            </label>
+            <input type="date" name="tanggal_masuk" id="tanggal_masuk" required
+                   value="<%= new Date().toISOString().split('T')[0] %>"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-file-invoice mr-1 text-green-600"></i>No. Invoice *
+            </label>
+            <input type="text" name="no_invoice" id="no_invoice" required
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   placeholder="INV-001">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-sort-amount-up mr-1 text-green-600"></i>Jumlah *
+            </label>
+            <input type="number" name="quantity" id="quantity" required min="1" step="1"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   placeholder="0">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-tag mr-1 text-green-600"></i>Harga Satuan *
+            </label>
+            <input type="number" name="harga_satuan" id="harga_satuan" required min="0" step="0.01"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                   placeholder="0">
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-warehouse mr-1 text-green-600"></i>Warehouse *
+            </label>
+            <select name="warehouse_id" id="warehouse_id" required onchange="loadRacks(this.value)"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="">-- Pilih Warehouse --</option>
+              <% warehouses.forEach(wh => { %>
+                <option value="<%= wh.id %>"><%= wh.nama_lokasi %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-th mr-1 text-green-600"></i>Rak *
+            </label>
+            <select name="rack_id" id="rack_id" required onchange="loadBins(this.value)"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="">-- Pilih Warehouse Dulu --</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-cube mr-1 text-green-600"></i>Bin *
+            </label>
+            <select name="bin_id" id="bin_id" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+              <option value="">-- Pilih Rak Dulu --</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-calendar-times mr-1 text-green-600"></i>Tanggal Kadaluarsa
+            </label>
+            <input type="date" name="tanggal_kadaluarsa" id="tanggal_kadaluarsa"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-sticky-note mr-1 text-green-600"></i>Catatan
+            </label>
+            <textarea name="catatan" id="catatan" rows="3"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      placeholder="Catatan tambahan..."></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeModal()"
+                  class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit"
+                  class="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-lg">
+            <i class="fas fa-save mr-2"></i>Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+
+  <script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const rows = document.querySelectorAll('.incoming-row');
+      
+      rows.forEach(row => {
+        const invoice = row.dataset.invoice.toLowerCase();
+        const barang = row.dataset.barang.toLowerCase();
+        const supplier = row.dataset.supplier.toLowerCase();
+        
+        if (invoice.includes(searchTerm) || barang.includes(searchTerm) || supplier.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+
+    // Modal functions
+    function openCreateModal() {
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-arrow-down mr-2"></i>Tambah Barang Masuk';
+      document.getElementById('incomingForm').reset();
+      document.getElementById('incomingId').value = '';
+      document.getElementById('incomingForm').action = '/incoming/create';
+      document.getElementById('tanggal_masuk').value = new Date().toISOString().split('T')[0];
+      document.getElementById('incomingModal').classList.remove('hidden');
+    }
+
+    async function openEditModal(id) {
+      try {
+        const response = await fetch(`/incoming/${id}/data`);
+        const item = await response.json();
+        
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit mr-2"></i>Edit Barang Masuk';
+        document.getElementById('incomingId').value = item.id;
+        document.getElementById('supplier_id').value = item.supplier_id;
+        document.getElementById('id_barang').value = item.id_barang;
+        document.getElementById('quantity').value = item.quantity;
+        document.getElementById('harga_satuan').value = item.harga_satuan;
+        document.getElementById('tanggal_masuk').value = item.tanggal_masuk.split('T')[0];
+        document.getElementById('no_invoice').value = item.no_invoice || '';
+        document.getElementById('tanggal_kadaluarsa').value = item.tanggal_kadaluarsa ? item.tanggal_kadaluarsa.split('T')[0] : '';
+        document.getElementById('catatan').value = item.catatan || '';
+        
+        // Load cascade dropdowns
+        if (item.warehouse_id) {
+          document.getElementById('warehouse_id').value = item.warehouse_id;
+          await loadRacks(item.warehouse_id);
+          document.getElementById('rack_id').value = item.rack_id;
+          await loadBins(item.rack_id);
+          document.getElementById('bin_id').value = item.bin_id;
+        }
+        
+        document.getElementById('incomingForm').action = `/incoming/update/${id}`;
+        document.getElementById('incomingModal').classList.remove('hidden');
+      } catch (error) {
+        swalError('Gagal memuat data barang masuk');
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('incomingModal').classList.add('hidden');
+      document.getElementById('incomingForm').reset();
+    }
+
+    async function deleteIncoming(id) {
+      swalConfirmFetch(`/incoming/delete/${id}`, { method: 'POST' }, 'Barang masuk berhasil dihapus', 'Gagal menghapus barang masuk');
+    }
+
+    // Cascade dropdown functions
+    async function loadRacks(warehouseId) {
+      const rackSelect = document.getElementById('rack_id');
+      const binSelect = document.getElementById('bin_id');
+      
+      rackSelect.innerHTML = '<option value="">Loading...</option>';
+      binSelect.innerHTML = '<option value="">-- Pilih Rak Dulu --</option>';
+      
+      if (!warehouseId) {
+        rackSelect.innerHTML = '<option value="">-- Pilih Warehouse Dulu --</option>';
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/incoming/api/warehouses/${warehouseId}/racks`);
+        const racks = await response.json();
+        
+        rackSelect.innerHTML = '<option value="">-- Pilih Rak --</option>';
+        racks.forEach(rack => {
+          rackSelect.innerHTML += `<option value="${rack.id}">${rack.nama_rak}</option>`;
+        });
+      } catch (error) {
+        console.error('Error loading racks:', error);
+        swalError('Gagal memuat data rak');
+      }
+    }
+
+    async function loadBins(rackId) {
+      const binSelect = document.getElementById('bin_id');
+      
+      binSelect.innerHTML = '<option value="">Loading...</option>';
+      
+      if (!rackId) {
+        binSelect.innerHTML = '<option value="">-- Pilih Rak Dulu --</option>';
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/incoming/api/racks/${rackId}/bins`);
+        const bins = await response.json();
+        
+        binSelect.innerHTML = '<option value="">-- Pilih Bin --</option>';
+        bins.forEach(bin => {
+          binSelect.innerHTML += `<option value="${bin.id}">${bin.nama_bin}</option>`;
+        });
+      } catch (error) {
+        console.error('Error loading bins:', error);
+        swalError('Gagal memuat data bin');
+      }
+    }
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
+</body>
+</html>

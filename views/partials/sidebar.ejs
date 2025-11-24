@@ -1,0 +1,304 @@
+<!-- Modern Sidebar with Custom Styles -->
+<style>
+  /* Custom Sidebar Animations */
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Modern Sidebar Styles */
+  #sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Custom Scrollbar */
+  #sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  #sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  #sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #fb923c, #f97316);
+    border-radius: 10px;
+  }
+  
+  #sidebar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #f97316, #ea580c);
+  }
+
+  /* Menu Item Styles */
+  .sidebar-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    margin: 4px 12px;
+    padding: 12px 16px !important;
+    animation: slideInLeft 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  .sidebar-item:nth-child(1) { animation-delay: 0.05s; }
+  .sidebar-item:nth-child(2) { animation-delay: 0.1s; }
+  .sidebar-item:nth-child(3) { animation-delay: 0.15s; }
+  .sidebar-item:nth-child(4) { animation-delay: 0.2s; }
+  .sidebar-item:nth-child(5) { animation-delay: 0.25s; }
+  .sidebar-item:nth-child(6) { animation-delay: 0.3s; }
+  .sidebar-item:nth-child(7) { animation-delay: 0.35s; }
+  .sidebar-item:nth-child(8) { animation-delay: 0.4s; }
+  .sidebar-item:nth-child(9) { animation-delay: 0.45s; }
+  .sidebar-item:nth-child(10) { animation-delay: 0.5s; }
+
+  .sidebar-item:hover {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    transform: translateX(6px);
+    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+  }
+
+  .sidebar-item.active {
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    color: white !important;
+    box-shadow: 0 6px 20px rgba(251, 146, 60, 0.4);
+    transform: translateX(4px);
+  }
+
+  .sidebar-item.active::before {
+    content: '';
+    position: absolute;
+    left: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: linear-gradient(180deg, #fb923c, #f97316);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px rgba(251, 146, 60, 0.5);
+  }
+
+  .sidebar-item.active i,
+  .sidebar-item.active span {
+    color: white !important;
+  }
+
+  .sidebar-item i {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+  }
+
+  .sidebar-item:hover i {
+    transform: scale(1.1);
+  }
+
+  .sidebar-item.active i {
+    transform: scale(1.15);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  }
+
+  /* Section Headers */
+  .sidebar-section-header {
+    padding: 12px 20px 8px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #9ca3af;
+    margin-top: 20px;
+    position: relative;
+    animation: fadeIn 0.6s ease;
+  }
+
+  .sidebar-section-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, #fb923c 0%, transparent 100%);
+    border-radius: 2px;
+  }
+
+  /* Icon Colors for Transaction Items */
+  .icon-green { color: #10b981 !important; }
+  .icon-red { color: #ef4444 !important; }
+  .icon-blue { color: #3b82f6 !important; }
+  .icon-purple { color: #a855f7 !important; }
+  
+  .sidebar-item.active .icon-green,
+  .sidebar-item.active .icon-red,
+  .sidebar-item.active .icon-blue,
+  .sidebar-item.active .icon-purple {
+    color: white !important;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    #sidebar {
+      transform: translateX(-100%);
+    }
+    
+    #sidebar.mobile-open {
+      transform: translateX(0);
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  @media (max-width: 768px) {
+    #sidebar {
+      width: 280px;
+      z-index: 1000;
+    }
+  }
+
+  /* Desktop - Always Show Sidebar */
+  @media (min-width: 1024px) {
+    #sidebar {
+      transform: translateX(0) !important;
+    }
+  }
+</style>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar w-64 h-screen fixed left-0 top-16 shadow-xl overflow-y-auto">
+  <div class="py-6">
+    <!-- Dashboard -->
+    <a href="/" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath === '/' ? 'active' : '' %>">
+      <i class="fas fa-home"></i>
+      <span class="ml-3 font-medium">Dashboard</span>
+    </a>
+    
+    <!-- Master Data Section -->
+    <div class="sidebar-section-header">
+      <i class="fas fa-database mr-2"></i>Master Data
+    </div>
+    
+    <a href="/branches" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/branches') ? 'active' : '' %>">
+      <i class="fas fa-building"></i>
+      <span class="ml-3 font-medium">Cabang</span>
+    </a>
+    
+    <a href="/categories" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/categories') ? 'active' : '' %>">
+      <i class="fas fa-tags"></i>
+      <span class="ml-3 font-medium">Kategori</span>
+    </a>
+    
+    <a href="/jenis-barang" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jenis-barang') ? 'active' : '' %>">
+      <i class="fas fa-box"></i>
+      <span class="ml-3 font-medium">Jenis Barang</span>
+    </a>
+    
+    <a href="/suppliers" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/suppliers') ? 'active' : '' %>">
+      <i class="fas fa-truck"></i>
+      <span class="ml-3 font-medium">Supplier</span>
+    </a>
+
+    <a href="/barang" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/barang') ? 'active' : '' %>">
+      <i class="fas fa-box"></i>
+      <span class="ml-3 font-medium">Data Barang</span>
+    </a>
+    
+    <!-- Warehouse Section -->
+    <div class="sidebar-section-header">
+      <i class="fas fa-warehouse mr-2"></i>Warehouse
+    </div>
+    
+    <a href="/warehouse/locations" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/locations') ? 'active' : '' %>">
+      <i class="fas fa-warehouse"></i>
+      <span class="ml-3 font-medium">Lokasi Gudang</span>
+    </a>
+    
+    <a href="/warehouse/racks" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/racks') ? 'active' : '' %>">
+      <i class="fas fa-layer-group"></i>
+      <span class="ml-3 font-medium">Rak</span>
+    </a>
+    
+    <a href="/warehouse/bins" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/bins') ? 'active' : '' %>">
+      <i class="fas fa-inbox"></i>
+      <span class="ml-3 font-medium">Bin</span>
+    </a>
+    
+    <a href="/stock" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath === '/stock' ? 'active' : '' %>">
+      <i class="fas fa-cubes"></i>
+      <span class="ml-3 font-medium">Stok Barang</span>
+    </a>
+    
+    <!-- Transaksi Section -->
+    <div class="sidebar-section-header">
+      <i class="fas fa-exchange-alt mr-2"></i>Transaksi
+    </div>
+    
+    <a href="/incoming" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/incoming') ? 'active' : '' %>">
+      <i class="fas fa-arrow-down icon-green"></i>
+      <span class="ml-3 font-medium">Barang Masuk</span>
+    </a>
+    
+    <a href="/outgoing" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/outgoing') ? 'active' : '' %>">
+      <i class="fas fa-arrow-up icon-red"></i>
+      <span class="ml-3 font-medium">Barang Keluar</span>
+    </a>
+    
+    <a href="/transfer" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/transfer') ? 'active' : '' %>">
+      <i class="fas fa-exchange-alt icon-blue"></i>
+      <span class="ml-3 font-medium">Transfer Barang</span>
+    </a>
+    
+    <a href="/opname" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/opname') ? 'active' : '' %>">
+      <i class="fas fa-clipboard-check icon-purple"></i>
+      <span class="ml-3 font-medium">Stock Opname</span>
+    </a>
+    
+    <!-- Jamaah & Pengiriman Section -->
+    <div class="sidebar-section-header">
+      <i class="fas fa-users mr-2"></i>Jamaah & Pengiriman
+    </div>
+    
+    <a href="/jamaah/kelengkapan" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/kelengkapan') ? 'active' : '' %>">
+      <i class="fas fa-user-check"></i>
+      <span class="ml-3 font-medium">Kelengkapan Jamaah</span>
+    </a>
+    
+    <a href="/jamaah/request" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/request') ? 'active' : '' %>">
+      <i class="fas fa-envelope-open-text"></i>
+      <span class="ml-3 font-medium">Request Perlengkapan</span>
+    </a>
+    
+    <a href="/jamaah/pengiriman" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/pengiriman') ? 'active' : '' %>">
+      <i class="fas fa-shipping-fast"></i>
+      <span class="ml-3 font-medium">Pengiriman</span>
+    </a>
+    
+    <!-- Laporan Section -->
+    <div class="sidebar-section-header">
+      <i class="fas fa-chart-line mr-2"></i>Laporan
+    </div>
+    
+    <a href="/stock/movements" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/stock/movements') ? 'active' : '' %>">
+      <i class="fas fa-history"></i>
+      <span class="ml-3 font-medium">Histori Pergerakan</span>
+    </a>
+    
+    <!-- Bottom Spacing -->
+    <div class="h-6"></div>
+  </div>
+</aside>

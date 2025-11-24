@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Rahmah Travel</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #f9a825;
+      --primary-dark: #f57f17;
+      --primary-light: #ffd54f;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .bg-primary { background-color: var(--primary-color); }
+    .bg-primary-dark { background-color: var(--primary-dark); }
+    .bg-primary-light { background-color: var(--primary-light); }
+    .text-primary { color: var(--primary-color); }
+    .border-primary { border-color: var(--primary-color); }
+    
+    .sidebar {
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-collapsed {
+      width: 80px;
+    }
+    
+    .sidebar-item {
+      transition: all 0.2s ease;
+    }
+    
+    .sidebar-item:hover {
+      background-color: rgba(249, 168, 37, 0.1);
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .sidebar-item.active {
+      background-color: rgba(249, 168, 37, 0.15);
+      border-left: 4px solid var(--primary-color);
+      font-weight: 600;
+    }
+    
+    .card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(249, 168, 37, 0.4);
+    }
+    
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      z-index: 1000;
+    }
+    
+    .dropdown:hover .dropdown-menu {
+      display: block;
+    }
+    
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1000;
+      }
+      
+      .sidebar.mobile-open {
+        transform: translateX(0);
+      }
+    }
+  </style>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#f9a825',
+            'primary-dark': '#f57f17',
+            'primary-light': '#ffd54f',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50">
+  
+  <!-- Top Navigation Bar -->
+  <nav class="bg-primary shadow-lg fixed w-full z-50 top-0">
+    <div class="px-4 py-3">
+      <div class="flex items-center justify-between">
+        <!-- Logo & Brand -->
+        <div class="flex items-center space-x-4">
+          <button id="sidebarToggle" class="text-white hover:text-gray-200 focus:outline-none">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-boxes text-white text-2xl"></i>
+            <span class="text-white font-bold text-xl hidden md:block">Rahmah Travel - P&L System</span>
+            <span class="text-white font-bold text-xl md:hidden">Rahmah P&L</span>
+          </div>
+        </div>
+        
+        <!-- User Menu -->
+        <div class="flex items-center space-x-4">
+          <!-- Notifications -->
+          <button class="text-white hover:text-gray-200 relative">
+            <i class="fas fa-bell text-xl"></i>
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+          </button>
+          
+          <!-- User Dropdown -->
+          <div class="dropdown relative">
+            <button class="flex items-center space-x-2 text-white hover:text-gray-200">
+              <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                <i class="fas fa-user text-primary"></i>
+              </div>
+              <span class="hidden md:block">Admin</span>
+              <i class="fas fa-chevron-down text-sm"></i>
+            </button>
+            <div class="dropdown-menu mt-2 w-48 bg-white rounded-lg shadow-xl py-2 right-0">
+              <a href="/profile" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                <i class="fas fa-user-circle mr-2"></i> Profile
+              </a>
+              <a href="/settings" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                <i class="fas fa-cog mr-2"></i> Settings
+              </a>
+              <hr class="my-2">
+              <a href="/logout" class="block px-4 py-2 text-red-600 hover:bg-gray-100">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar bg-white w-64 h-screen fixed left-0 top-16 shadow-lg overflow-y-auto">
+    <div class="py-4">
+      
+      <!-- Dashboard -->
+      <a href="/" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath === '/' ? 'active' : '' %>">
+        <i class="fas fa-home w-6"></i>
+        <span class="ml-3">Dashboard</span>
+      </a>
+      
+      <!-- Master Data -->
+      <div class="px-6 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">
+        Master Data
+      </div>
+      
+      <a href="/branches" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/branches') ? 'active' : '' %>">
+        <i class="fas fa-building w-6"></i>
+        <span class="ml-3">Cabang</span>
+      </a>
+      
+      <a href="/categories" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/categories') ? 'active' : '' %>">
+        <i class="fas fa-tags w-6"></i>
+        <span class="ml-3">Kategori</span>
+      </a>
+      
+      <a href="/jenis-barang" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/jenis-barang') ? 'active' : '' %>">
+        <i class="fas fa-list w-6"></i>
+        <span class="ml-3">Jenis Barang</span>
+      </a>
+      
+      <a href="/suppliers" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/suppliers') ? 'active' : '' %>">
+        <i class="fas fa-truck w-6"></i>
+        <span class="ml-3">Supplier</span>
+      </a>
+      
+      <a href="/barang" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/barang') ? 'active' : '' %>">
+        <i class="fas fa-box w-6"></i>
+        <span class="ml-3">Data Barang</span>
+      </a>
+      
+      <!-- Warehouse Management -->
+      <div class="px-6 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">
+        Warehouse
+      </div>
+      
+      <a href="/warehouse/locations" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/warehouse/locations') ? 'active' : '' %>">
+        <i class="fas fa-warehouse w-6"></i>
+        <span class="ml-3">Lokasi Gudang</span>
+      </a>
+      
+      <a href="/warehouse/racks" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/warehouse/racks') ? 'active' : '' %>">
+        <i class="fas fa-layer-group w-6"></i>
+        <span class="ml-3">Rak</span>
+      </a>
+      
+      <a href="/warehouse/bins" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/warehouse/bins') ? 'active' : '' %>">
+        <i class="fas fa-inbox w-6"></i>
+        <span class="ml-3">Bin</span>
+      </a>
+      
+      <a href="/stock" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/stock') ? 'active' : '' %>">
+        <i class="fas fa-cubes w-6"></i>
+        <span class="ml-3">Stok Barang</span>
+      </a>
+      
+      <!-- Transaksi -->
+      <div class="px-6 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">
+        Transaksi
+      </div>
+      
+      <a href="/incoming" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/incoming') ? 'active' : '' %>">
+        <i class="fas fa-arrow-down w-6 text-green-600"></i>
+        <span class="ml-3">Barang Masuk</span>
+      </a>
+      
+      <a href="/outgoing" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/outgoing') ? 'active' : '' %>">
+        <i class="fas fa-arrow-up w-6 text-red-600"></i>
+        <span class="ml-3">Barang Keluar</span>
+      </a>
+      
+      <a href="/transfer" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/transfer') ? 'active' : '' %>">
+        <i class="fas fa-exchange-alt w-6 text-blue-600"></i>
+        <span class="ml-3">Transfer Barang</span>
+      </a>
+      
+      <a href="/opname" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/opname') ? 'active' : '' %>">
+        <i class="fas fa-clipboard-check w-6 text-purple-600"></i>
+        <span class="ml-3">Stock Opname</span>
+      </a>
+      
+      <!-- Jamaah & Pengiriman -->
+      <div class="px-6 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">
+        Jamaah & Pengiriman
+      </div>
+      
+      <a href="/jamaah/kelengkapan" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/jamaah/kelengkapan') ? 'active' : '' %>">
+        <i class="fas fa-user-check w-6"></i>
+        <span class="ml-3">Kelengkapan Jamaah</span>
+      </a>
+      
+      <a href="/jamaah/request" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/jamaah/request') ? 'active' : '' %>">
+        <i class="fas fa-envelope-open-text w-6"></i>
+        <span class="ml-3">Request Perlengkapan</span>
+      </a>
+      
+      <a href="/jamaah/pengiriman" class="sidebar-item block px-6 py-3 text-gray-700 <%= currentPath.includes('/jamaah/pengiriman') ? 'active' : '' %>">
+        <i class="fas fa-shipping-fast w-6"></i>
+        <span class="ml-3">Pengiriman</span>
+      </a>
+      
+      <!-- Laporan -->
+      <div class="px-6 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mt-4">
+        Laporan
+      </div>
+      
+      <a href="/reports/stock" class="sidebar-item block px-6 py-3 text-gray-700">
+        <i class="fas fa-chart-bar w-6"></i>
+        <span class="ml-3">Laporan Stok</span>
+      </a>
+      
+      <a href="/reports/movements" class="sidebar-item block px-6 py-3 text-gray-700">
+        <i class="fas fa-history w-6"></i>
+        <span class="ml-3">Histori Pergerakan</span>
+      </a>
+      
+    </div>
+  </aside>
+  
+  <!-- Main Content -->
+  <main id="mainContent" class="ml-64 mt-16 p-6 transition-all duration-300">
+    <%- body %>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="ml-64 bg-white border-t border-gray-200 py-4 px-6">
+    <div class="text-center text-gray-600 text-sm">
+      &copy; 2024 Rahmah Travel - Purchasing & Logistics System. All rights reserved.
+    </div>
+  </footer>
+  
+  <script>
+    // Sidebar toggle
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    let sidebarOpen = true;
+    
+    sidebarToggle.addEventListener('click', () => {
+      if (window.innerWidth >= 768) {
+        sidebar.classList.toggle('sidebar-collapsed');
+        if (sidebarOpen) {
+          mainContent.classList.remove('ml-64');
+          mainContent.classList.add('ml-20');
+        } else {
+          mainContent.classList.remove('ml-20');
+          mainContent.classList.add('ml-64');
+        }
+        sidebarOpen = !sidebarOpen;
+      } else {
+        sidebar.classList.toggle('mobile-open');
+      }
+    });
+    
+    // Close sidebar on mobile when clicking outside
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth < 768 && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        sidebar.classList.remove('mobile-open');
+      }
+    });
+    
+    // Responsive adjustments
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        sidebar.classList.remove('mobile-open');
+        if (sidebarOpen) {
+          mainContent.classList.add('ml-64');
+          mainContent.classList.remove('ml-20');
+        }
+      } else {
+        mainContent.classList.remove('ml-64', 'ml-20');
+      }
+    });
+  </script>
+</body>
+</html>

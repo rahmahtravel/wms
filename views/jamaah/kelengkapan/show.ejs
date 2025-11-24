@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../../partials/head', { title: 'Detail Kelengkapan Jamaah' }) %>
+</head>
+<body class="bg-gray-50">
+  <%- include('../../partials/navbar') %>
+  <%- include('../../partials/sidebar') %>
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 min-h-screen">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">Detail Kelengkapan - <%= kelengkapan.nama_jamaah || 'Jamaah' %></h2>
+        <a href="/jamaah/kelengkapan" class="px-4 py-2 bg-gray-200 rounded">Kembali</a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <p class="text-sm text-gray-600">Nama Jamaah</p>
+          <h3 class="font-medium text-gray-900"><%= kelengkapan.nama_jamaah || '-' %></h3>
+        </div>
+        <div>
+          <p class="text-sm text-gray-600">Nomor Telepon</p>
+          <h3 class="font-medium text-gray-900"><%= kelengkapan.nomor_telp || '-' %></h3>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <p class="text-sm text-gray-600">Status Pengambilan</p>
+        <p class="font-medium text-gray-900"><%= kelengkapan.status_pengambilan || '-' %></p>
+      </div>
+
+      <div>
+        <p class="text-sm text-gray-600">Items</p>
+        <div class="mt-2 shadow rounded bg-white overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Barang</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ukuran</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% items.forEach((it, idx) => { %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= idx + 1 %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= it.nama_barang || '-' %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= it.ukuran || '-' %></td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= it.is_selected ? 'Terpilih' : 'Tidak' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+  <%- include('../../partials/scripts') %>
+</body>
+</html>

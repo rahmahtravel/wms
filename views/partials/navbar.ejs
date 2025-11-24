@@ -1,0 +1,509 @@
+<!-- Modern Navigation with Enhanced Styles -->
+<style>
+  /* Navbar Animations */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+  }
+
+  @keyframes bounce-subtle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  /* Modern Navbar Styles */
+  .modern-navbar {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fdba74 100%);
+    backdrop-filter: blur(10px);
+    animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+  }
+
+  /* Sidebar Toggle Button */
+  .sidebar-toggle-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .sidebar-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .sidebar-toggle-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Logo Container */
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+
+  .logo-container:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .logo-image-wrapper {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .logo-container:hover .logo-image-wrapper {
+    transform: rotate(-5deg) scale(1.05);
+  }
+
+  .logo-text-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .logo-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-subtitle {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  /* Notification Button */
+  .notification-btn {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .notification-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .notification-btn:hover i {
+    animation: bounce-subtle 0.6s ease;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 12px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    animation: pulse-glow 2s infinite;
+    border: 2px solid white;
+  }
+
+  /* User Menu Button */
+  .user-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .user-menu-btn:active {
+    transform: translateY(0);
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    background: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .user-menu-btn:hover .user-avatar {
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    line-height: 1.2;
+  }
+
+  .user-role {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .chevron-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .user-menu-btn:hover .chevron-icon {
+    transform: translateY(2px);
+  }
+
+  /* Dropdown Menu */
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    margin-top: 12px;
+    width: 240px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+
+  .dropdown-header {
+    padding: 12px 16px;
+    border-bottom: 2px solid #f3f4f6;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-radius: 12px;
+  }
+
+  .dropdown-user-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 2px;
+  }
+
+  .dropdown-user-contact {
+    font-size: 12px;
+    color: #6b7280;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: #374151;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    margin: 2px 0;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .dropdown-item:hover {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    color: #f97316;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.1);
+  }
+
+  .dropdown-item:active {
+    transform: translateX(2px);
+  }
+
+  .dropdown-item i {
+    width: 20px;
+    margin-right: 10px;
+    text-align: center;
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #e5e7eb 50%, transparent 100%);
+    margin: 8px 0;
+  }
+
+  .dropdown-item.logout {
+    color: #dc2626;
+  }
+
+  .dropdown-item.logout:hover {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    color: #dc2626;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .logo-title {
+      font-size: 16px;
+    }
+    
+    .logo-image-wrapper {
+      width: 36px;
+      height: 36px;
+    }
+
+    .notification-btn,
+    .sidebar-toggle-btn {
+      width: 36px;
+      height: 36px;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+    }
+
+    .dropdown-menu {
+      width: 220px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .logo-container {
+      padding: 4px 8px;
+      gap: 8px;
+    }
+
+    .user-menu-btn {
+      padding: 4px 8px;
+    }
+  }
+
+  /* Desktop - Hide Sidebar Toggle Button */
+  @media (min-width: 1024px) {
+    #sidebarToggle {
+      display: none !important;
+    }
+  }
+</style>
+
+<!-- Navigation -->
+<nav class="modern-navbar fixed w-full z-50 top-0">
+  <div class="px-4 py-3">
+    <div class="flex items-center justify-between">
+      <!-- Left Section -->
+      <div class="flex items-center space-x-3">
+        <!-- Sidebar Toggle (Hidden on Desktop) -->
+        <button id="sidebarToggle" class="sidebar-toggle-btn text-white focus:outline-none lg:hidden">
+          <i class="fas fa-bars text-lg"></i>
+        </button>
+        
+        <!-- Logo & Brand -->
+        <div class="logo-container">
+          <div class="logo-image-wrapper">
+            <img src="/images/logo.png" alt="Rahmah Travel Logo" class="h-8 w-8 object-contain">
+          </div>
+          <div class="logo-text-wrapper hidden md:flex">
+            <span class="logo-title">Rahmah Travel</span>
+            <span class="logo-subtitle">Purchasing & Logistics</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Section -->
+      <div class="flex items-center space-x-3">
+        
+        <!-- User Menu -->
+        <div class="relative">
+          <button type="button" id="userMenuBtn" class="user-menu-btn text-white focus:outline-none">
+            <div class="user-avatar">
+              <i class="fas fa-user text-orange-500"></i>
+            </div>
+            <div class="user-info hidden md:flex">
+              <span class="user-name"><%= user ? user.name : 'Guest' %></span>
+              <% if (user) { %>
+                <span class="user-role">
+                  <%= user.isSuperAdmin ? 'Super Admin' : user.role_name %><% if (user.branch_name) { %> - <%= user.branch_name %><% } %>
+                </span>
+              <% } %>
+            </div>
+            <i class="fas fa-chevron-down text-xs hidden md:block chevron-icon"></i>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div id="userMenu" class="dropdown-menu">
+            <div class="dropdown-header">
+              <div class="dropdown-user-name"><%= user ? user.name : 'Guest' %></div>
+              <% if (user && user.whatsapp) { %>
+                <div class="dropdown-user-contact"><i class="fab fa-whatsapp mr-1"></i><%= user.whatsapp %></div>
+              <% } %>
+            </div>
+            
+            <a href="/profile" class="dropdown-item">
+              <i class="fas fa-user-circle"></i>
+              <span>Profil Saya</span>
+            </a>
+            
+            <a href="/settings" class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              <span>Pengaturan</span>
+            </a>
+            
+            <div class="dropdown-divider"></div>
+            
+            <a href="/logout" class="dropdown-item logout">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Keluar</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Enhanced Dropdown Toggle Script -->
+<script>
+(function() {
+  'use strict';
+  
+  // Wait for DOM to be fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUserMenu);
+  } else {
+    initUserMenu();
+  }
+  
+  function initUserMenu() {
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userMenu = document.getElementById('userMenu');
+    
+    console.log('=== User Menu Debug ===');
+    console.log('Button element:', userMenuBtn);
+    console.log('Menu element:', userMenu);
+    console.log('Button classes:', userMenuBtn ? userMenuBtn.className : 'null');
+    console.log('Menu classes:', userMenu ? userMenu.className : 'null');
+    
+    if (!userMenuBtn || !userMenu) {
+      console.error('❌ Elements not found!');
+      return;
+    }
+    
+    // Force initial state
+    userMenu.classList.remove('show');
+    console.log('✅ Initial state set');
+    
+    // Button click handler
+    userMenuBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      
+      const wasShowing = userMenu.classList.contains('show');
+      console.log('🖱️ Button clicked! Current state:', wasShowing ? 'OPEN' : 'CLOSED');
+      
+      // Toggle the class
+      if (wasShowing) {
+        userMenu.classList.remove('show');
+        console.log('➡️ Closing menu');
+      } else {
+        userMenu.classList.add('show');
+        console.log('➡️ Opening menu');
+      }
+      
+      // Log final state
+      setTimeout(() => {
+        console.log('✅ Final state:', userMenu.classList.contains('show') ? 'OPEN' : 'CLOSED');
+        console.log('Menu styles:', window.getComputedStyle(userMenu).opacity, window.getComputedStyle(userMenu).visibility);
+      }, 100);
+      
+      return false;
+    }, true); // Use capture phase
+    
+    // Close when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+        if (userMenu.classList.contains('show')) {
+          console.log('🔒 Closing (outside click)');
+          userMenu.classList.remove('show');
+        }
+      }
+    });
+    
+    // Close with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && userMenu.classList.contains('show')) {
+        console.log('🔒 Closing (Escape)');
+        userMenu.classList.remove('show');
+      }
+    });
+    
+    console.log('✅ User menu initialized successfully');
+  }
+})();
+</script>

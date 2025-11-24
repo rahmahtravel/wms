@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { title: 'Kategori Barang' }) %>
+  <style>
+    /* Gradient Header Styles */
+    :root {
+      --primary-color: #f9a825;
+      --primary-light: #ffd54f;
+      --primary-dark: #f57f17;
+    }
+
+    .gradient-header {
+      background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-light) 100%
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.6;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .animate-pulse-soft {
+      animation: pulse-soft 3s ease-in-out infinite;
+    }
+
+    .primary-gradient {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    }
+
+    .bg-primary-gradient {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    }
+
+    .text-primary {
+      color: var(--primary-color);
+    }
+
+    .text-primary-dark {
+      color: var(--primary-dark);
+    }
+
+    .bg-primary {
+      background-color: var(--primary-color);
+    }
+
+    .bg-primary-dark {
+      background-color: var(--primary-dark);
+    }
+
+    .hover\:from-primary-dark:hover {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+    }
+    /* Modern Table Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .category-row {
+      animation: fadeInUp 0.3s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .category-row:nth-child(1) { animation-delay: 0.05s; }
+    .category-row:nth-child(2) { animation-delay: 0.1s; }
+    .category-row:nth-child(3) { animation-delay: 0.15s; }
+    .category-row:nth-child(4) { animation-delay: 0.2s; }
+    .category-row:nth-child(5) { animation-delay: 0.25s; }
+
+    /* Hover Effects */
+    .category-row:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(249, 168, 37, 0.2);
+    }
+
+    /* Button Hover Effects */
+    button[onclick*="editCategory"]:hover,
+    button[onclick*="deleteCategory"]:hover {
+      animation: pulse 0.6s ease-in-out infinite;
+    }
+
+    /* Table Header Gradient Animation */
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    #categoriesTable thead {
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+    }
+
+    /* Custom Scrollbar */
+    .overflow-x-auto::-webkit-scrollbar {
+      height: 8px;
+    }
+
+    .overflow-x-auto::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+      background: linear-gradient(to right, #f9a825, #ffd54f);
+      border-radius: 10px;
+    }
+
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(to right, #f57f17, #f9a825);
+    }
+
+    /* Mobile Card Animation */
+    @media (max-width: 640px) {
+      .block.sm\:hidden > div {
+        animation: fadeInUp 0.4s ease-out;
+        animation-fill-mode: both;
+      }
+    }
+
+    /* Tooltip Enhancement */
+    .group\/btn:hover span {
+      animation: fadeInUp 0.2s ease-out;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/sidebar') %>
+
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 lg:p-8 transition-all duration-300 min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-yellow-50">
+    <!-- Page Header - Ultra Modern Design (Dashboard Style) -->
+    <div class="mb-8 animate-fadeInUp">
+      <div class="rounded-2xl overflow-hidden shadow-2xl">
+        <div class="gradient-header text-white p-8 md:p-10">
+          
+          <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <!-- Modern Logo Container -->
+              <div class="flex-none">
+                <div class="relative group">
+                  <div class="absolute inset-0 bg-white opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
+                  <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                    <img src="/images/logo.png" alt="Logo" class="max-h-16 md:max-h-20 max-w-full object-contain">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Text Content -->
+              <div class="flex-1 text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-black leading-tight text-white mb-2 tracking-tight">
+                  Kategori Barang
+                </h1>
+                <p class="text-base md:text-lg text-white/90 font-medium max-w-2xl">
+                  Kelola kategori barang untuk klasifikasi produk
+                </p>
+              </div>
+
+              <!-- Quick Stats Badge & Action Button -->
+              <div class="flex-none hidden lg:block">
+                <div class="rounded-2xl p-4">
+                  <button onclick="openModal()" class="w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105 mb-3">
+                    <i class="fas fa-plus mr-2"></i>Tambah Kategori
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Action Button -->
+            <div class="flex-none lg:hidden w-full md:w-auto mt-4">
+              <button onclick="openModal()" class="w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                <i class="fas fa-plus mr-2"></i>Tambah Kategori
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Cari kategori..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+          </div>
+        </div>
+        <button onclick="location.reload()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Categories Table -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+      <% if (categories && categories.length > 0) { %>
+        <!-- Table Header Stats -->
+        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 px-6 py-4 border-b border-orange-100">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-primary-gradient rounded-lg flex items-center justify-center shadow-md">
+                <i class="fas fa-database text-white"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-gray-700">Total Kategori</h3>
+                <p class="text-2xl font-bold text-primary"><%= categories.length %></p>
+              </div>
+            </div>
+            <div class="hidden md:flex items-center gap-2 text-sm text-gray-600">
+              <i class="fas fa-info-circle text-primary"></i>
+              <span>Data dari tabel <code class="bg-white px-2 py-1 rounded text-xs font-mono">purchasing_categories</code></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table id="categoriesTable" class="min-w-full table-auto">
+            <thead class="bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
+              <tr>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-hashtag"></i>
+                    <span>No</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-tag"></i>
+                    <span>Nama Kategori</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-calendar"></i>
+                    <span>Dibuat</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-clock"></i>
+                    <span>Diperbarui</span>
+                  </div>
+                </th>
+                <th class="px-6 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-cog"></i>
+                    <span>Aksi</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <% categories.forEach((category, index) => { %>
+                <tr class="category-row hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200 group">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 text-white text-sm font-bold shadow-md">
+                        <%= index + 1 %>
+                      </span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div>
+                        <div class="text-sm font-bold text-gray-900"><%= category.name %></div>
+                        <div class="text-xs text-gray-500 flex items-center gap-1 mt-1 hidden">
+                          <i class="fas fa-fingerprint"></i>
+                          <span>ID: <%= category.id %></span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-700">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-calendar-plus text-green-500"></i>
+                        <span class="font-medium"><%= new Date(category.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) %></span>
+                      </div>
+                      <div class="text-xs text-gray-500 mt-1">
+                        <%= new Date(category.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %> WIB
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-700">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-clock text-blue-500"></i>
+                        <span class="font-medium"><%= new Date(category.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) %></span>
+                      </div>
+                      <div class="text-xs text-gray-500 mt-1">
+                        <%= new Date(category.updated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %> WIB
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="inline-flex items-center gap-2">
+                      <button onclick="editCategory('<%= category.id %>')" 
+                              class="group/btn relative p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                              title="Edit Kategori">
+                        <i class="fas fa-edit"></i>
+                        <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Edit
+                        </span>
+                      </button>
+                      <button onclick="deleteCategory('<%= category.id %>')" 
+                              class="group/btn relative p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                              title="Hapus Kategori">
+                        <i class="fas fa-trash"></i>
+                        <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Hapus
+                        </span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Responsive Cards (shown only on small screens) -->
+        <div class="block sm:hidden divide-y divide-gray-200">
+          <% categories.forEach((category, index) => { %>
+            <div class="p-4 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 text-white text-sm font-bold shadow-md">
+                    <%= index + 1 %>
+                  </span>
+                  <div class="w-10 h-10 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-md">
+                    <i class="fas fa-tag text-white"></i>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="editCategory('<%= category.id %>')" 
+                          class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md">
+                    <i class="fas fa-edit text-sm"></i>
+                  </button>
+                  <button onclick="deleteCategory('<%= category.id %>')" 
+                          class="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-md">
+                    <i class="fas fa-trash text-sm"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mb-3">
+                <h3 class="text-base font-bold text-gray-900 mb-1"><%= category.name %></h3>
+                <p class="text-xs text-gray-500 flex items-center gap-1">
+                  <i class="fas fa-fingerprint"></i>
+                  <span>ID: <%= category.id %></span>
+                </p>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="bg-green-50 rounded-lg p-2">
+                  <div class="flex items-center gap-1 text-green-600 mb-1">
+                    <i class="fas fa-calendar-plus"></i>
+                    <span class="font-semibold">Dibuat</span>
+                  </div>
+                  <div class="text-gray-700 font-medium">
+                    <%= new Date(category.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                  </div>
+                  <div class="text-gray-500 text-xs mt-0.5">
+                    <%= new Date(category.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %>
+                  </div>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-2">
+                  <div class="flex items-center gap-1 text-blue-600 mb-1">
+                    <i class="fas fa-clock"></i>
+                    <span class="font-semibold">Diperbarui</span>
+                  </div>
+                  <div class="text-gray-700 font-medium">
+                    <%= new Date(category.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+                  </div>
+                  <div class="text-gray-500 text-xs mt-0.5">
+                    <%= new Date(category.updated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="p-12 text-center">
+          <i class="fas fa-tags text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Kategori</h3>
+          <p class="text-gray-500 mb-6">Mulai dengan menambahkan kategori pertama Anda</p>
+          <button onclick="openModal()" class="inline-flex items-center px-5 py-2.5 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+            <i class="fas fa-plus mr-2"></i>Tambah Kategori
+          </button>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <!-- Modal Form -->
+  <div id="modalForm" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all">
+      <div class="bg-primary-gradient text-white p-6 rounded-t-2xl">
+        <h2 class="text-2xl font-bold" id="modalTitle">Tambah Kategori</h2>
+      </div>
+      <form id="categoryForm" class="p-6">
+        <input type="hidden" id="categoryId">
+        <div class="mb-6">
+          <label class="block text-gray-700 font-medium mb-2">
+            <i class="fas fa-tag mr-2 text-primary"></i>Nama Kategori
+          </label>
+          <input type="text" id="categoryName" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Contoh: Elektronik, Makanan, dll">
+        </div>
+        <div class="flex gap-3">
+          <button type="button" onclick="closeModal()" class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit" class="flex-1 px-4 py-3 bg-primary-gradient text-white rounded-lg hover:from-primary-dark hover:to-primary transition font-medium shadow-md">
+            <i class="fas fa-save mr-2"></i>Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+
+  <script>
+    function openModal(id = null) {
+      const modal = document.getElementById('modalForm');
+      const form = document.getElementById('categoryForm');
+      const title = document.getElementById('modalTitle');
+      
+      if (id) {
+        title.textContent = 'Edit Kategori';
+        // Load data untuk edit
+        fetch(`/categories/${id}`)
+          .then(r => r.json())
+          .then(data => {
+            document.getElementById('categoryId').value = data.id;
+            document.getElementById('categoryName').value = data.name;
+          });
+      } else {
+        title.textContent = 'Tambah Kategori';
+        form.reset();
+      }
+      
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modalForm');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('categoryForm').reset();
+    }
+
+    function editCategory(id) {
+      openModal(id);
+    }
+
+    function deleteCategory(id) {
+      swalConfirmFetch(`/categories/${id}`, { method: 'DELETE' }, 'Kategori berhasil dihapus', 'Gagal menghapus kategori');
+    }
+
+    document.getElementById('categoryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const id = document.getElementById('categoryId').value;
+      const name = document.getElementById('categoryName').value;
+      
+      const url = id ? `/categories/${id}` : '/categories';
+      const method = id ? 'PUT' : 'POST';
+      
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      })
+      .then(res => res.json().catch(() => ({})))
+      .then(data => {
+        if (data && data.success) {
+          closeModal();
+          swalSuccess('Kategori berhasil disimpan', true);
+        } else {
+          swalError(data && data.error ? data.error : 'Gagal menyimpan kategori');
+        }
+      })
+      .catch(err => swalError(err.message));
+    });
+
+    // Search functionality (filter table rows and mobile cards)
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const search = e.target.value.toLowerCase();
+      
+      // Filter desktop table rows
+      document.querySelectorAll('#categoriesTable tbody tr.category-row').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+      });
+      
+      // Filter mobile cards
+      document.querySelectorAll('.block.sm\\:hidden > div').forEach(card => {
+        if (card.classList.contains('p-4')) {
+          const text = card.textContent.toLowerCase();
+          card.style.display = text.includes(search) ? '' : 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

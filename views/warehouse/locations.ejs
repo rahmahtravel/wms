@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { title: 'Lokasi Gudang' }) %>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/sidebar') %>
+
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 min-h-screen transition-all duration-300">
+    <div class="mb-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-warehouse text-primary mr-3"></i>
+            Lokasi Gudang
+          </h1>
+          <p class="text-gray-600 mt-1">Kelola lokasi gudang dan cabang</p>
+        </div>
+        <button onclick="openModal()" class="inline-flex items-center px-5 py-2.5 bg-primary-gradient text-white rounded-lg hover:from-primary-dark hover:to-primary transition-all shadow-md hover:shadow-lg">
+          <i class="fas fa-plus mr-2"></i>Tambah Lokasi
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <input type="text" id="searchInput" placeholder="Cari lokasi..." class="w-full px-4 py-2 border rounded-lg">
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% if (locations && locations.length > 0) { %>
+        <% locations.forEach(location => { %>
+          <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition p-6">
+              <div class="flex justify-between items-start mb-4">
+                <div class="w-12 h-12 bg-primary-gradient rounded-lg flex items-center justify-center">
+                <i class="fas fa-warehouse text-white text-xl"></i>
+              </div>
+              <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"><%= location.tipe_lokasi %></span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2"><%= location.nama_lokasi %></h3>
+            <p class="text-sm text-gray-600 mb-3"><%= location.kode_lokasi %></p>
+            <% if (location.alamat) { %>
+              <p class="text-sm text-gray-500 mb-3 line-clamp-2"><i class="fas fa-map-marker-alt mr-2"></i><%= location.alamat %></p>
+            <% } %>
+            <div class="flex gap-2 mt-4">
+              <button onclick="editLocation(<%= location.id %>)" class="flex-1 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button onclick="deleteLocation(<%= location.id %>)" class="flex-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-span-full text-center py-12">
+          <i class="fas fa-warehouse text-6xl text-gray-300 mb-4"></i>
+          <p class="text-gray-500">Belum ada lokasi gudang</p>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <!-- Modal (simplified for demo) -->
+  <div id="modalForm" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6">
+      <h2 class="text-2xl font-bold mb-4">Form Lokasi Gudang</h2>
+      <form id="locationForm" method="POST" data-ajax="true">
+        <input type="hidden" id="locationId">
+        <div class="grid grid-cols-2 gap-4">
+          <div><label class="block mb-2">Kode Lokasi</label><input type="text" id="kode_lokasi" required class="w-full px-4 py-2 border rounded-lg"></div>
+          <div><label class="block mb-2">Nama Lokasi</label><input type="text" id="nama_lokasi" required class="w-full px-4 py-2 border rounded-lg"></div>
+          <div><label class="block mb-2">Tipe</label><select id="tipe_lokasi" class="w-full px-4 py-2 border rounded-lg"><option>HQ</option><option>Branch</option><option>Transit</option></select></div>
+          <div><label class="block mb-2">Telepon</label><input type="text" id="telepon" class="w-full px-4 py-2 border rounded-lg"></div>
+          <div class="col-span-2"><label class="block mb-2">Alamat</label><textarea id="alamat" class="w-full px-4 py-2 border rounded-lg" rows="2"></textarea></div>
+          <div><label class="block mb-2">PIC</label><input type="text" id="pic" class="w-full px-4 py-2 border rounded-lg"></div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeModal()" class="flex-1 px-4 py-2 border rounded-lg">Batal</button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+  <script>
+    function openModal(id=null){document.getElementById('modalForm').classList.add('flex');document.getElementById('modalForm').classList.remove('hidden');}
+    function closeModal(){document.getElementById('modalForm').classList.add('hidden');document.getElementById('modalForm').classList.remove('flex');}
+    function editLocation(id){openModal(id);}
+    function deleteLocation(id){
+      swalConfirmFetch(`/warehouse/locations/delete/${id}`, { method: 'POST' }, 'Lokasi berhasil dihapus', 'Gagal menghapus lokasi');
+    }
+  </script>
+</body>
+</html>

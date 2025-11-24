@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { title: 'Stock Opname' }) %>
+  <style>
+    /* Gradient Header Styles - Purple-Pink Theme */
+    :root {
+      --primary-color: #f9a825;
+      --primary-light: #ffd54f;
+      --primary-dark: #f57f17;
+    }
+
+    .gradient-header {
+      background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-light) 100%
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.6;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .animate-pulse-soft {
+      animation: pulse-soft 3s ease-in-out infinite;
+    }
+
+    .bg-primary-gradient {
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    }
+
+    .text-primary {
+      color: var(--primary-color);
+    }
+
+    .text-primary-dark {
+      color: var(--primary-dark);
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/sidebar') %>
+
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 lg:p-8 transition-all duration-300 min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-pink-50">
+    <!-- Page Header - Ultra Modern Design -->
+    <div class="mb-8 animate-fadeInUp">
+      <div class="rounded-2xl overflow-hidden shadow-2xl">
+        <div class="gradient-header text-white p-8 md:p-10">
+          
+          <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <!-- Modern Logo Container -->
+              <div class="flex-none">
+                <div class="relative group">
+                  <div class="absolute inset-0 bg-white opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
+                  <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                    <img src="/images/logo.png" alt="Logo" class="max-h-16 md:max-h-20 max-w-full object-contain">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Text Content -->
+              <div class="flex-1 text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-black leading-tight text-white mb-2 tracking-tight">
+                  Stock Opname Records
+                </h1>
+                <p class="text-base md:text-lg text-white/90 font-medium max-w-2xl">
+                  Kelola data stock opname untuk audit inventori gudang
+                </p>
+              </div>
+
+              <!-- Quick Stats Badge & Action Button -->
+              <div class="flex-none hidden lg:block">
+                <div class="rounded-2xl p-4">
+                  <button onclick="openCreateModal()" class="w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105 mb-3">
+                    <i class="fas fa-plus mr-2"></i>Tambah Data
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Action Button -->
+            <div class="flex-none lg:hidden w-full md:w-auto mt-4">
+              <button onclick="openCreateModal()" class="w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                <i class="fas fa-plus mr-2"></i>Tambah Data Opname
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Opname Table -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Kode Barang</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Nama Barang</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Jumlah</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Tanggal</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">User</th>
+              <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% if (opnameRecords && opnameRecords.length > 0) { %>
+              <% opnameRecords.forEach((record, index) => { %>
+                <tr class="hover:bg-purple-50 transition-colors">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="font-mono text-sm font-semibold text-gray-800 bg-purple-100 px-3 py-1.5 rounded"><%= record.kode_barang %></span>
+                  </td>
+                  <td class="px-6 py-4">
+                    <div class="font-medium text-gray-900"><%= record.nama_barang %></div>
+                    <% if (record.keterangan) { %>
+                      <div class="text-xs text-gray-500 mt-1 line-clamp-1"><%= record.keterangan %></div>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-lg font-bold text-purple-600"><%= record.jumlah %></span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <%= new Date(record.tanggal_stockopname).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if (record.status === 'completed') { %>
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i> Completed
+                      </span>
+                    <% } else if (record.status === 'applied') { %>
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <i class="fas fa-check-double mr-1"></i> Applied
+                      </span>
+                    <% } else { %>
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                        <i class="fas fa-clock mr-1"></i> Draft
+                      </span>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <div class="flex items-center">
+                      <i class="fas fa-user-circle text-purple-500 mr-2"></i>
+                      <%= record.user_name || '-' %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="flex items-center justify-center gap-2">
+                      <button onclick="viewDetail(<%= record.id %>)" class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors" title="Lihat Detail">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button onclick="editRecord(<%= record.id %>)" class="inline-flex items-center px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors" title="Edit">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button onclick="deleteRecord(<%= record.id %>)" class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors" title="Hapus">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="px-6 py-12 text-center">
+                  <div class="flex flex-col items-center justify-center">
+                    <i class="fas fa-clipboard-check text-purple-300 text-6xl mb-4"></i>
+                    <p class="text-gray-500 text-lg font-medium mb-2">Belum ada data stock opname</p>
+                    <p class="text-gray-400 text-sm mb-4">Mulai tambahkan data opname pertama Anda</p>
+                    <button onclick="openCreateModal()" class="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg font-semibold">
+                      <i class="fas fa-plus mr-2"></i>Tambah Data Pertama
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 flex justify-between items-center z-10">
+        <h2 class="text-xl font-bold">
+          <i class="fas fa-info-circle mr-2"></i>Detail Stock Opname
+        </h2>
+        <button onclick="closeDetailModal()" class="text-white hover:text-gray-200">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+      
+      <div id="detailContent" class="p-6">
+        <!-- Content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Session Modal -->
+  <div id="sessionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-4 flex justify-between items-center">
+        <h2 id="modalTitle" class="text-xl font-bold">
+          <i class="fas fa-clipboard-check mr-2"></i>Buat Sesi Opname
+        </h2>
+        <button onclick="closeModal()" class="text-white hover:text-gray-200">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+      
+      <form id="sessionForm" method="POST" action="/opname" class="p-6">
+        <input type="hidden" id="sessionId" name="id">
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-tag mr-1 text-purple-600"></i>Nama Sesi *
+            </label>
+            <input type="text" name="session_name" id="session_name" required
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                   placeholder="Opname Bulanan - Januari 2024">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-calendar mr-1 text-purple-600"></i>Tanggal Mulai *
+            </label>
+            <input type="datetime-local" name="tanggal_mulai" id="tanggal_mulai" required
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fas fa-warehouse mr-1 text-purple-600"></i>Lokasi Gudang
+              </label>
+              <select name="warehouse_id" id="warehouse_id"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                <option value="">Pilih Lokasi</option>
+                <% if (typeof warehouses !== 'undefined' && warehouses.length > 0) { %>
+                  <% warehouses.forEach(warehouse => { %>
+                    <option value="<%= warehouse.id %>"><%= warehouse.nama_lokasi || warehouse.location_name %></option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fas fa-building mr-1 text-purple-600"></i>Cabang
+              </label>
+              <select name="branch_id" id="branch_id"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                <option value="">Pilih Cabang</option>
+                <% if (typeof branches !== 'undefined' && branches.length > 0) { %>
+                  <% branches.forEach(branch => { %>
+                    <option value="<%= branch.id %>"><%= branch.nama_cabang || branch.name %></option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-sticky-note mr-1 text-purple-600"></i>Keterangan
+            </label>
+            <textarea name="keterangan" id="keterangan" rows="3"
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      placeholder="Catatan tambahan untuk sesi opname ini"></textarea>
+          </div>
+        </div>
+        
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeModal()"
+                  class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit"
+                  class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition font-medium shadow-lg">
+            <i class="fas fa-save mr-2"></i>Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+
+  <script>
+    // Detail Modal functions
+    async function viewDetail(id) {
+      try {
+        const response = await fetch(`/opname/record/${id}/data`);
+        if (!response.ok) throw new Error('Gagal memuat data');
+        
+        const record = await response.json();
+        
+        // Parse serial numbers
+        let serialNumbers = [];
+        if (record.no_seri_unit) {
+          try {
+            serialNumbers = typeof record.no_seri_unit === 'string' 
+              ? JSON.parse(record.no_seri_unit) 
+              : record.no_seri_unit;
+          } catch (e) {
+            serialNumbers = [];
+          }
+        }
+        
+        // Format date
+        const formatDate = (dateStr) => {
+          if (!dateStr) return '-';
+          return new Date(dateStr).toLocaleDateString('id-ID', { 
+            weekday: 'long',
+            day: '2-digit', 
+            month: 'long', 
+            year: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          });
+        };
+        
+        // Status badge HTML
+        const getStatusBadge = (status) => {
+          if (status === 'completed') {
+            return '<span class="px-4 py-2 inline-flex text-sm font-semibold rounded-lg bg-green-100 text-green-800"><i class="fas fa-check-circle mr-2"></i> Completed</span>';
+          } else if (status === 'applied') {
+            return '<span class="px-4 py-2 inline-flex text-sm font-semibold rounded-lg bg-blue-100 text-blue-800"><i class="fas fa-check-double mr-2"></i> Applied</span>';
+          } else {
+            return '<span class="px-4 py-2 inline-flex text-sm font-semibold rounded-lg bg-gray-100 text-gray-800"><i class="fas fa-clock mr-2"></i> Draft</span>';
+          }
+        };
+        
+        // Serial numbers HTML
+        let serialHTML = '';
+        if (Array.isArray(serialNumbers) && serialNumbers.length > 0) {
+          serialHTML = `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+              <h3 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-purple-600">
+                <i class="fas fa-hashtag text-purple-600 mr-2"></i>Nomor Seri / Barcode
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                ${serialNumbers.map((serial, idx) => `
+                  <div class="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+                    <div class="text-xs text-gray-500 mb-1">Serial #${idx + 1}</div>
+                    <div class="font-mono font-semibold text-gray-800">${serial}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+        
+        // Notes HTML
+        let notesHTML = '';
+        if (record.keterangan) {
+          notesHTML = `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
+              <h3 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-purple-600">
+                <i class="fas fa-sticky-note text-purple-600 mr-2"></i>Keterangan
+              </h3>
+              <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                <p class="text-gray-700">${record.keterangan}</p>
+              </div>
+            </div>
+          `;
+        }
+        
+        // Build detail HTML
+        const detailHTML = `
+          <div class="space-y-4">
+            <!-- Main Information -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 class="text-lg font-bold text-gray-800 mb-4 pb-3 border-b-2 border-purple-600">
+                <i class="fas fa-info-circle text-purple-600 mr-2"></i>Informasi Barang
+              </h3>
+              
+              <div class="space-y-3">
+                <div class="flex border-b border-gray-100 pb-3">
+                  <div class="w-48 font-semibold text-gray-600">
+                    <i class="fas fa-barcode mr-2 text-purple-600"></i>Kode Barang
+                  </div>
+                  <div class="flex-1">
+                    <span class="font-mono font-semibold bg-purple-100 px-3 py-1 rounded">${record.kode_barang}</span>
+                  </div>
+                </div>
+                
+                <div class="flex border-b border-gray-100 pb-3">
+                  <div class="w-48 font-semibold text-gray-600">
+                    <i class="fas fa-box mr-2 text-purple-600"></i>Nama Barang
+                  </div>
+                  <div class="flex-1 font-semibold text-gray-800">${record.nama_barang}</div>
+                </div>
+                
+                <div class="flex border-b border-gray-100 pb-3">
+                  <div class="w-48 font-semibold text-gray-600">
+                    <i class="fas fa-cubes mr-2 text-purple-600"></i>Jumlah
+                  </div>
+                  <div class="flex-1">
+                    <span class="text-2xl font-bold text-purple-600">${record.jumlah}</span> <span class="text-gray-600">unit</span>
+                  </div>
+                </div>
+                
+                <div class="flex border-b border-gray-100 pb-3">
+                  <div class="w-48 font-semibold text-gray-600">
+                    <i class="fas fa-calendar-alt mr-2 text-purple-600"></i>Tanggal Opname
+                  </div>
+                  <div class="flex-1 text-gray-800">${formatDate(record.tanggal_stockopname)}</div>
+                </div>
+                
+                <div class="flex border-b border-gray-100 pb-3">
+                  <div class="w-48 font-semibold text-gray-600">
+                    <i class="fas fa-flag mr-2 text-purple-600"></i>Status
+                  </div>
+                  <div class="flex-1">${getStatusBadge(record.status)}</div>
+                </div>
+                
+                <div class="flex pb-3">
+                  <div class="w-48 font-semibold text-gray-600">
+                    <i class="fas fa-user-circle mr-2 text-purple-600"></i>User
+                  </div>
+                  <div class="flex-1 text-gray-800">${record.user_name || '-'}</div>
+                </div>
+              </div>
+            </div>
+            
+            ${serialHTML}
+            ${notesHTML}
+            
+            <!-- Metadata -->
+            <div class="bg-gray-50 rounded-xl border border-gray-200 p-6">
+              <h3 class="text-base font-bold text-gray-700 mb-3">
+                <i class="fas fa-clock mr-2 text-gray-600"></i>Informasi Sistem
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600">
+                <div>
+                  <span class="font-semibold">Dibuat:</span> ${formatDate(record.created_at)}
+                </div>
+                <div>
+                  <span class="font-semibold">Diupdate:</span> ${formatDate(record.updated_at)}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        document.getElementById('detailContent').innerHTML = detailHTML;
+        document.getElementById('detailModal').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading detail:', error);
+        swalError('Gagal memuat detail data');
+      }
+    }
+    
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      document.getElementById('detailContent').innerHTML = '';
+    }
+    
+    // Modal functions
+    function openCreateModal() {
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-clipboard-check mr-2"></i>Tambah Data Opname';
+      document.getElementById('sessionForm').reset();
+      document.getElementById('sessionId').value = '';
+      document.getElementById('sessionForm').action = '/opname';
+      
+      // Set default date to now
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('tanggal_mulai').value = now.toISOString().slice(0, 16);
+      
+      document.getElementById('sessionModal').classList.remove('hidden');
+    }
+    
+    async function editRecord(id) {
+      try {
+        const response = await fetch(`/opname/session/${id}/data`);
+        const record = await response.json();
+        
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit mr-2"></i>Edit Data Opname';
+        document.getElementById('sessionId').value = record.id;
+        document.getElementById('session_name').value = record.session_name || '';
+        
+        // Format datetime for input
+        const date = new Date(record.tanggal_mulai || record.tanggal_stockopname);
+        date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+        document.getElementById('tanggal_mulai').value = date.toISOString().slice(0, 16);
+        
+        document.getElementById('warehouse_id').value = record.warehouse_id || '';
+        document.getElementById('branch_id').value = record.branch_id || '';
+        document.getElementById('keterangan').value = record.keterangan || '';
+        
+        document.getElementById('sessionForm').action = `/opname/update/${id}`;
+        document.getElementById('sessionModal').classList.remove('hidden');
+      } catch (error) {
+        swalError('Gagal memuat data opname');
+      }
+    }
+    
+    function closeModal() {
+      document.getElementById('sessionModal').classList.add('hidden');
+      document.getElementById('sessionForm').reset();
+    }
+    
+    async function deleteRecord(id) {
+      swalConfirmFetch(`/opname/delete/${id}`, { method: 'POST' }, 
+        'Data opname berhasil dihapus', 'Gagal menghapus data opname');
+    }
+    
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        closeDetailModal();
+      }
+    });
+  </script>
+</body>
+</html>

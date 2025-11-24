@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> - Rahmah Travel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --primary-color: #f9a825; --primary-light: #ffd54f; --primary-dark: #f57f17; }
+    .bg-primary { background-color: var(--primary-color); }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-primary shadow-lg fixed w-full z-50 top-0">
+    <div class="px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-boxes text-white text-2xl"></i>
+          <span class="text-white font-bold text-xl">Rahmah Travel P&L</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="mt-16 p-4 md:p-8 max-w-3xl mx-auto">
+    <div class="mb-6">
+      <a href="/branches" class="text-gray-600 hover:text-gray-900 inline-flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Cabang
+      </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+      <h1 class="text-2xl font-bold text-gray-800 mb-6"><%= title %></h1>
+
+      <form action="/branches/edit/<%= branch.id %>" method="POST" data-ajax="true">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-semibold mb-2" for="nama_cabang">
+            Nama Cabang <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="nama_cabang"
+            name="nama_cabang"
+            value="<%= branch.nama_cabang %>"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Masukkan nama cabang"
+          >
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-semibold mb-2" for="deskripsi">
+            Deskripsi
+          </label>
+          <textarea
+            id="deskripsi"
+            name="deskripsi"
+            rows="2"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Deskripsi singkat cabang"
+          ><%= branch.deskripsi || '' %></textarea>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-semibold mb-2" for="alamat">
+            Alamat
+          </label>
+          <textarea
+            id="alamat"
+            name="alamat"
+            rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Masukkan alamat lengkap"
+          ><%= branch.alamat || '' %></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-gray-700 text-sm font-semibold mb-2" for="telepon">
+              Telepon
+            </label>
+            <input
+              type="text"
+              id="telepon"
+              name="telepon"
+              value="<%= branch.telepon || '' %>"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Nomor telepon"
+            >
+          </div>
+
+          <div>
+            <label class="block text-gray-700 text-sm font-semibold mb-2" for="whatsapp">
+              WhatsApp
+            </label>
+            <input
+              type="text"
+              id="whatsapp"
+              name="whatsapp"
+              value="<%= branch.whatsapp || '' %>"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              placeholder="Nomor WhatsApp"
+            >
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 text-sm font-semibold mb-2" for="email">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="<%= branch.email || '' %>"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Email cabang"
+          >
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button
+            type="submit"
+            class="flex-1 bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark transition font-semibold"
+          >
+            <i class="fas fa-save mr-2"></i> Update
+          </button>
+          <a
+            href="/branches"
+            class="flex-1 text-center bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition font-semibold"
+          >
+            <i class="fas fa-times mr-2"></i> Batal
+          </a>
+        </div>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

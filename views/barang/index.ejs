@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { title: 'Data Barang' }) %>
+  <style>
+    /* Gradient Header Styles */
+    :root {
+      --primary-color: #f9a825;
+      --primary-light: #ffd54f;
+      --primary-dark: #f57f17;
+    }
+
+    .gradient-header {
+      background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-light) 100%
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.6;
+    }
+
+    /* Modern Table Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% {
+        opacity: 0.05;
+      }
+      50% {
+        opacity: 0.1;
+      }
+    }
+
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .animate-pulse-soft {
+      animation: pulse-soft 3s ease-in-out infinite;
+    }
+
+    .barang-row {
+      animation: fadeInUp 0.3s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .barang-row:nth-child(1) { animation-delay: 0.05s; }
+    .barang-row:nth-child(2) { animation-delay: 0.1s; }
+    .barang-row:nth-child(3) { animation-delay: 0.15s; }
+    .barang-row:nth-child(4) { animation-delay: 0.2s; }
+    .barang-row:nth-child(5) { animation-delay: 0.25s; }
+
+    /* Hover Effects */
+    .barang-row:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 12px rgba(249, 168, 37, 0.2);
+    }
+
+    /* Button Hover Effects */
+    button[onclick*="editBarang"]:hover,
+    button[onclick*="deleteBarang"]:hover {
+      animation: pulse 0.6s ease-in-out infinite;
+    }
+
+    /* Table Header Gradient Animation */
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    thead {
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+    }
+
+    
+
+    /* Mobile Card Animation */
+    @media (max-width: 768px) {
+      .mobile-card {
+        animation: fadeInUp 0.4s ease-out;
+        animation-fill-mode: both;
+      }
+    }
+
+    /* Badge Styles */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-success { background-color: #d1fae5; color: #065f46; }
+    .badge-warning { background-color: #fef3c7; color: #92400e; }
+    .badge-info { background-color: #dbeafe; color: #1e40af; }
+    .badge-danger { background-color: #fee2e2; color: #991b1b; }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .modal-content {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 1.5rem;
+      padding: 2px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* Form Input Styles */
+    .form-input, .form-select {
+      background-color: rgba(51, 65, 85, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus, .form-select:focus {
+      background-color: rgba(51, 65, 85, 0.7);
+      border-color: #fbbf24;
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+      outline: none;
+    }
+
+    .form-input::placeholder {
+      color: rgba(203, 213, 225, 0.5);
+    }
+
+    /* Gradient Text */
+    .gradient-text {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/sidebar') %>
+
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 lg:p-8 transition-all duration-300 min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-yellow-50">
+    <!-- Page Header - Ultra Modern Design -->
+    <div class="mb-8 animate-fadeInUp">
+      <div class="rounded-2xl overflow-hidden shadow-2xl">
+        <div class="gradient-header text-white p-8 md:p-10">
+          <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <!-- Modern Logo Container -->
+              <div class="flex-none">
+                <div class="relative group">
+                  <div class="absolute inset-0 bg-white opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
+                  <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                    <img src="/images/logo.png" alt="Logo" class="max-h-16 md:max-h-20 max-w-full object-contain p-3">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Text Content -->
+              <div class="flex-1 text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-black leading-tight text-white mb-2 tracking-tight">
+                  Data Barang
+                </h1>
+                <p class="text-base md:text-lg text-white/90 font-medium max-w-2xl">
+                  Kelola data barang untuk manajemen inventory
+                </p>
+              </div>
+
+              <!-- Quick Stats Badge & Action Button -->
+              <div class="flex-none hidden lg:block">
+                <div class="rounded-2xl p-4">
+                  <button onclick="openCreateModal()" class="block w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105 mb-3 text-center">
+                    <i class="fas fa-plus mr-2"></i>Tambah Barang
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Action Button -->
+            <div class="flex-none lg:hidden w-full md:w-auto mt-4">
+              <button onclick="openCreateModal()" class="block w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105 text-center">
+                <i class="fas fa-plus mr-2"></i>Tambah Barang
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Cari kode barang, nama barang, kategori..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+          </div>
+        </div>
+        <button onclick="location.reload()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+          <i class="fas fa-sync-alt mr-2"></i>Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Table View -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+      <% if (barang && barang.length > 0) { %>
+        <!-- Table Header Stats -->
+        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 px-6 py-4 border-b border-orange-100">
+          <div class="flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-primary-gradient rounded-lg flex items-center justify-center shadow-md">
+                <i class="fas fa-database text-white"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold text-gray-700">Total Barang</h3>
+                <p class="text-2xl font-bold text-primary"><%= barang.length %></p>
+              </div>
+            </div>
+            <div class="hidden md:flex items-center gap-2 text-sm text-gray-600">
+              <i class="fas fa-info-circle text-primary"></i>
+              <span>Data dari tabel <code class="bg-white px-2 py-1 rounded text-xs font-mono">purchasing_barang</code></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block overflow-x-auto">
+          <table class="w-full table-auto">
+            <thead class="bg-gradient-to-r from-orange-500 to-yellow-500 text-white">
+              <tr>
+                <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-hashtag"></i>
+                    <span>No</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-barcode"></i>
+                    <span>Kode</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-box"></i>
+                    <span>Nama Barang</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-tags"></i>
+                    <span>Kategori</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center gap-2">
+                    <i class="fas fa-layer-group"></i>
+                    <span>Jenis</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-cubes"></i>
+                    <span>Stock</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-balance-scale"></i>
+                    <span>Satuan</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Status</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-cog"></i>
+                    <span>Aksi</span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              <% barang.forEach((item, index) => { %>
+                <tr class="barang-row hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200 group">
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 text-white text-sm font-bold shadow-md">
+                      <%= index + 1 %>
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-2">
+                      <i class="fas fa-barcode text-primary"></i>
+                      <span class="font-mono text-sm font-semibold text-gray-900"><%= item.kode_barang %></span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-200">
+                        <i class="fas fa-box text-white text-lg"></i>
+                      </div>
+                      <div>
+                        <div class="text-sm font-bold text-gray-900"><%= item.nama_barang %></div>
+                        <div class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                          <i class="fas fa-fingerprint"></i>
+                          <span>ID: <%= item.id_barang %></span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4">
+                    <span class="badge badge-info">
+                      <i class="fas fa-tag mr-1"></i>
+                      <%= item.category_name || 'Tidak Ada' %>
+                    </span>
+                  </td>
+                  <td class="px-4 py-4">
+                    <span class="badge badge-warning">
+                      <i class="fas fa-layer-group mr-1"></i>
+                      <%= item.nama_jenis || 'Tidak Ada' %>
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <div class="space-y-1">
+                      <div class="text-lg font-bold <%= item.stock_akhir <= item.stock_minimal ? 'text-red-600' : 'text-green-600' %>">
+                        <%= item.stock_akhir %>
+                      </div>
+                      <div class="text-xs text-gray-500">
+                        Min: <%= item.stock_minimal %>
+                      </div>
+                      <% if (item.stock_akhir <= item.stock_minimal) { %>
+                        <div class="text-xs text-red-600 font-semibold">
+                          <i class="fas fa-exclamation-triangle"></i> Low Stock
+                        </div>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <span class="badge badge-info uppercase">
+                      <%= item.satuan %>
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <div class="flex flex-col gap-1 items-center">
+                      <% if (item.is_required == 1) { %>
+                        <span class="badge badge-danger text-xs">
+                          <i class="fas fa-star mr-1"></i>Wajib
+                        </span>
+                      <% } %>
+                      <% if (item.is_dynamic == 1) { %>
+                        <span class="badge badge-info text-xs">
+                          <i class="fas fa-sync-alt mr-1"></i>Dinamis
+                        </span>
+                      <% } %>
+                      <% if (item.size_type && item.size_type !== 'none') { %>
+                        <span class="badge badge-warning text-xs">
+                          <i class="fas fa-ruler mr-1"></i>
+                          <%= item.size_type === 'clothing' ? 'Pakaian' : item.size_type === 'age_group' ? 'Usia' : item.size_type %>
+                        </span>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-center">
+                    <div class="inline-flex items-center gap-2">
+                      <button onclick="viewDetail('<%= item.id_barang %>')" 
+                              class="group/btn relative p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                              title="Lihat Detail">
+                        <i class="fas fa-eye"></i>
+                        <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Detail
+                        </span>
+                      </button>
+                      <a href="/barang/edit/<%= item.id_barang %>" 
+                         class="group/btn relative p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                         title="Edit Barang">
+                        <i class="fas fa-edit"></i>
+                        <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Edit
+                        </span>
+                      </a>
+                      <button onclick="deleteBarang('<%= item.id_barang %>')" 
+                              class="group/btn relative p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                              title="Hapus Barang">
+                        <i class="fas fa-trash"></i>
+                        <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                          Hapus
+                        </span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile/Tablet Card View -->
+        <div class="lg:hidden divide-y divide-gray-200">
+          <% barang.forEach((item, index) => { %>
+            <div class="mobile-card p-5 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200">
+              <!-- Header Card -->
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 text-white text-sm font-bold shadow-md">
+                    <%= index + 1 %>
+                  </span>
+                  <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-box text-white text-lg"></i>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="viewDetail('<%= item.id_barang %>')" 
+                          class="p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md">
+                    <i class="fas fa-eye text-sm"></i>
+                  </button>
+                  <a href="/barang/edit/<%= item.id_barang %>" 
+                     class="p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md inline-flex items-center justify-center">
+                    <i class="fas fa-edit text-sm"></i>
+                  </a>
+                  <button onclick="deleteBarang('<%= item.id_barang %>')" 
+                          class="p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-md">
+                    <i class="fas fa-trash text-sm"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Main Info -->
+              <div class="mb-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="badge badge-info text-xs">
+                    <i class="fas fa-barcode mr-1"></i><%= item.kode_barang %>
+                  </span>
+                  <span class="badge badge-info text-xs uppercase">
+                    <%= item.satuan %>
+                  </span>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2"><%= item.nama_barang %></h3>
+                <p class="text-xs text-gray-500 flex items-center gap-1 mb-3">
+                  <i class="fas fa-fingerprint"></i>
+                  <span>ID: <%= item.id_barang %></span>
+                </p>
+                <div class="flex flex-wrap gap-2 text-xs mb-3">
+                  <span class="badge badge-info">
+                    <i class="fas fa-tag mr-1"></i><%= item.category_name || 'Tidak Ada' %>
+                  </span>
+                  <span class="badge badge-warning">
+                    <i class="fas fa-layer-group mr-1"></i><%= item.nama_jenis || 'Tidak Ada' %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Stock Info -->
+              <div class="grid grid-cols-2 gap-2 mb-3">
+                <div class="<%= item.stock_akhir <= item.stock_minimal ? 'bg-red-50' : 'bg-green-50' %> rounded-lg p-3">
+                  <div class="flex items-center gap-1 <%= item.stock_akhir <= item.stock_minimal ? 'text-red-600' : 'text-green-600' %> mb-1">
+                    <i class="fas fa-cubes"></i>
+                    <span class="font-semibold text-xs">Stock Akhir</span>
+                  </div>
+                  <div class="text-2xl font-bold <%= item.stock_akhir <= item.stock_minimal ? 'text-red-600' : 'text-green-600' %>">
+                    <%= item.stock_akhir %>
+                  </div>
+                  <% if (item.stock_akhir <= item.stock_minimal) { %>
+                    <div class="text-xs text-red-600 font-semibold mt-1">
+                      <i class="fas fa-exclamation-triangle"></i> Low Stock
+                    </div>
+                  <% } %>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-3">
+                  <div class="flex items-center gap-1 text-blue-600 mb-1">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="font-semibold text-xs">Stock Minimal</span>
+                  </div>
+                  <div class="text-2xl font-bold text-blue-600">
+                    <%= item.stock_minimal %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Status Badges -->
+              <div class="flex flex-wrap gap-2">
+                <% if (item.is_required == 1) { %>
+                  <span class="badge badge-danger text-xs">
+                    <i class="fas fa-star mr-1"></i>Wajib
+                  </span>
+                <% } %>
+                <% if (item.is_dynamic == 1) { %>
+                  <span class="badge badge-info text-xs">
+                    <i class="fas fa-sync-alt mr-1"></i>Dinamis
+                  </span>
+                <% } %>
+                <% if (item.size_type && item.size_type !== 'none') { %>
+                  <span class="badge badge-warning text-xs">
+                    <i class="fas fa-ruler mr-1"></i>
+                    <%= item.size_type === 'clothing' ? 'Pakaian' : item.size_type === 'age_group' ? 'Usia' : item.size_type %>
+                  </span>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="p-12 text-center">
+          <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">Belum Ada Barang</h3>
+          <p class="text-gray-500 mb-6">Mulai dengan menambahkan barang pertama Anda</p>
+          <a href="/barang/create" class="inline-flex items-center px-5 py-2.5 bg-primary-gradient text-white rounded-lg hover:from-primary-dark hover:to-primary transition-all shadow-md hover:shadow-lg transform hover:scale-105">
+            <i class="fas fa-plus mr-2"></i>Tambah Barang
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+
+  <script>
+    function deleteBarang(id) {
+      swalConfirmFetch(`/barang/${id}`, { method: 'DELETE' }, 'Barang berhasil dihapus', 'Gagal menghapus barang');
+    }
+
+    // View detail function
+    function viewDetail(id) {
+      fetch(`/barang/${id}`)
+        .then(r => r.json())
+        .then(data => {
+          Swal.fire({
+            title: '<strong><i class="fas fa-box mr-2"></i>Detail Barang</strong>',
+            html: `
+              <div class="text-left space-y-4">
+                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg">
+                      <i class="fas fa-box text-white text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                      <h3 class="text-xl font-bold text-gray-900">${data.nama_barang}</h3>
+                      <p class="text-sm text-gray-600"><i class="fas fa-barcode mr-1"></i>${data.kode_barang}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-xs text-gray-600 mb-1"><i class="fas fa-fingerprint mr-1"></i>ID Barang</p>
+                    <p class="font-bold text-sm">${data.id_barang}</p>
+                  </div>
+                  <div class="bg-gray-50 rounded-lg p-3">
+                    <p class="text-xs text-gray-600 mb-1"><i class="fas fa-balance-scale mr-1"></i>Satuan</p>
+                    <p class="font-bold text-sm uppercase">${data.satuan}</p>
+                  </div>
+                  <div class="bg-blue-50 rounded-lg p-3">
+                    <p class="text-xs text-blue-600 mb-1"><i class="fas fa-tag mr-1"></i>Kategori</p>
+                    <p class="font-bold text-sm">${data.category_name || 'Tidak Ada'}</p>
+                  </div>
+                  <div class="bg-yellow-50 rounded-lg p-3">
+                    <p class="text-xs text-yellow-600 mb-1"><i class="fas fa-layer-group mr-1"></i>Jenis</p>
+                    <p class="font-bold text-sm">${data.nama_jenis || 'Tidak Ada'}</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="${data.stock_akhir <= data.stock_minimal ? 'bg-red-50' : 'bg-green-50'} rounded-lg p-4">
+                    <p class="text-xs ${data.stock_akhir <= data.stock_minimal ? 'text-red-600' : 'text-green-600'} font-semibold mb-1">
+                      <i class="fas fa-cubes mr-1"></i>Stock Akhir
+                    </p>
+                    <p class="text-3xl font-bold ${data.stock_akhir <= data.stock_minimal ? 'text-red-600' : 'text-green-600'}">${data.stock_akhir}</p>
+                    ${data.stock_akhir <= data.stock_minimal ? '<p class="text-xs text-red-600 font-semibold mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Low Stock</p>' : ''}
+                  </div>
+                  <div class="bg-blue-50 rounded-lg p-4">
+                    <p class="text-xs text-blue-600 font-semibold mb-1">
+                      <i class="fas fa-exclamation-triangle mr-1"></i>Stock Minimal
+                    </p>
+                    <p class="text-3xl font-bold text-blue-600">${data.stock_minimal}</p>
+                  </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <p class="text-sm font-semibold text-gray-700 mb-2"><i class="fas fa-info-circle mr-2"></i>Status & Properti:</p>
+                  <div class="flex flex-wrap gap-2">
+                    ${data.is_required == 1 ? '<span class="badge badge-danger"><i class="fas fa-star mr-1"></i>Wajib</span>' : ''}
+                    ${data.is_dynamic == 1 ? '<span class="badge badge-info"><i class="fas fa-sync-alt mr-1"></i>Dinamis</span>' : ''}
+                    ${data.size_type && data.size_type !== 'none' ? '<span class="badge badge-warning"><i class="fas fa-ruler mr-1"></i>' + (data.size_type === 'clothing' ? 'Pakaian' : data.size_type === 'age_group' ? 'Usia' : data.size_type) + '</span>' : ''}
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="bg-green-50 rounded-lg p-3">
+                    <p class="text-xs text-green-600 font-semibold mb-1"><i class="fas fa-calendar-plus mr-1"></i>Dibuat</p>
+                    <p class="font-bold text-sm text-gray-900">${new Date(data.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                    <p class="text-xs text-gray-500">${new Date(data.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</p>
+                  </div>
+                  <div class="bg-blue-50 rounded-lg p-3">
+                    <p class="text-xs text-blue-600 font-semibold mb-1"><i class="fas fa-clock mr-1"></i>Diperbarui</p>
+                    <p class="font-bold text-sm text-gray-900">${new Date(data.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                    <p class="text-xs text-gray-500">${new Date(data.updated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</p>
+                  </div>
+                </div>
+              </div>
+            `,
+            showCloseButton: true,
+            showConfirmButton: false,
+            width: '700px',
+            customClass: {
+              popup: 'rounded-2xl',
+              title: 'text-gray-900'
+            }
+          });
+        })
+        .catch(err => swalError('Gagal memuat detail barang'));
+    }
+
+    // Search functionality (filter desktop table rows and mobile cards)
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const search = e.target.value.toLowerCase();
+      
+      // Filter desktop table rows
+      document.querySelectorAll('.barang-row').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(search) ? '' : 'none';
+      });
+      
+      // Filter mobile cards
+      document.querySelectorAll('.mobile-card').forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(search) ? '' : 'none';
+      });
+    });
+
+    // Create Modal Functions
+    let categoriesData = [];
+    let jenisBarangData = [];
+
+    async function openCreateModal() {
+      // Load form data if not already loaded
+      if (categoriesData.length === 0 || jenisBarangData.length === 0) {
+        try {
+          const response = await fetch('/barang/form-data');
+          const data = await response.json();
+          categoriesData = data.categories;
+          jenisBarangData = data.jenisBarang;
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Gagal memuat data form',
+            background: '#1e293b',
+            color: '#fff'
+          });
+          return;
+        }
+      }
+
+      // Populate dropdowns
+      const categorySelect = document.getElementById('category_id');
+      const jenisSelect = document.getElementById('id_jenis_barang');
+      
+      categorySelect.innerHTML = '<option value="">Pilih Kategori</option>';
+      categoriesData.forEach(cat => {
+        categorySelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
+      });
+
+      jenisSelect.innerHTML = '<option value="">Pilih Jenis Barang</option>';
+      jenisBarangData.forEach(jenis => {
+        jenisSelect.innerHTML += `<option value="${jenis.id_jenis_barang}">${jenis.nama_jenis}</option>`;
+      });
+
+      document.getElementById('createModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModal').classList.add('hidden');
+      document.getElementById('createForm').reset();
+      document.body.style.overflow = 'auto';
+    }
+
+    // Handle form submission
+    document.getElementById('createForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      console.log('=== Form Submit Started ===');
+      
+      // Ambil nilai dari form
+      const category_id = document.getElementById('category_id').value;
+      const id_jenis_barang = document.getElementById('id_jenis_barang').value;
+      const kode_barang = document.getElementById('kode_barang').value.trim();
+      const nama_barang = document.getElementById('nama_barang').value.trim();
+      const satuan = document.getElementById('satuan').value;
+      const stock_minimal = document.getElementById('stock_minimal').value;
+      const size_type = document.getElementById('size_type').value;
+      const is_required = document.getElementById('is_required').checked;
+      const is_dynamic = document.getElementById('is_dynamic').checked;
+
+      console.log('Form values (raw):', {
+        category_id, id_jenis_barang, kode_barang, nama_barang, 
+        satuan, stock_minimal, size_type, is_required, is_dynamic
+      });
+
+      // Validasi field required
+      if (!category_id || !id_jenis_barang || !kode_barang || !nama_barang || !satuan) {
+        console.log('Validation failed: Missing required fields');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: 'Mohon lengkapi semua field yang wajib diisi (bertanda *)',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      // Validasi panjang karakter
+      if (kode_barang.length > 20) {
+        console.log('Validation failed: kode_barang too long');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: 'Kode Barang maksimal 20 karakter',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      if (nama_barang.length > 255) {
+        console.log('Validation failed: nama_barang too long');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: 'Nama Barang maksimal 255 karakter',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      // Validasi satuan
+      const validSatuan = ['pcs', 'set', 'pack'];
+      if (!validSatuan.includes(satuan)) {
+        console.log('Validation failed: invalid satuan:', satuan);
+        Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: 'Satuan harus pcs, set, atau pack',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      // Prepare data untuk dikirim - pastikan tipe data benar
+      const formData = {
+        category_id: parseInt(category_id) || null,
+        id_jenis_barang: parseInt(id_jenis_barang) || null,
+        kode_barang: kode_barang,
+        nama_barang: nama_barang,
+        satuan: satuan,
+        stock_minimal: parseInt(stock_minimal) || 10,
+        is_required: is_required ? 1 : 0,
+        is_dynamic: is_dynamic ? 1 : 0,
+        size_type: size_type || 'none'
+      };
+
+      console.log('=== Prepared form data ===');
+      console.log('Data to send:', JSON.stringify(formData, null, 2));
+
+      // Show loading
+      Swal.fire({
+        title: 'Menyimpan...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        console.log('=== Sending POST request ===');
+        const response = await fetch('/barang', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        console.log('=== Response received ===');
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+
+        const result = await response.json();
+        console.log('Response data:', result);
+
+        if (response.ok && result.success) {
+          console.log('=== INSERT SUCCESS ===');
+          console.log('Insert ID:', result.insertId);
+          
+          await Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            html: `
+              <p>Data barang berhasil ditambahkan ke database</p>
+              <p class="text-sm text-gray-600 mt-2">ID: ${result.insertId}</p>
+            `,
+            background: '#1e293b',
+            color: '#fff',
+            confirmButtonColor: '#f59e0b',
+            timer: 2000,
+            timerProgressBar: true
+          });
+          
+          location.reload();
+        } else {
+          throw new Error(result.error || 'Gagal menambahkan data');
+        }
+      } catch (error) {
+        console.error('=== FETCH ERROR ===');
+        console.error('Error:', error);
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          html: `
+            <p>${error.message || 'Terjadi kesalahan saat menyimpan data'}</p>
+            <p class="text-xs text-gray-400 mt-2">Silakan cek console browser (F12) untuk detail error</p>
+          `,
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#f59e0b'
+        });
+      }
+    });
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('createModal');
+        if (!modal.classList.contains('hidden')) {
+          closeCreateModal();
+        }
+      }
+    });
+  </script>
+
+  <!-- Create Modal -->
+  <div id="createModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="modal-content relative rounded-3xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fadeInUp">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold gradient-text">Tambah Barang Baru</h2>
+        <button onclick="closeCreateModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <form id="createForm" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Kategori -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Kategori <span class="text-red-400">*</span>
+            </label>
+            <select id="category_id" name="category_id" required class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="">Pilih Kategori</option>
+            </select>
+          </div>
+
+          <!-- Jenis Barang -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Jenis Barang <span class="text-red-400">*</span>
+            </label>
+            <select id="id_jenis_barang" name="id_jenis_barang" required class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="">Pilih Jenis Barang</option>
+            </select>
+          </div>
+
+          <!-- Kode Barang -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Kode Barang <span class="text-red-400">*</span>
+            </label>
+            <input type="text" id="kode_barang" name="kode_barang" required maxlength="20" class="form-input w-full px-4 py-2 rounded-xl text-white" placeholder="Contoh: BRG001">
+            <p class="text-xs text-gray-400 mt-1">Max 20 karakter</p>
+          </div>
+
+          <!-- Nama Barang -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Nama Barang <span class="text-red-400">*</span>
+            </label>
+            <input type="text" id="nama_barang" name="nama_barang" required maxlength="255" class="form-input w-full px-4 py-2 rounded-xl text-white" placeholder="Nama barang">
+            <p class="text-xs text-gray-400 mt-1">Max 255 karakter</p>
+          </div>
+
+          <!-- Satuan -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Satuan <span class="text-red-400">*</span>
+            </label>
+            <select id="satuan" name="satuan" required class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="">Pilih Satuan</option>
+              <option value="pcs">Pcs (Pieces)</option>
+              <option value="set">Set</option>
+              <option value="pack">Pack (Paket)</option>
+            </select>
+          </div>
+
+          <!-- Stock Minimal -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Stock Minimal <span class="text-red-400">*</span>
+            </label>
+            <input type="number" id="stock_minimal" name="stock_minimal" value="10" min="0" required class="form-input w-full px-4 py-2 rounded-xl text-white" placeholder="10">
+            <p class="text-xs text-gray-400 mt-1">Minimum stok untuk alert</p>
+          </div>
+
+          <!-- Size Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Tipe Ukuran
+            </label>
+            <select id="size_type" name="size_type" class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="none" selected>Tidak Ada</option>
+              <option value="clothing">Pakaian (S, M, L, XL)</option>
+              <option value="age_group">Kelompok Umur</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Checkboxes -->
+        <div class="bg-slate-700/30 rounded-xl p-4 mt-4">
+          <p class="text-sm font-medium text-gray-300 mb-3">
+            <i class="fas fa-cog mr-2"></i>Pengaturan Tambahan
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-start">
+              <input type="checkbox" id="is_required" name="is_required" value="1" class="w-5 h-5 text-amber-400 bg-slate-700 border-slate-600 rounded focus:ring-2 focus:ring-amber-400 mt-0.5">
+              <label for="is_required" class="ml-3">
+                <span class="text-sm font-medium text-gray-300 block">Wajib / Required</span>
+                <span class="text-xs text-gray-400">Item ini wajib ada untuk jamaah</span>
+              </label>
+            </div>
+            <div class="flex items-start">
+              <input type="checkbox" id="is_dynamic" name="is_dynamic" value="1" class="w-5 h-5 text-amber-400 bg-slate-700 border-slate-600 rounded focus:ring-2 focus:ring-amber-400 mt-0.5">
+              <label for="is_dynamic" class="ml-3">
+                <span class="text-sm font-medium text-gray-300 block">Dinamis / Dynamic</span>
+                <span class="text-xs text-gray-400">Stok dapat berubah dinamis</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex gap-3 pt-6">
+          <button type="button" onclick="closeCreateModal()" class="flex-1 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-xl transition-all">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl transition-all shadow-lg">
+            <i class="fas fa-save mr-2"></i>Simpan Data
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

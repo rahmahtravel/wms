@@ -1,0 +1,144 @@
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const mainContent = document.getElementById('mainContent');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const userMenuBtn = document.getElementById('userMenuBtn');
+  const userMenu = document.getElementById('userMenu');
+  let sidebarOpen = true;
+  
+  // User menu dropdown toggle
+  if (userMenuBtn) {
+    userMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userMenu.classList.toggle('hidden');
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      if (!userMenu.classList.contains('hidden')) {
+        userMenu.classList.add('hidden');
+      }
+    });
+    
+    userMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+  
+  // Sidebar toggle
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      if (window.innerWidth >= 768) {
+        sidebar.classList.toggle('sidebar-collapsed');
+        if (sidebarOpen) {
+          mainContent.classList.remove('ml-64');
+          mainContent.classList.add('ml-20');
+        } else {
+          mainContent.classList.remove('ml-20');
+          mainContent.classList.add('ml-64');
+        }
+        sidebarOpen = !sidebarOpen;
+      } else {
+        sidebar.classList.toggle('mobile-open');
+      }
+    });
+  }
+  
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth < 768 && sidebar && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+      sidebar.classList.remove('mobile-open');
+    }
+  });
+  
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768 && sidebar) {
+      sidebar.classList.remove('mobile-open');
+    }
+  });
+</script>
+
+<!-- SweetAlert2 helpers -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function swalSuccess(message, reload = true) {
+    Swal.fire({ icon: 'success', title: message || 'Berhasil', confirmButtonText: 'OK' }).then(() => {
+      if (reload) location.reload();
+    });
+  }
+
+  function swalError(message) {
+    Swal.fire({ icon: 'error', title: 'Gagal', text: message || 'Terjadi kesalahan' });
+  }
+
+  function swalConfirm(title = 'Konfirmasi', text = 'Apakah Anda yakin?', confirmText = 'Ya', onConfirm) {
+    Swal.fire({
+      title,
+      text,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: confirmText,
+      cancelButtonText: 'Batal'
+    }).then(result => {
+      if (result.isConfirmed && typeof onConfirm === 'function') onConfirm();
+    });
+  }
+
+  function swalConfirmFetch(url, options = {}, successMessage = 'Berhasil', failureMessage = 'Gagal', onSuccess) {
+    swalConfirm('Konfirmasi', 'Apakah Anda yakin?', 'Ya', () => {
+      const opts = Object.assign({}, options);
+      opts.headers = Object.assign({ 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }, opts.headers || {});
+      fetch(url, opts)
+        .then(res => res.json().catch(() => ({})))
+        .then(data => {
+          if (data && data.success) {
+            if (typeof onSuccess === 'function') {
+              // call the success callback instead of automatic reload
+              onSuccess(data);
+            } else {
+              swalSuccess(successMessage, true);
+            }
+          } else swalError(data && data.error ? data.error : failureMessage);
+        })
+        .catch(err => swalError(err.message));
+    });
+  }
+
+  function swalConfirmFormSubmit(form, text = 'Apakah Anda yakin?') {
+    Swal.fire({
+      title: 'Konfirmasi',
+      text: text,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Ya',
+      cancelButtonText: 'Batal'
+    }).then(result => {
+      if (result.isConfirmed) form.submit();
+    });
+  }
+
+  // Generic handler to convert regular forms into AJAX + SweetAlert enabled forms
+  document.querySelectorAll('form[data-ajax="true"]').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const action = form.getAttribute('action') || window.location.href;
+      const method = (form.getAttribute('method') || 'POST').toUpperCase();
+      const formData = new FormData(form);
+      const jsonBody = Object.fromEntries(formData.entries());
+      try {
+        const res = await fetch(action, {
+          method,
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+          body: JSON.stringify(jsonBody)
+        });
+        const data = await res.json().catch(() => ({}));
+        if (data && data.success) {
+          swalSuccess('Data berhasil disimpan', true);
+        } else {
+          swalError(data && data.error ? data.error : 'Gagal menyimpan data');
+        }
+      } catch (err) {
+        swalError(err.message);
+      }
+    });
+  });
+</script>
