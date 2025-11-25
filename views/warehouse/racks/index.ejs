@@ -138,7 +138,6 @@
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Nama Rak</th>
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Lokasi</th>
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Kapasitas</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
               <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
@@ -162,21 +161,10 @@
                     </div>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <% if (rack.kapasitas_berat) { %>
-                      <span class="text-sm text-gray-700"><%= rack.kapasitas_berat %> kg</span>
+                    <% if (rack.kapasitas_berat_kg) { %>
+                      <span class="text-sm text-gray-700"><%= rack.kapasitas_berat_kg %> kg</span>
                     <% } else { %>
                       <span class="text-sm text-gray-400">-</span>
-                    <% } %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <% if (rack.is_active) { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        <i class="fas fa-check-circle mr-1"></i> Aktif
-                      </span>
-                    <% } else { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        <i class="fas fa-times-circle mr-1"></i> Nonaktif
-                      </span>
                     <% } %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -191,7 +179,7 @@
               <% }); %>
             <% } else { %>
               <tr>
-                <td colspan="6" class="px-6 py-12 text-center">
+                <td colspan="5" class="px-6 py-12 text-center">
                   <i class="fas fa-th text-gray-300 text-6xl mb-4"></i>
                   <p class="text-gray-500 text-lg">Belum ada data rak</p>
                   <button onclick="openCreateModal()" class="mt-4 text-primary hover:text-primary-dark">
@@ -268,20 +256,9 @@
             <label class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-weight-hanging mr-1 text-primary"></i>Kapasitas Berat (kg)
             </label>
-            <input type="number" name="kapasitas_berat" id="kapasitas_berat" step="0.01"
+            <input type="number" name="kapasitas_berat_kg" id="kapasitas_berat_kg" step="0.01"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                    placeholder="1000">
-          </div>
-          
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              <i class="fas fa-toggle-on mr-1 text-primary"></i>Status
-            </label>
-            <select name="is_active" id="is_active"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-              <option value="1">Aktif</option>
-              <option value="0">Nonaktif</option>
-            </select>
           </div>
         </div>
         
@@ -337,8 +314,7 @@
         document.getElementById('kode_rak').value = rack.kode_rak;
         document.getElementById('nama_rak').value = rack.nama_rak;
         document.getElementById('deskripsi').value = rack.deskripsi || '';
-        document.getElementById('kapasitas_berat').value = rack.kapasitas_berat || '';
-        document.getElementById('is_active').value = rack.is_active;
+        document.getElementById('kapasitas_berat_kg').value = rack.kapasitas_berat_kg || '';
         
         document.getElementById('rackForm').action = `/warehouse/racks/update/${id}`;
         document.getElementById('rackModal').classList.remove('hidden');

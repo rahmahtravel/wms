@@ -49,6 +49,7 @@ router.get('/edit/:id', async (req, res) => {
   }
 });
 
+// Update via POST (for form submission)
 router.post('/update/:id', async (req, res) => {
   try {
     const { nama_jenis, deskripsi } = req.body;
@@ -62,21 +63,49 @@ router.post('/update/:id', async (req, res) => {
   }
 });
 
+// Update via PUT (for RESTful API)
+router.put('/:id', async (req, res) => {
+  try {
+    const { nama_jenis, deskripsi } = req.body;
+    
+    if (!nama_jenis || nama_jenis.trim() === '') {
+      return res.status(400).json({ error: 'Nama jenis tidak boleh kosong' });
+    }
+    
+    await db.query('UPDATE jenis_barang SET nama_jenis = ?, deskripsi = ? WHERE id = ?', 
+      [nama_jenis.trim(), deskripsi || null, req.params.id]);
+    
+    res.json({ success: true, message: 'Jenis barang berhasil diupdate' });
+  } catch (error) {
+    console.error('Error updating jenis barang:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get jenis_barang data as JSON for AJAX (detail view)
 router.get('/:id', async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT 
-        jb.*,
+        jb.id,
+        jb.nama_jenis,
+        jb.deskripsi,
+        jb.created_at,
+        jb.updated_at,
         COUNT(DISTINCT pb.id_barang) as total_items
       FROM jenis_barang jb
-      LEFT JOIN purchasing_barang pb ON jb.id = pb.id_jenis_barang
       LEFT JOIN purchasing_barang pb ON jb.id = pb.id_jenis_barang
       WHERE jb.id = ?
       GROUP BY jb.id, jb.nama_jenis, jb.deskripsi, jb.created_at, jb.updated_at
     `, [req.params.id]);
-    res.json(rows[0] || {});
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Jenis barang tidak ditemukan' });
+    }
+    
+    res.json(rows[0]);
   } catch (error) {
+    console.error('Error fetching jenis barang:', error);
     res.status(500).json({ error: error.message });
   }
 });

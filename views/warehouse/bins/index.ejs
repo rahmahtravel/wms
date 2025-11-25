@@ -140,48 +140,36 @@
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Lokasi</th>
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Posisi</th>
               <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Kapasitas</th>
-              <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
               <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200" id="binsTable">
             <% if (bins && bins.length > 0) { %>
               <% bins.forEach((bin, index) => { %>
-                <tr class="hover:bg-gray-50 transition-colors bin-row" data-code="<%= bin.bin_code %>" data-name="<%= bin.bin_name %>">
+                <tr class="hover:bg-gray-50 transition-colors bin-row" data-code="<%= bin.kode_bin %>" data-name="<%= bin.nama_bin %>">
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="font-mono text-sm font-semibold text-gray-800 bg-gray-100 px-2 py-1 rounded"><%= bin.bin_code %></span>
+                    <span class="font-mono text-sm font-semibold text-gray-800 bg-gray-100 px-2 py-1 rounded"><%= bin.kode_bin %></span>
                   </td>
                   <td class="px-6 py-4">
-                    <div class="font-medium text-gray-900"><%= bin.bin_name %></div>
+                    <div class="font-medium text-gray-900"><%= bin.nama_bin %></div>
                   </td>
                   <td class="px-6 py-4">
-                    <span class="text-sm text-gray-700"><%= bin.rack_name || '-' %></span>
+                    <span class="text-sm text-gray-700"><%= bin.nama_rak || '-' %></span>
                   </td>
                   <td class="px-6 py-4">
                     <div class="flex items-center">
                       <i class="fas fa-warehouse text-primary mr-2"></i>
-                      <span><%= bin.location_name || '-' %></span>
+                      <span><%= bin.nama_lokasi || '-' %></span>
                     </div>
                   </td>
                   <td class="px-6 py-4">
-                    <span class="text-sm text-gray-700">L<%= bin.position_level || '-' %>/C<%= bin.position_column || '-' %></span>
+                    <span class="text-sm text-gray-700">L<%= bin.level_posisi || '-' %>/C<%= bin.kolom_posisi || '-' %></span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <% if (bin.capacity_items) { %>
-                      <span class="text-sm text-gray-700"><%= bin.capacity_items %> pcs</span>
+                    <% if (bin.kapasitas_item) { %>
+                      <span class="text-sm text-gray-700"><%= bin.kapasitas_item %> pcs</span>
                     <% } else { %>
                       <span class="text-sm text-gray-400">-</span>
-                    <% } %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <% if (bin.is_active) { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        <i class="fas fa-check-circle mr-1"></i> Aktif
-                      </span>
-                    <% } else { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        <i class="fas fa-times-circle mr-1"></i> Nonaktif
-                      </span>
                     <% } %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-center">
@@ -196,7 +184,7 @@
               <% }); %>
             <% } else { %>
               <tr>
-                <td colspan="8" class="px-6 py-12 text-center">
+                <td colspan="7" class="px-6 py-12 text-center">
                   <i class="fas fa-boxes text-gray-300 text-6xl mb-4"></i>
                   <p class="text-gray-500 text-lg">Belum ada data bin</p>
                   <button onclick="openCreateModal()" class="mt-4 text-primary hover:text-primary-dark">
@@ -216,7 +204,7 @@
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
       <div class="sticky top-0 bg-primary-gradient text-white px-6 py-4 flex justify-between items-center">
         <h2 id="modalTitle" class="text-xl font-bold">
-          <i class="fas fa-boxes mr-2"></i>Tambah Bin
+          Tambah Bin 
         </h2>
         <button onclick="closeModal()" class="text-white hover:text-gray-200">
           <i class="fas fa-times text-2xl"></i>
@@ -235,7 +223,7 @@
               <option value="">Pilih Rak</option>
               <% if (typeof racks !== 'undefined' && racks.length > 0) { %>
                 <% racks.forEach(rack => { %>
-                  <option value="<%= rack.id %>"><%= rack.rack_code %> - <%= rack.rack_name %> - <%= rack.location_name %></option>
+                  <option value="<%= rack.id %>"><%= rack.kode_rak %> - <%= rack.nama_rak %> - <%= rack.nama_lokasi %></option>
                 <% }); %>
               <% } %>
             </select>
@@ -245,45 +233,35 @@
             <label class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-code mr-1 text-primary"></i>Kode Bin *
             </label>
-            <input type="text" name="bin_code" id="bin_code" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="BIN-001">
+            <input type="text" name="kode_bin" id="kode_bin" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="BIN-001">
           </div>
 
           <div class="md:col-span-2">
             <label class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-tag mr-1 text-primary"></i>Nama Bin *
             </label>
-            <input type="text" name="bin_name" id="bin_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Bin A1">
+            <input type="text" name="nama_bin" id="nama_bin" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Bin A1">
           </div>
 
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-layer-group mr-1 text-primary"></i>Level Posisi
             </label>
-            <input type="number" name="position_level" id="position_level" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="1">
+            <input type="number" name="level_posisi" id="level_posisi" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="1">
           </div>
 
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-columns mr-1 text-primary"></i>Kolom Posisi
             </label>
-            <input type="number" name="position_column" id="position_column" min="1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="1">
+            <input type="text" name="kolom_posisi" id="kolom_posisi" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="1">
           </div>
 
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-2">
               <i class="fas fa-boxes mr-1 text-primary"></i>Kapasitas (pcs)
             </label>
-            <input type="number" name="capacity_items" id="capacity_items" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="100">
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">
-              <i class="fas fa-toggle-on mr-1 text-primary"></i>Status
-            </label>
-            <select name="is_active" id="is_active" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-              <option value="1">Aktif</option>
-              <option value="0">Nonaktif</option>
-            </select>
+            <input type="number" name="kapasitas_item" id="kapasitas_item" min="0" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="100">
           </div>
         </div>
 
@@ -317,7 +295,7 @@
 
     // Modal functions
     function openCreateModal() {
-      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-boxes mr-2"></i>Tambah Bin';
+      document.getElementById('modalTitle').innerHTML = 'Tambah Bin';
       document.getElementById('binForm').reset();
       document.getElementById('binId').value = '';
       document.getElementById('binForm').action = '/warehouse/bins';
@@ -332,12 +310,11 @@
         document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit mr-2"></i>Edit Bin';
         document.getElementById('binId').value = bin.id;
         document.getElementById('rack_id').value = bin.rack_id;
-        document.getElementById('bin_code').value = bin.bin_code;
-        document.getElementById('bin_name').value = bin.bin_name;
-        document.getElementById('position_level').value = bin.position_level || '';
-        document.getElementById('position_column').value = bin.position_column || '';
-        document.getElementById('capacity_items').value = bin.capacity_items || '';
-        document.getElementById('is_active').value = bin.is_active;
+        document.getElementById('kode_bin').value = bin.kode_bin;
+        document.getElementById('nama_bin').value = bin.nama_bin;
+        document.getElementById('level_posisi').value = bin.level_posisi || '';
+        document.getElementById('kolom_posisi').value = bin.kolom_posisi || '';
+        document.getElementById('kapasitas_item').value = bin.kapasitas_item || '';
 
         document.getElementById('binForm').action = `/warehouse/bins/update/${id}`;
         document.getElementById('binModal').classList.remove('hidden');

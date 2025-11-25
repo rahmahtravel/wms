@@ -125,15 +125,16 @@ router.get('/racks/create', async (req, res) => {
 
 router.post('/racks', async (req, res) => {
   try {
-    const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat } = req.body;
+    const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg } = req.body;
     await db.query(
-      'INSERT INTO warehouse_racks (warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat) VALUES (?, ?, ?, ?, ?)',
-      [warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat]
+      'INSERT INTO warehouse_racks (warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg) VALUES (?, ?, ?, ?, ?)',
+      [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
     res.redirect('/warehouse/racks');
   } catch (error) {
+    console.error('Error creating rack:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -150,15 +151,16 @@ router.get('/racks/edit/:id', async (req, res) => {
 
 router.post('/racks/update/:id', async (req, res) => {
   try {
-    const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat } = req.body;
+    const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg } = req.body;
     await db.query(
-      'UPDATE warehouse_racks SET warehouse_id = ?, kode_rak = ?, nama_rak = ?, deskripsi = ?, kapasitas_berat = ? WHERE id = ?',
-      [warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat, req.params.id]
+      'UPDATE warehouse_racks SET warehouse_id = ?, kode_rak = ?, nama_rak = ?, deskripsi = ?, kapasitas_berat_kg = ? WHERE id = ?',
+      [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null, req.params.id]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
     res.redirect('/warehouse/racks');
   } catch (error) {
+    console.error('Error updating rack:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -220,10 +222,10 @@ router.get('/bins/create', async (req, res) => {
 
 router.post('/bins', async (req, res) => {
   try {
-    const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_items } = req.body;
+    const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item } = req.body;
     await db.query(
-      'INSERT INTO warehouse_bins (rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_items) VALUES (?, ?, ?, ?, ?, ?)',
-      [rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_items]
+      'INSERT INTO warehouse_bins (rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item) VALUES (?, ?, ?, ?, ?, ?)',
+      [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
@@ -249,10 +251,10 @@ router.get('/bins/edit/:id', async (req, res) => {
 
 router.post('/bins/update/:id', async (req, res) => {
   try {
-    const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_items } = req.body;
+    const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item } = req.body;
     await db.query(
-      'UPDATE warehouse_bins SET rack_id = ?, kode_bin = ?, nama_bin = ?, level_posisi = ?, kolom_posisi = ?, kapasitas_items = ? WHERE id = ?',
-      [rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_items, req.params.id]
+      'UPDATE warehouse_bins SET rack_id = ?, kode_bin = ?, nama_bin = ?, level_posisi = ?, kolom_posisi = ?, kapasitas_item = ? WHERE id = ?',
+      [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null, req.params.id]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json'));
     if (isAjax) return res.json({ success: true });

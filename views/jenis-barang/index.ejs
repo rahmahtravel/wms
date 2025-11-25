@@ -582,56 +582,119 @@
 
     // View detail function
     function viewDetail(id) {
+      // Show loading state
+      Swal.fire({
+        title: 'Memuat data...',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
       fetch(`/jenis-barang/${id}`)
-        .then(r => r.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Gagal memuat data');
+          }
+          return response.json();
+        })
         .then(data => {
-          Swal.fire({
-            title: '<strong><i class="fas fa-layer-group mr-2"></i>Detail Jenis Barang</strong>',
-            html: `
-              <div class="text-left space-y-4">
-                <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 mb-4">
-                  <div class="flex items-center gap-3">
-                    <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg">
-                      <i class="fas fa-layer-group text-white text-xl"></i>
-                    </div>
-                    <div class="flex-1">
-                      <h3 class="text-xl font-bold text-gray-900">${data.nama_jenis}</h3>
-                      <p class="text-sm text-gray-600"><i class="fas fa-fingerprint mr-1"></i>ID: ${data.id}</p>
-                    </div>
-                  </div>
-                </div>
+          // Validate data exists
+          if (!data || !data.id) {
+            throw new Error('Data tidak ditemukan');
+          }
 
-                ${data.deskripsi ? `
-                <div class="bg-blue-50 rounded-lg p-4">
-                  <p class="text-sm font-semibold text-blue-900 mb-2"><i class="fas fa-align-left mr-2"></i>Deskripsi:</p>
-                  <p class="text-sm text-gray-700">${data.deskripsi}</p>
-                </div>
-                ` : '<div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500 text-sm italic">Tidak ada deskripsi</div>'}
+          // Format dates safely
+          const formatDate = (dateStr) => {
+            if (!dateStr) return '-';
+            try {
+              return new Date(dateStr).toLocaleDateString('id-ID', { 
+                day: '2-digit', 
+                month: 'short', 
+                year: 'numeric' 
+              });
+            } catch (e) {
+              return '-';
+            }
+          };
 
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
-                  <div class="flex items-center justify-center gap-3">
-                    <i class="fas fa-boxes text-blue-600 text-2xl"></i>
-                    <div class="text-center">
-                      <p class="text-3xl font-bold text-blue-600">${data.total_items || 0}</p>
-                      <p class="text-sm text-gray-600">Item Terkait</p>
-                    </div>
-                  </div>
-                </div>
+          const formatTime = (dateStr) => {
+            if (!dateStr) return '';
+            try {
+              return new Date(dateStr).toLocaleTimeString('id-ID', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              });
+            } catch (e) {
+              return '';
+            }
+          };
 
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="bg-green-50 rounded-lg p-3">
-                    <p class="text-xs text-green-600 font-semibold mb-1"><i class="fas fa-calendar-plus mr-1"></i>Dibuat</p>
-                    <p class="font-bold text-sm text-gray-900">${new Date(data.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                    <p class="text-xs text-gray-500">${new Date(data.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</p>
+          // Build detail HTML with all fields from jenis_barang table
+          const detailHTML = `
+            <div class="text-left space-y-4">
+              <!-- Header Card with gradient -->
+              <div class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg p-4 mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-layer-group text-white text-xl"></i>
                   </div>
-                  <div class="bg-blue-50 rounded-lg p-3">
-                    <p class="text-xs text-blue-600 font-semibold mb-1"><i class="fas fa-clock mr-1"></i>Diperbarui</p>
-                    <p class="font-bold text-sm text-gray-900">${new Date(data.updated_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
-                    <p class="text-xs text-gray-500">${new Date(data.updated_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB</p>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-bold text-gray-900">${data.nama_jenis || 'N/A'}</h3>
+                    <p class="text-sm text-gray-600"><i class="fas fa-fingerprint mr-1"></i>ID: ${data.id}</p>
                   </div>
                 </div>
               </div>
-            `,
+
+              <!-- Description Section -->
+              ${data.deskripsi ? `
+                <div class="bg-blue-50 rounded-lg p-4">
+                  <p class="text-sm font-semibold text-blue-900 mb-2">
+                    <i class="fas fa-align-left mr-2"></i>Deskripsi:
+                  </p>
+                  <p class="text-sm text-gray-700">${data.deskripsi}</p>
+                </div>
+              ` : `
+                <div class="bg-gray-50 rounded-lg p-4 text-center text-gray-500 text-sm italic">
+                  <i class="fas fa-info-circle mr-2"></i>Tidak ada deskripsi
+                </div>
+              `}
+
+              <!-- Item Count Badge -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4">
+                <div class="flex items-center justify-center gap-3">
+                  <i class="fas fa-boxes text-blue-600 text-2xl"></i>
+                  <div class="text-center">
+                    <p class="text-3xl font-bold text-blue-600">${data.total_items || 0}</p>
+                    <p class="text-sm text-gray-600">Item Terkait</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Timestamps Grid -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="bg-green-50 rounded-lg p-3">
+                  <p class="text-xs text-green-600 font-semibold mb-1">
+                    <i class="fas fa-calendar-plus mr-1"></i>Dibuat
+                  </p>
+                  <p class="font-bold text-sm text-gray-900">${formatDate(data.created_at)}</p>
+                  ${formatTime(data.created_at) ? `<p class="text-xs text-gray-500">${formatTime(data.created_at)} WIB</p>` : ''}
+                </div>
+                <div class="bg-blue-50 rounded-lg p-3">
+                  <p class="text-xs text-blue-600 font-semibold mb-1">
+                    <i class="fas fa-clock mr-1"></i>Diperbarui
+                  </p>
+                  <p class="font-bold text-sm text-gray-900">${formatDate(data.updated_at)}</p>
+                  ${formatTime(data.updated_at) ? `<p class="text-xs text-gray-500">${formatTime(data.updated_at)} WIB</p>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Show detail modal
+          Swal.fire({
+            title: '<strong><i class="fas fa-layer-group mr-2"></i>Detail Jenis Barang</strong>',
+            html: detailHTML,
             showCloseButton: true,
             showConfirmButton: false,
             width: '600px',
@@ -641,7 +704,16 @@
             }
           });
         })
-        .catch(err => swalError('Gagal memuat detail jenis barang'));
+        .catch(err => {
+          console.error('Error loading detail:', err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Gagal Memuat Data',
+            text: err.message || 'Terjadi kesalahan saat memuat detail jenis barang',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#f9a825'
+          });
+        });
     }
 
     // Search functionality (filter desktop table rows and mobile cards)
