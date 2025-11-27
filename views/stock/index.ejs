@@ -104,79 +104,641 @@
                   Monitoring stok barang di seluruh lokasi gudang dan cabang secara real-time
                 </p>
               </div>
+
+              <!-- Quick Action Buttons -->
+              <div class="flex-none hidden lg:block">
+                <div class="rounded-2xl p-4 space-y-2">
+                  <button onclick="openCreateModal()" class="block w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105 text-center">
+                    <i class="fas fa-plus mr-2"></i>Tambah Stock
+                  </button>
+                  <a href="/stock/movements" class="block w-full px-4 py-2 bg-white/70 text-primary-dark font-medium rounded-lg hover:bg-white/90 transition text-center text-sm">
+                    <i class="fas fa-history mr-2"></i>Histori
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mobile Action Buttons -->
+            <div class="flex-none lg:hidden w-full md:w-auto mt-4 space-y-2">
+              <button onclick="openCreateModal()" class="block w-full px-6 py-3 bg-white/90 text-primary-dark font-bold rounded-xl hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:scale-105 text-center">
+                <i class="fas fa-plus mr-2"></i>Tambah Stock
+              </button>
+              <a href="/stock/movements" class="block w-full px-4 py-2 bg-white/70 text-primary-dark font-medium rounded-lg hover:bg-white/90 transition text-center">
+                <i class="fas fa-history mr-2"></i>Histori Pergerakan
+              </a>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Filter Section -->
-    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input type="text" placeholder="Cari barang..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
-        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
-          <option value="">Semua Gudang</option>
-        </select>
-        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
-          <option value="">Semua Cabang</option>
-        </select>
-        <button class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-dark transition">
-          <i class="fas fa-search mr-2"></i> Filter
-        </button>
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <!-- Total Items -->
+      <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-blue-100 text-sm font-medium mb-1">Total Items</p>
+            <p class="text-3xl font-bold" id="totalItems">0</p>
+          </div>
+          <div class="bg-white/20 rounded-full p-4">
+            <i class="fas fa-boxes text-3xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total Quantity -->
+      <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-green-100 text-sm font-medium mb-1">Total Quantity</p>
+            <p class="text-3xl font-bold" id="totalQty">0</p>
+          </div>
+          <div class="bg-white/20 rounded-full p-4">
+            <i class="fas fa-cubes text-3xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Stock -->
+      <div class="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-emerald-100 text-sm font-medium mb-1">Available</p>
+            <p class="text-3xl font-bold" id="totalAvailable">0</p>
+          </div>
+          <div class="bg-white/20 rounded-full p-4">
+            <i class="fas fa-check-circle text-3xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reserved Stock -->
+      <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-orange-100 text-sm font-medium mb-1">Reserved</p>
+            <p class="text-3xl font-bold" id="totalReserved">0</p>
+          </div>
+          <div class="bg-white/20 rounded-full p-4">
+            <i class="fas fa-lock text-3xl"></i>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <!-- Filter Section -->
+    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <input type="text" id="searchInput" placeholder="🔍 Cari kode atau nama barang..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+        <select id="filterLocation" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          <option value="">Semua Lokasi Gudang</option>
+        </select>
+        <select id="filterBranch" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          <option value="">Semua Cabang</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Stock Table -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table id="stockTable" class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Barang</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Lokasi</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rak/Bin</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cabang</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Available</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reserved</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kode</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Barang</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rak / Bin</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cabang</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total Qty</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Available</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Reserved</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" style="min-width: 280px;">Aksi</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
             <% if (stock.length === 0) { %>
               <tr>
-                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                  <i class="fas fa-inbox text-4xl mb-2"></i>
-                  <p>Belum ada data stok</p>
+                <td colspan="9" class="px-6 py-12 text-center text-gray-500">
+                  <div class="flex flex-col items-center">
+                    <i class="fas fa-box-open text-6xl text-gray-300 mb-4"></i>
+                    <p class="text-lg font-medium mb-2">Belum ada data stok</p>
+                    <p class="text-sm text-gray-400">Tambahkan stok melalui transaksi incoming</p>
+                  </div>
                 </td>
               </tr>
             <% } else { %>
               <% stock.forEach(item => { %>
-                <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900"><%= item.kode_barang %></td>
-                  <td class="px-6 py-4 text-sm font-medium text-gray-900"><%= item.nama_barang %></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600"><%= item.location_name || '-' %></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    <%= item.rack_name || '-' %> / <%= item.bin_name || '-' %>
+                <tr class="hover:bg-gray-50 transition" 
+                    data-location="<%= item.location_name || '' %>"
+                    data-branch="<%= item.branch_name || '' %>">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-mono font-bold text-gray-900"><%= item.kode_barang %></div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    <span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
-                      <%= item.branch_name || 'N/A' %>
-                    </span>
+                  <td class="px-6 py-4">
+                    <div class="text-sm font-medium text-gray-900"><%= item.nama_barang %></div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900"><%= item.quantity %></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold"><%= item.available_qty %></td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-orange-600"><%= item.reserved_qty %></td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <i class="fas fa-warehouse text-purple-500 mr-2"></i>
+                      <span class="text-sm text-gray-700"><%= item.location_name || '-' %></span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-600">
+                      <i class="fas fa-th text-blue-500 mr-1"></i><%= item.rack_name || '-' %>
+                      <span class="mx-1">/</span>
+                      <i class="fas fa-box text-green-500 mr-1"></i><%= item.bin_name || '-' %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if (item.branch_name) { %>
+                      <span class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <i class="fas fa-building mr-1"></i><%= item.branch_name %>
+                      </span>
+                    <% } else { %>
+                      <span class="text-gray-400">-</span>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <div class="text-sm font-bold text-gray-900"><%= item.quantity || 0 %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <div class="flex items-center justify-end">
+                      <div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div>
+                      <span class="text-sm font-semibold text-green-600"><%= item.available_qty || 0 %></span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right">
+                    <div class="flex items-center justify-end">
+                      <div class="w-2 h-2 rounded-full bg-orange-500 mr-2"></div>
+                      <span class="text-sm font-semibold text-orange-600"><%= item.reserved_qty || 0 %></span>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <div class="flex items-center justify-center gap-2">
+                      <button onclick="openEditModal(<%= item.id %>, '<%= item.kode_barang %>')" 
+                              class="inline-flex items-center px-3 py-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-100 transition font-medium text-sm"
+                              title="Edit Stock">
+                        <i class="fas fa-edit mr-1"></i>
+                        Edit
+                      </button>
+                      <button onclick="deleteStock(<%= item.id %>, '<%= item.kode_barang %> - <%= item.nama_barang %>')" 
+                              class="inline-flex items-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition font-medium text-sm"
+                              title="Hapus Stock">
+                        <i class="fas fa-trash mr-1"></i>
+                        Hapus
+                      </button>
+                      <a href="/stock/movements?barang_id=<%= item.id_barang %>" 
+                         class="inline-flex items-center px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition font-medium text-sm"
+                         title="Lihat Pergerakan Stok">
+                        <i class="fas fa-history mr-1"></i>
+                        History
+                      </a>
+                    </div>
+                  </td>
                 </tr>
               <% }); %>
             <% } %>
           </tbody>
         </table>
       </div>
+
+      <!-- Table Info -->
+      <% if (stock.length > 0) { %>
+        <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
+          <div class="flex items-center justify-between text-sm text-gray-600">
+            <div>
+              Menampilkan <span id="visibleRows" class="font-semibold text-gray-900"><%= stock.length %></span> 
+              dari <span class="font-semibold text-gray-900"><%= stock.length %></span> data
+            </div>
+            <div>
+              <i class="fas fa-info-circle mr-1"></i>
+              Klik tombol <span class="font-semibold">History</span> untuk melihat pergerakan stok
+            </div>
+          </div>
+        </div>
+      <% } %>
     </div>
   </main>
+
+  <!-- Create/Edit Stock Modal -->
+  <div id="stockModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-primary-gradient text-white px-6 py-4 flex justify-between items-center">
+        <h2 id="modalTitle" class="text-xl font-bold">
+          <i class="fas fa-plus mr-2"></i>Tambah Stock Barang
+        </h2>
+        <button onclick="closeModal()" class="text-white hover:text-gray-200">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+      
+      <form id="stockForm" method="POST" action="/stock" data-ajax="true" class="p-6">
+        <input type="hidden" id="stockId" name="id">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Barang -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-box mr-1 text-primary"></i>Barang *
+            </label>
+            <select name="id_barang" id="id_barang" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="">Pilih Barang</option>
+            </select>
+          </div>
+
+          <!-- Warehouse Location -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-warehouse mr-1 text-primary"></i>Lokasi Gudang *
+            </label>
+            <select name="warehouse_id" id="warehouse_id" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="">Pilih Lokasi</option>
+            </select>
+          </div>
+
+          <!-- Branch -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-building mr-1 text-primary"></i>Cabang *
+            </label>
+            <select name="branch_id" id="branch_id" required
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="">Pilih Cabang</option>
+            </select>
+          </div>
+
+          <!-- Rack -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-th mr-1 text-primary"></i>Rak
+            </label>
+            <select name="rack_id" id="rack_id"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="">Pilih Rak</option>
+            </select>
+          </div>
+
+          <!-- Bin -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-box mr-1 text-primary"></i>Bin
+            </label>
+            <select name="bin_id" id="bin_id"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+              <option value="">Pilih Bin</option>
+            </select>
+          </div>
+
+          <!-- Quantity -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-sort-numeric-up mr-1 text-primary"></i>Quantity *
+            </label>
+            <input type="number" name="quantity" id="quantity" required min="0" step="1"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                   placeholder="0">
+          </div>
+
+          <!-- Available Qty -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-check-circle mr-1 text-primary"></i>Available Qty *
+            </label>
+            <input type="number" name="available_qty" id="available_qty" required min="0" step="1"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                   placeholder="0">
+          </div>
+
+          <!-- Reserved Qty -->
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              <i class="fas fa-lock mr-1 text-primary"></i>Reserved Qty
+            </label>
+            <input type="number" name="reserved_qty" id="reserved_qty" min="0" step="1" value="0"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                   placeholder="0">
+          </div>
+        </div>
+        
+        <div class="flex gap-3 mt-6">
+          <button type="button" onclick="closeModal()"
+                  class="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit"
+                  class="flex-1 px-6 py-3 bg-primary-gradient text-white rounded-lg hover:from-primary-dark hover:to-primary transition font-medium shadow-lg">
+            <i class="fas fa-save mr-2"></i>Simpan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <%- include('../partials/footer') %>
   
   <%- include('../partials/scripts') %>
+
+  <script>
+    // Calculate statistics
+    function updateStatistics() {
+      const rows = document.querySelectorAll('#stockTable tbody tr[data-location]');
+      let totalItems = 0;
+      let totalQty = 0;
+      let totalAvailable = 0;
+      let totalReserved = 0;
+
+      rows.forEach(row => {
+        if (row.style.display !== 'none') {
+          totalItems++;
+          const qty = parseInt(row.cells[5].textContent.trim()) || 0;
+          const available = parseInt(row.cells[6].querySelector('span').textContent.trim()) || 0;
+          const reserved = parseInt(row.cells[7].querySelector('span').textContent.trim()) || 0;
+          
+          totalQty += qty;
+          totalAvailable += available;
+          totalReserved += reserved;
+        }
+      });
+
+      document.getElementById('totalItems').textContent = totalItems.toLocaleString('id-ID');
+      document.getElementById('totalQty').textContent = totalQty.toLocaleString('id-ID');
+      document.getElementById('totalAvailable').textContent = totalAvailable.toLocaleString('id-ID');
+      document.getElementById('totalReserved').textContent = totalReserved.toLocaleString('id-ID');
+    }
+
+    // Populate filter dropdowns
+    function populateFilters() {
+      const rows = document.querySelectorAll('#stockTable tbody tr[data-location]');
+      const locations = new Set();
+      const branches = new Set();
+
+      rows.forEach(row => {
+        const location = row.dataset.location;
+        const branch = row.dataset.branch;
+        if (location) locations.add(location);
+        if (branch) branches.add(branch);
+      });
+
+      // Populate location filter
+      const locationFilter = document.getElementById('filterLocation');
+      locations.forEach(location => {
+        const option = document.createElement('option');
+        option.value = location;
+        option.textContent = location;
+        locationFilter.appendChild(option);
+      });
+
+      // Populate branch filter
+      const branchFilter = document.getElementById('filterBranch');
+      branches.forEach(branch => {
+        const option = document.createElement('option');
+        option.value = branch;
+        option.textContent = branch;
+        branchFilter.appendChild(option);
+      });
+    }
+
+    // Filter function
+    function filterTable() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const locationFilter = document.getElementById('filterLocation').value;
+      const branchFilter = document.getElementById('filterBranch').value;
+      const rows = document.querySelectorAll('#stockTable tbody tr[data-location]');
+      
+      let visibleCount = 0;
+      
+      rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        const location = row.dataset.location;
+        const branch = row.dataset.branch;
+        
+        const matchesSearch = text.includes(searchTerm);
+        const matchesLocation = !locationFilter || location === locationFilter;
+        const matchesBranch = !branchFilter || branch === branchFilter;
+        
+        if (matchesSearch && matchesLocation && matchesBranch) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      // Update visible count
+      const visibleRowsEl = document.getElementById('visibleRows');
+      if (visibleRowsEl) {
+        visibleRowsEl.textContent = visibleCount;
+      }
+
+      // Update statistics
+      updateStatistics();
+    }
+
+    // Event listeners
+    document.getElementById('searchInput').addEventListener('input', filterTable);
+    document.getElementById('filterLocation').addEventListener('change', filterTable);
+    document.getElementById('filterBranch').addEventListener('change', filterTable);
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      populateFilters();
+      updateStatistics();
+      loadDropdownData();
+    });
+
+    // Modal functions
+    function openCreateModal() {
+      document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus mr-2"></i>Tambah Stock Barang';
+      document.getElementById('stockForm').reset();
+      document.getElementById('stockId').value = '';
+      document.getElementById('stockForm').action = '/stock';
+      document.getElementById('stockModal').classList.remove('hidden');
+    }
+
+    async function openEditModal(stockId, kodeBarang) {
+      try {
+        // Fetch stock data
+        const response = await fetch(`/stock/${stockId}/data`);
+        if (!response.ok) throw new Error('Gagal mengambil data stock');
+        
+        const stock = await response.json();
+        
+        // Set modal title
+        document.getElementById('modalTitle').innerHTML = `<i class="fas fa-edit mr-2"></i>Edit Stock - ${kodeBarang}`;
+        
+        // Populate form fields
+        document.getElementById('stockId').value = stock.id;
+        document.getElementById('id_barang').value = stock.id_barang;
+        document.getElementById('warehouse_id').value = stock.warehouse_id;
+        document.getElementById('branch_id').value = stock.branch_id;
+        document.getElementById('rack_id').value = stock.rack_id || '';
+        document.getElementById('bin_id').value = stock.bin_id || '';
+        document.getElementById('quantity').value = stock.quantity;
+        document.getElementById('available_qty').value = stock.available_qty;
+        document.getElementById('reserved_qty').value = stock.reserved_qty || 0;
+        
+        // Set form action to update
+        document.getElementById('stockForm').action = `/stock/update/${stockId}`;
+        
+        // Show modal
+        document.getElementById('stockModal').classList.remove('hidden');
+      } catch (error) {
+        console.error('Error loading stock data:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data stock: ' + error.message
+        });
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('stockModal').classList.add('hidden');
+      document.getElementById('stockForm').reset();
+    }
+
+    function deleteStock(stockId, stockName) {
+      Swal.fire({
+        title: 'Konfirmasi Hapus',
+        html: `Apakah Anda yakin ingin menghapus stock:<br><strong>${stockName}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus!',
+        cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+        reverseButtons: true
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            const response = await fetch(`/stock/delete/${stockId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              await Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: data.message || 'Stock berhasil dihapus',
+                timer: 1500,
+                showConfirmButton: false
+              });
+              window.location.reload();
+            } else {
+              throw new Error(data.error || 'Gagal menghapus stock');
+            }
+          } catch (error) {
+            console.error('Error deleting stock:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message || 'Gagal menghapus stock'
+            });
+          }
+        }
+      });
+    }
+
+    // Load dropdown data
+    async function loadDropdownData() {
+      try {
+        // Load Barang from purchasing_barang table
+        const barangRes = await fetch('/stock/api/barang');
+        if (barangRes.ok) {
+          const barangs = await barangRes.json();
+          const barangSelect = document.getElementById('id_barang');
+          // Clear existing options except the first one
+          barangSelect.innerHTML = '<option value="">Pilih Barang</option>';
+          barangs.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b.id_barang;
+            opt.textContent = `${b.kode_barang} - ${b.nama_barang}`;
+            barangSelect.appendChild(opt);
+          });
+        }
+
+        // Load Warehouses
+        const warehouseRes = await fetch('/stock/api/warehouse-locations');
+        if (warehouseRes.ok) {
+          const warehouses = await warehouseRes.json();
+          const warehouseSelect = document.getElementById('warehouse_id');
+          warehouseSelect.innerHTML = '<option value="">Pilih Lokasi</option>';
+          warehouses.forEach(w => {
+            const opt = document.createElement('option');
+            opt.value = w.id;
+            opt.textContent = `${w.kode_lokasi} - ${w.nama_lokasi}`;
+            warehouseSelect.appendChild(opt);
+          });
+        }
+
+        // Load Racks
+        const rackRes = await fetch('/stock/api/warehouse-racks');
+        if (rackRes.ok) {
+          const racks = await rackRes.json();
+          const rackSelect = document.getElementById('rack_id');
+          rackSelect.innerHTML = '<option value="">Pilih Rak</option>';
+          racks.forEach(r => {
+            const opt = document.createElement('option');
+            opt.value = r.id;
+            opt.textContent = `${r.kode_rak} - ${r.nama_rak}`;
+            rackSelect.appendChild(opt);
+          });
+        }
+
+        // Load Bins
+        const binRes = await fetch('/stock/api/warehouse-bins');
+        if (binRes.ok) {
+          const bins = await binRes.json();
+          const binSelect = document.getElementById('bin_id');
+          binSelect.innerHTML = '<option value="">Pilih Bin</option>';
+          bins.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b.id;
+            opt.textContent = `${b.kode_bin} - ${b.nama_bin}`;
+            binSelect.appendChild(opt);
+          });
+        }
+
+        // Load Branches
+        const branchRes = await fetch('/stock/api/branches');
+        if (branchRes.ok) {
+          const branches = await branchRes.json();
+          const branchSelect = document.getElementById('branch_id');
+          branchSelect.innerHTML = '<option value="">Pilih Cabang</option>';
+          branches.forEach(b => {
+            const opt = document.createElement('option');
+            opt.value = b.id;
+            opt.textContent = b.nama_cabang;
+            branchSelect.appendChild(opt);
+          });
+        }
+      } catch (error) {
+        console.error('Error loading dropdown data:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data dropdown: ' + error.message
+        });
+      }
+    }
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+  </script>
 </body>
 </html>

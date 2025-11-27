@@ -6,9 +6,17 @@ const db = require('../config/database');
 router.get('/locations', async (req, res) => {
   try {
     const [locations] = await db.query(`
-      SELECT wl.*, b.nama_cabang
+      SELECT wl.*, 
+             b.nama_cabang as branch_name,
+             uc.name as created_by_name,
+             uu.name as updated_by_name,
+             ud.name as deleted_by_name
       FROM warehouse_locations wl
       LEFT JOIN branches b ON wl.branch_id = b.id
+      LEFT JOIN users uc ON wl.created_by = uc.id
+      LEFT JOIN users uu ON wl.updated_by = uu.id
+      LEFT JOIN users ud ON wl.deleted_by = ud.id
+      WHERE wl.deleted_at IS NULL
       ORDER BY wl.created_at DESC
     `);
     const [branches] = await db.query('SELECT * FROM branches');
@@ -21,7 +29,19 @@ router.get('/locations', async (req, res) => {
 // Get location data for edit
 router.get('/locations/:id/data', async (req, res) => {
   try {
-    const [locations] = await db.query('SELECT * FROM warehouse_locations WHERE id = ?', [req.params.id]);
+    const [locations] = await db.query(`
+      SELECT wl.*, 
+             b.nama_cabang as branch_name,
+             uc.name as created_by_name,
+             uu.name as updated_by_name,
+             ud.name as deleted_by_name
+      FROM warehouse_locations wl
+      LEFT JOIN branches b ON wl.branch_id = b.id
+      LEFT JOIN users uc ON wl.created_by = uc.id
+      LEFT JOIN users uu ON wl.updated_by = uu.id
+      LEFT JOIN users ud ON wl.deleted_by = ud.id
+      WHERE wl.id = ?
+    `, [req.params.id]);
     res.json(locations[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -40,9 +60,10 @@ router.get('/locations/create', async (req, res) => {
 router.post('/locations', async (req, res) => {
   try {
     const { kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id } = req.body;
+    const userId = req.session.user ? req.session.user.id : null;
     await db.query(
-      'INSERT INTO warehouse_locations (kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id]
+      'INSERT INTO warehouse_locations (kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id, userId]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
@@ -65,9 +86,10 @@ router.get('/locations/edit/:id', async (req, res) => {
 router.post('/locations/update/:id', async (req, res) => {
   try {
     const { kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id } = req.body;
+    const userId = req.session.user ? req.session.user.id : null;
     await db.query(
-      'UPDATE warehouse_locations SET kode_lokasi = ?, nama_lokasi = ?, tipe_lokasi = ?, alamat = ?, telepon = ?, pic = ?, branch_id = ? WHERE id = ?',
-      [kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id, req.params.id]
+      'UPDATE warehouse_locations SET kode_lokasi = ?, nama_lokasi = ?, tipe_lokasi = ?, alamat = ?, telepon = ?, pic = ?, branch_id = ?, updated_by = ? WHERE id = ?',
+      [kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id, userId, req.params.id]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
@@ -79,7 +101,11 @@ router.post('/locations/update/:id', async (req, res) => {
 
 router.post('/locations/delete/:id', async (req, res) => {
   try {
-    await db.query('DELETE FROM warehouse_locations WHERE id = ?', [req.params.id]);
+    const userId = req.session.user ? req.session.user.id : null;
+    await db.query(
+      'UPDATE warehouse_locations SET deleted_at = NOW(), deleted_by = ? WHERE id = ?',
+      [userId, req.params.id]
+    );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
     res.redirect('/warehouse/locations');
@@ -92,12 +118,20 @@ router.post('/locations/delete/:id', async (req, res) => {
 router.get('/racks', async (req, res) => {
   try {
     const [racks] = await db.query(`
-      SELECT wr.*, wl.nama_lokasi
+      SELECT wr.*, 
+             wl.nama_lokasi,
+             uc.name as created_by_name,
+             uu.name as updated_by_name,
+             ud.name as deleted_by_name
       FROM warehouse_racks wr
       LEFT JOIN warehouse_locations wl ON wr.warehouse_id = wl.id
+      LEFT JOIN users uc ON wr.created_by = uc.id
+      LEFT JOIN users uu ON wr.updated_by = uu.id
+      LEFT JOIN users ud ON wr.deleted_by = ud.id
+      WHERE wr.deleted_at IS NULL
       ORDER BY wr.created_at DESC
     `);
-    const [warehouses] = await db.query('SELECT * FROM warehouse_locations');
+    const [warehouses] = await db.query('SELECT * FROM warehouse_locations WHERE deleted_at IS NULL');
     res.render('warehouse/racks/index', { title: 'Data Rak', racks, warehouses, body: '' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -107,7 +141,19 @@ router.get('/racks', async (req, res) => {
 // Get rack data for edit
 router.get('/racks/:id/data', async (req, res) => {
   try {
-    const [racks] = await db.query('SELECT * FROM warehouse_racks WHERE id = ?', [req.params.id]);
+    const [racks] = await db.query(`
+      SELECT wr.*, 
+             wl.nama_lokasi,
+             uc.name as created_by_name,
+             uu.name as updated_by_name,
+             ud.name as deleted_by_name
+      FROM warehouse_racks wr
+      LEFT JOIN warehouse_locations wl ON wr.warehouse_id = wl.id
+      LEFT JOIN users uc ON wr.created_by = uc.id
+      LEFT JOIN users uu ON wr.updated_by = uu.id
+      LEFT JOIN users ud ON wr.deleted_by = ud.id
+      WHERE wr.id = ?
+    `, [req.params.id]);
     res.json(racks[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -126,9 +172,10 @@ router.get('/racks/create', async (req, res) => {
 router.post('/racks', async (req, res) => {
   try {
     const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg } = req.body;
+    const userId = req.session.user ? req.session.user.id : null;
     await db.query(
-      'INSERT INTO warehouse_racks (warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg) VALUES (?, ?, ?, ?, ?)',
-      [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null]
+      'INSERT INTO warehouse_racks (warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg, created_by) VALUES (?, ?, ?, ?, ?, ?)',
+      [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null, userId]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
@@ -152,9 +199,10 @@ router.get('/racks/edit/:id', async (req, res) => {
 router.post('/racks/update/:id', async (req, res) => {
   try {
     const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg } = req.body;
+    const userId = req.session.user ? req.session.user.id : null;
     await db.query(
-      'UPDATE warehouse_racks SET warehouse_id = ?, kode_rak = ?, nama_rak = ?, deskripsi = ?, kapasitas_berat_kg = ? WHERE id = ?',
-      [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null, req.params.id]
+      'UPDATE warehouse_racks SET warehouse_id = ?, kode_rak = ?, nama_rak = ?, deskripsi = ?, kapasitas_berat_kg = ?, updated_by = ? WHERE id = ?',
+      [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null, userId, req.params.id]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
@@ -167,7 +215,11 @@ router.post('/racks/update/:id', async (req, res) => {
 
 router.post('/racks/delete/:id', async (req, res) => {
   try {
-    await db.query('DELETE FROM warehouse_racks WHERE id = ?', [req.params.id]);
+    const userId = req.session.user ? req.session.user.id : null;
+    await db.query(
+      'UPDATE warehouse_racks SET deleted_at = NOW(), deleted_by = ? WHERE id = ?',
+      [userId, req.params.id]
+    );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
     res.redirect('/warehouse/racks');
@@ -180,16 +232,26 @@ router.post('/racks/delete/:id', async (req, res) => {
 router.get('/bins', async (req, res) => {
   try {
     const [bins] = await db.query(`
-      SELECT wb.*, wr.nama_rak, wl.nama_lokasi
+      SELECT wb.*, 
+             wr.nama_rak, 
+             wl.nama_lokasi,
+             uc.name as created_by_name,
+             uu.name as updated_by_name,
+             ud.name as deleted_by_name
       FROM warehouse_bins wb
       LEFT JOIN warehouse_racks wr ON wb.rack_id = wr.id
       LEFT JOIN warehouse_locations wl ON wr.warehouse_id = wl.id
+      LEFT JOIN users uc ON wb.created_by = uc.id
+      LEFT JOIN users uu ON wb.updated_by = uu.id
+      LEFT JOIN users ud ON wb.deleted_by = ud.id
+      WHERE wb.deleted_at IS NULL
       ORDER BY wb.created_at DESC
     `);
     const [racks] = await db.query(`
       SELECT wr.*, wl.nama_lokasi
       FROM warehouse_racks wr
       LEFT JOIN warehouse_locations wl ON wr.warehouse_id = wl.id
+      WHERE wr.deleted_at IS NULL
     `);
     res.render('warehouse/bins/index', { title: 'Data Bin', bins, racks, body: '' });
   } catch (error) {
@@ -200,7 +262,21 @@ router.get('/bins', async (req, res) => {
 // Get bin data for edit
 router.get('/bins/:id/data', async (req, res) => {
   try {
-    const [bins] = await db.query('SELECT * FROM warehouse_bins WHERE id = ?', [req.params.id]);
+    const [bins] = await db.query(`
+      SELECT wb.*, 
+             wr.nama_rak, 
+             wl.nama_lokasi,
+             uc.name as created_by_name,
+             uu.name as updated_by_name,
+             ud.name as deleted_by_name
+      FROM warehouse_bins wb
+      LEFT JOIN warehouse_racks wr ON wb.rack_id = wr.id
+      LEFT JOIN warehouse_locations wl ON wr.warehouse_id = wl.id
+      LEFT JOIN users uc ON wb.created_by = uc.id
+      LEFT JOIN users uu ON wb.updated_by = uu.id
+      LEFT JOIN users ud ON wb.deleted_by = ud.id
+      WHERE wb.id = ?
+    `, [req.params.id]);
     res.json(bins[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -223,9 +299,10 @@ router.get('/bins/create', async (req, res) => {
 router.post('/bins', async (req, res) => {
   try {
     const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item } = req.body;
+    const userId = req.session.user ? req.session.user.id : null;
     await db.query(
-      'INSERT INTO warehouse_bins (rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item) VALUES (?, ?, ?, ?, ?, ?)',
-      [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null]
+      'INSERT INTO warehouse_bins (rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null, userId]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json')) || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
     if (isAjax) return res.json({ success: true });
@@ -252,9 +329,10 @@ router.get('/bins/edit/:id', async (req, res) => {
 router.post('/bins/update/:id', async (req, res) => {
   try {
     const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item } = req.body;
+    const userId = req.session.user ? req.session.user.id : null;
     await db.query(
-      'UPDATE warehouse_bins SET rack_id = ?, kode_bin = ?, nama_bin = ?, level_posisi = ?, kolom_posisi = ?, kapasitas_item = ? WHERE id = ?',
-      [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null, req.params.id]
+      'UPDATE warehouse_bins SET rack_id = ?, kode_bin = ?, nama_bin = ?, level_posisi = ?, kolom_posisi = ?, kapasitas_item = ?, updated_by = ? WHERE id = ?',
+      [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null, userId, req.params.id]
     );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json'));
     if (isAjax) return res.json({ success: true });
@@ -266,7 +344,11 @@ router.post('/bins/update/:id', async (req, res) => {
 
 router.post('/bins/delete/:id', async (req, res) => {
   try {
-    await db.query('DELETE FROM warehouse_bins WHERE id = ?', [req.params.id]);
+    const userId = req.session.user ? req.session.user.id : null;
+    await db.query(
+      'UPDATE warehouse_bins SET deleted_at = NOW(), deleted_by = ? WHERE id = ?',
+      [userId, req.params.id]
+    );
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || (req.headers.accept && req.headers.accept.includes('application/json'));
     if (isAjax) return res.json({ success: true });
     res.redirect('/warehouse/bins');
