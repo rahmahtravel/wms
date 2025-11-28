@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <%- include('../partials/head', { title: title }) %>
+  <!-- Additional CSS for DataTables -->
+  <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
+  <!-- Additional Scripts -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#F9A825',
+                        'primary-dark': '#F57F17',
+                        'primary-light': '#FFF3C4',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom styles for DataTables integration */
+        .group-header {
+            background: linear-gradient(135deg, #FFF3C4 0%, #FFF8E1 100%) !important;
+            border-top: 3px solid #F9A825 !important;
+            border-bottom: 3px solid #F9A825 !important;
+            margin-top: 1.5rem !important;
+            position: relative;
+        }
+        .group-header:first-child {
+            margin-top: 0 !important;
+        }
+        .group-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: #F9A825;
+        }
+
+        /* Visual grouping without rowspan */
+        tr.first-in-group td {
+            border-top: 3px solid rgba(249, 168, 37, 0.4) !important;
+            background: linear-gradient(135deg, rgba(249, 168, 37, 0.08) 0%, rgba(249, 168, 37, 0.04) 100%) !important;
+            position: relative;
+        }
+        
+        tr.last-in-group td {
+            border-bottom: 3px solid rgba(249, 168, 37, 0.4) !important;
+        }
+        
+        /* Grouping borders for pemesan column */
+        tr:not(.first-in-group) td:nth-child(2) {
+            background: rgba(249, 168, 37, 0.02) !important;
+            border-left: 3px solid rgba(249, 168, 37, 0.3) !important;
+            color: #888 !important;
+        }
+        
+        tr:not(.first-in-group) td:nth-child(8) {
+            background: rgba(249, 168, 37, 0.02) !important;
+            border-right: 3px solid rgba(249, 168, 37, 0.3) !important;
+            color: #888 !important;
+        }
+
+        /* Modern table hover effect */
+        tbody tr:hover {
+            background: linear-gradient(135deg, rgba(249, 168, 37, 0.05) 0%, rgba(249, 168, 37, 0.02) 100%) !important;
+            transform: scale(1.005);
+            transition: all 0.2s ease;
+        }
+        
+        /* DataTables specific styles */
+        table.dataTable {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+        }
+        
+        table.dataTable tbody tr td {
+            border: 1px solid #e5e7eb !important;
+        }
+        
+        /* Payment status select styling */
+        .payment-status-select[data-previous-value="Sudah Bayar"] {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-color: #22c55e !important;
+            color: #15803d;
+            font-weight: 600;
+        }
+        
+        .payment-status-select[data-previous-value="Belum Bayar"] {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border-color: #ef4444 !important;
+            color: #dc2626;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+  <%- include('../partials/navbar') %>
+  <%- include('../partials/sidebar') %>
+
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 min-h-screen">
+        <!-- Modern Header Card -->
+        <div class="bg-gradient-to-r from-primary to-primary-dark rounded-3xl shadow-2xl overflow-hidden mb-8">
+            <div class="px-12 py-6 relative">
+                <div class="absolute inset-0 bg-black opacity-10"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold text-white mb-2">Rekap Alamat & Ongkir</h1>
+                        <p class="text-primary-light text-lg">Kelola data ongkir jamaah dengan mudah</p>
+                        <% if (rekapOngkir && rekapOngkir.length > 0) { %>
+                            <div class="mt-3 flex items-center gap-4 text-sm">
+                                <span class="bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+                                    <i class="fas fa-database mr-1"></i>
+                                    <%= rekapOngkir.length %> Data
+                                </span>
+                                <% 
+                                const uniqueOrders = new Set(rekapOngkir.map(r => r.order_id));
+                                const uniquePemesan = new Set(rekapOngkir.map(r => r.nama_pemesan));
+                                %>
+                                <span class="bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+                                    <i class="fas fa-shopping-cart mr-1"></i>
+                                    <%= uniqueOrders.size %> Order
+                                </span>
+                                <span class="bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+                                    <i class="fas fa-user mr-1"></i>
+                                    <%= uniquePemesan.size %> Pemesan
+                                </span>
+                            </div>
+                        <% } %>
+                    </div>
+                    <button onclick="location.reload()" 
+                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 backdrop-blur-sm">
+                        <i class="fas fa-sync-alt mr-2"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <% if (success) { %>
+        <div class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg shadow-sm">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                <span><%= success %></span>
+            </div>
+        </div>
+        <% } %>
+        
+        <% if (error) { %>
+        <div class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg shadow-sm">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                <span><%= error %></span>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Main Content Card -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+            <div class="px-4 py-6">
+                <!-- Filter Paket -->
+                <div class="mb-8 bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <form id="filterForm" method="GET" action="/jamaah/rekap-ongkir" class="flex items-center gap-6">
+                        <div class="flex-1">
+                            <label for="packageFilter" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-box text-primary mr-2"></i>
+                                Filter Paket
+                            </label>
+                            <select id="packageFilter" name="paket"
+                                    class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                                <option value="all" <%= (filters && filters.paket === 'all') ? 'selected' : '' %>>Semua Paket</option>
+                                <% if (packages && packages.length > 0) { %>
+                                    <% 
+                                    // Helper function to format date
+                                    function formatDate(date) {
+                                        var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                        return String(date.getDate()).padStart(2, '0') + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+                                    }
+                                    
+                                    // Group packages by month and year
+                                    var groupedPackages = {};
+                                    var months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                                    
+                                    packages.forEach(function(pkg) {
+                                        var startDate = new Date(pkg.tanggal_keberangkatan);
+                                        var monthYear = months[startDate.getMonth()] + ' ' + startDate.getFullYear();
+                                        var monthYearKey = startDate.getFullYear() + '-' + String(startDate.getMonth() + 1).padStart(2, '0');
+                                        
+                                        if (!groupedPackages[monthYearKey]) {
+                                            groupedPackages[monthYearKey] = {
+                                                label: monthYear,
+                                                packages: [],
+                                                sortDate: startDate
+                                            };
+                                        }
+                                        groupedPackages[monthYearKey].packages.push(pkg);
+                                    });
+                                    
+                                    // Sort groups by date (chronological order)
+                                    var sortedGroupKeys = Object.keys(groupedPackages).sort(function(a, b) {
+                                        return groupedPackages[a].sortDate - groupedPackages[b].sortDate;
+                                    });
+                                    %>
+                                    
+                                    <% sortedGroupKeys.forEach(function(groupKey) { %>
+                                        <% var group = groupedPackages[groupKey]; %>
+                                        <% 
+                                        // Sort packages within group by departure date
+                                        group.packages.sort(function(a, b) {
+                                            return new Date(a.tanggal_keberangkatan) - new Date(b.tanggal_keberangkatan);
+                                        });
+                                        %>
+                                        <optgroup label="<%= group.label %>">
+                                            <% group.packages.forEach(function(pkg) { %>
+                                                <% 
+                                                    var startDate = new Date(pkg.tanggal_keberangkatan);
+                                                    var endDate = pkg.tanggal_kepulangan ? new Date(pkg.tanggal_kepulangan) : new Date(startDate.getTime() + (8 * 24 * 60 * 60 * 1000));
+                                                    var isSelected = (filters && filters.paket === pkg.id.toString());
+                                                %>
+                                                <option value="<%= pkg.id %>" 
+                                                        data-label="<%= pkg.nama_paket %> (<%= formatDate(startDate) %> s/d <%= formatDate(endDate) %>)"
+                                                        <%= isSelected ? 'selected' : '' %>>
+                                                    <%= pkg.nama_paket %> (<%= formatDate(startDate) %> s/d <%= formatDate(endDate) %>)
+                                                </option>
+                                            <% }); %>
+                                        </optgroup>
+                                    <% }); %>
+                                <% } %>
+                            </select>
+                        </div>
+                        <div class="flex-1">
+                            <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-credit-card text-primary mr-2"></i>
+                                Filter Status Bayar
+                            </label>
+                            <select id="statusFilter" name="status"
+                                    class="w-full px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
+                                <option value="all" <%= (filters && filters.status === 'all') ? 'selected' : '' %>>Semua Status</option>
+                                <option value="Sudah Bayar" <%= (filters && filters.status === 'Sudah Bayar') ? 'selected' : '' %>>
+                                    <span class="text-green-600">Sudah Bayar</span>
+                                </option>
+                                <option value="Belum Bayar" <%= (filters && filters.status === 'Belum Bayar') ? 'selected' : '' %>>
+                                    <span class="text-red-600">Belum Bayar</span>
+                                </option>
+                            </select>
+                        </div>
+                        <div class="flex items-end gap-3">
+                            <button type="submit" 
+                                    class="h-[42px] px-6 text-sm font-semibold text-white bg-gradient-to-r from-primary to-primary-dark rounded-xl hover:from-primary-dark hover:to-primary transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-filter mr-2"></i>
+                                Filter
+                            </button>
+                            <button type="button" 
+                                    onclick="resetFilters()"
+                                    class="h-[42px] px-6 text-sm font-semibold text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 rounded-xl hover:from-gray-200 hover:to-gray-300 border border-gray-300 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-undo mr-2"></i>
+                                Reset
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Active Filter Indicators -->
+                    <% if (filters && (filters.paket !== 'all' || filters.status !== 'all')) { %>
+                    <div class="mt-4 pt-4 border-t border-gray-200">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span class="text-sm font-medium text-gray-600">Filter Aktif:</span>
+                            
+                            <% if (filters.paket !== 'all') { %>
+                                <% 
+                                const selectedPackage = packages.find(pkg => pkg.id.toString() === filters.paket);
+                                if (selectedPackage) {
+                                    const startDate = new Date(selectedPackage.tanggal_keberangkatan);
+                                    const endDate = selectedPackage.tanggal_kepulangan ? new Date(selectedPackage.tanggal_kepulangan) : new Date(startDate.getTime() + (8 * 24 * 60 * 60 * 1000));
+                                    const formatDate = (date) => {
+                                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                                        return String(date.getDate()).padStart(2, '0') + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+                                    };
+                                %>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <i class="fas fa-box mr-1"></i>
+                                    <%= selectedPackage.nama_paket %> (<%= formatDate(startDate) %> - <%= formatDate(endDate) %>)
+                                </span>
+                                <% } %>
+                            <% } %>
+                            
+                            <% if (filters.status !== 'all') { %>
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium <%= filters.status === 'Sudah Bayar' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                                    <i class="fas fa-credit-card mr-1"></i>
+                                    <%= filters.status %>
+                                </span>
+                            <% } %>
+                            
+                            <button onclick="resetFilters()" 
+                                    class="inline-flex items-center px-2 py-1 text-xs text-gray-500 hover:text-red-600 transition-colors duration-200">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl shadow-lg">
+                <table id="rekapOngkirTable" class="w-full text-base text-left bg-white rounded-xl overflow-hidden">
+                    <thead class="text-xs text-white uppercase bg-gradient-to-r from-primary to-primary-dark">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold">No</th>
+                            <th class="px-6 py-4 font-semibold">Nama Pemesan</th>
+                            <th class="px-6 py-4 font-semibold">Nama Jamaah</th>
+                            <th class="px-6 py-4 font-semibold">Periode</th>
+                            <!-- <th class="px-6 py-4 font-semibold">Alamat</th> Hidden column -->
+                            <th class="px-6 py-4 font-semibold">Kontak</th>
+                            <!-- <th class="px-6 py-4 font-semibold">Bukti Transfer</th> Moved to Action column -->
+                            <!-- <th class="px-6 py-4 font-semibold">Mutasi</th> Moved to Action column -->
+                            <th class="px-6 py-4 text-right font-semibold">Total Ongkir</th>
+                            <th class="px-6 py-4 text-center font-semibold">Status Bayar</th>
+                            <th class="px-6 py-4 text-center font-semibold">Status Pengambilan</th>
+                            <th class="px-6 py-4 text-center font-semibold">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% 
+                        let globalRowIndex = 1; // Global counter untuk nomor urut yang berurutan
+                        
+                        // Create groups by order_id and pemesan
+                        const groups = {};
+                        rekapOngkir.forEach(item => {
+                            const key = `${item.order_id}-${item.nama_pemesan || 'Unknown'}`;
+                            if (!groups[key]) {
+                                groups[key] = {
+                                    order_id: item.order_id,
+                                    nama_pemesan: item.nama_pemesan || 'Unknown',
+                                    items: []
+                                };
+                            }
+                            groups[key].items.push(item);
+                        });
+
+                        // Convert to array and sort
+                        const sortedGroups = Object.values(groups).sort((a, b) => {
+                            // First sort by order_id
+                            if (a.order_id !== b.order_id) {
+                                return a.order_id - b.order_id;
+                            }
+                            // Then by nama_pemesan
+                            return (a.nama_pemesan || '').localeCompare(b.nama_pemesan || '');
+                        });
+
+                        // Sort items within each group by nama_jamaah and render
+                        sortedGroups.forEach(group => {
+                            group.items.sort((a, b) => (a.nama_jamaah || '').localeCompare(b.nama_jamaah || ''));
+                            const totalOngkir = group.items.reduce((sum, i) => sum + (Number(i.nominal) || 0), 0);
+                            
+                            group.items.forEach((item, index) => {
+                                const isFirstInGroup = index === 0;
+                                const isLastInGroup = index === group.items.length - 1;
+                        %>
+                            <tr class="hover:bg-gradient-to-r hover:from-primary/5 hover:to-primary-light/10 transition-all duration-200 <%= isFirstInGroup ? 'first-in-group' : '' %> <%= isLastInGroup ? 'last-in-group' : '' %>" 
+                                data-item="<%- encodeURIComponent(JSON.stringify(item)) %>" 
+                                data-order-id="<%= item.order_id %>" 
+                                data-group-index="<%= sortedGroups.indexOf(group) %>"
+                                data-group-key="<%= item.order_id %>-<%= item.nama_pemesan || 'Unknown' %>"
+                                data-is-first="<%= isFirstInGroup %>"
+                                data-is-last="<%= isLastInGroup %>">
+                                
+                                <!-- No Column - Sequential numbering -->
+                                <td class="px-6 py-4 font-semibold"><%= globalRowIndex++ %></td>
+                                
+                                <!-- Nama Pemesan Column with Order ID integrated -->
+                                <td class="px-6 py-4">
+                                    <div class="space-y-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-semibold text-gray-900"><%= item.nama_pemesan || 'Unknown' %></span>
+                                            <% if (isFirstInGroup) { %>
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-100 to-pink-100 text-purple-800">
+                                                    <i class="fas fa-users mr-1"></i>
+                                                    <%= group.items.length %> jamaah
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                        <!-- Order ID di bawah nama pemesan -->
+                                        <div class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md inline-block">
+                                            <i class="fas fa-hashtag mr-1"></i>Order #<%= item.order_id %>
+                                        </div>
+                                        <% if (isFirstInGroup) { %>
+                                            <div class="text-sm font-bold text-primary bg-gradient-to-r from-primary-light to-yellow-100 px-3 py-1 rounded-lg">
+                                                <i class="fas fa-money-bill-wave mr-1"></i>
+                                                Total: Rp <%= totalOngkir.toLocaleString('id-ID') %>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                
+                                <!-- Nama Jamaah Column -->
+                                <td class="px-6 py-4">
+                                    <div class="font-medium text-gray-900">
+                                        <%= item.nama_jamaah || '-' %>
+                                    </div>
+                                    <% if (item.total_jamaah > 0) { %>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+                                            <i class="fas fa-shipping-fast mr-1"></i>
+                                            <%= item.shipped_count %>/<%= item.total_jamaah %> dikirim
+                                        </span>
+                                    <% } %>
+                                    <div class="mt-2">
+                                        <button onclick="openDetailPenerimaModal(this)" 
+                                                class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-sm" 
+                                                data-kelengkapan-id="<%= item.kelengkapan_id %>"
+                                                data-nama-jamaah="<%- item.nama_jamaah || 'Unknown' %>"
+                                                data-order-details-id="<%= item.order_details_id || '' %>">
+                                            <i class="fas fa-address-card mr-1"></i> Detail Penerima
+                                        </button>
+                                    </div>
+                                </td>
+                                
+                                <!-- Periode Column -->
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">
+                                        <%= item.periode || '-' %>
+                                    </div>
+                                </td>
+                                
+                                <!-- Alamat Column - Hidden -->
+                                <!-- <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">
+                                        <%= item.alamat_lengkap || '-' %>
+                                    </div>
+                                </td> -->
+                                
+                                <!-- Kontak Column -->
+                                <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-900">
+                                        <%= item.kontak || '-' %>
+                                    </div>
+                                </td>
+                                
+                                <!-- Total Ongkir Column -->
+                                <td class="px-6 py-4 text-right">
+                                    <div class="font-bold text-base">
+                                        Rp <%= Number(item.nominal || 0).toLocaleString('id-ID') %>
+                                    </div>
+                                </td>
+                                
+                                <!-- Status Bayar Column -->
+                                <td class="px-6 py-4 text-center">
+                                    <% 
+                                    const statusBayar = item.status || (Number(item.nominal || 0) > 0 ? 'Sudah Bayar' : 'Belum Bayar');
+                                    %>
+                                    <% if (item.id && item.id > 0) { %>
+                                        <select id="payment_status_<%= globalRowIndex - 1 %>" 
+                                                class="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 min-w-[140px] focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 payment-status-select" 
+                                                data-rekap-id="<%= item.id %>"
+                                                data-previous-value="<%= statusBayar %>"
+                                                title="Status akan otomatis tersimpan ketika diubah">
+                                            <option value="Sudah Bayar" <% if (statusBayar === 'Sudah Bayar') { %> selected <% } %>>
+                                                ✓ Sudah Bayar
+                                            </option>
+                                            <option value="Belum Bayar" <% if (statusBayar === 'Belum Bayar') { %> selected <% } %>>
+                                                ✗ Belum Bayar
+                                            </option>
+                                        </select>
+                                    <% } else { %>
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-600">
+                                            <i class="fas fa-minus mr-1"></i>
+                                            Tidak ada data
+                                        </span>
+                                    <% } %>
+                                </td>
+                                
+                                <!-- Status Pengambilan Column -->
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex items-center gap-2 justify-center">
+                                        <% if (item.kelengkapan_id && item.kelengkapan_id !== '') { %>
+                                            <select id="status_<%= globalRowIndex - 1 %>" 
+                                                    class="text-sm border-2 border-gray-200 rounded-lg px-3 py-2 min-w-[140px] focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200" 
+                                                    data-kelengkapan-id="<%= item.kelengkapan_id %>"
+                                                    title="Status akan otomatis tersimpan ketika diubah">
+                                                <option value="Belum Diambil" <% if (item.status_pengambilan === 'Belum Diambil') { %> selected <% } %>>Belum Diambil</option>
+                                                <option value="Sudah Diambil" <% if (item.status_pengambilan === 'Sudah Diambil') { %> selected <% } %>>Sudah Diambil</option>
+                                                <option value="Di Kirim" <% if (item.status_pengambilan === 'Di Kirim') { %> selected <% } %>>Di Kirim</option>
+                                                <option value="Di Ambil Di Kantor" <% if (item.status_pengambilan === 'Di Ambil Di Kantor') { %> selected <% } %>>Di Ambil Di Kantor</option>
+                                            </select>
+                                            <button onclick="updateStatus(<%= globalRowIndex - 1 %>)" 
+                                                    class="px-3 hidden py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg hover:from-primary-dark hover:to-primary font-medium transition-all duration-200 transform hover:scale-105 shadow-lg"
+                                                    title="Simpan manual (opsional - status sudah auto-save)">
+                                                <i class="fas fa-save"></i>
+                                            </button>
+                                        <% } else { %>
+                                            <div class="text-center text-gray-500 py-2">
+                                                <div class="text-sm">Kelengkapan belum dibuat</div>
+                                                <div class="text-xs text-gray-400">ID: <%= item.kelengkapan_id || 'Tidak ada' %></div>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </td>
+                                
+                                <!-- Action Column - Always show for each row -->
+                                <td class="px-6 py-4 text-center">
+                                    <div class="space-y-2">
+                                        <% if (isFirstInGroup) { %>
+                                            <button onclick="openEditModal(this)" 
+                                                    class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-medium rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 shadow-lg w-full" 
+                                                    data-order-id="<%= item.order_id %>" 
+                                                    data-nama-pemesan="<%- item.nama_pemesan || 'Unknown' %>"
+                                                    data-total-ongkir="<%= totalOngkir %>">
+                                                <i class="fas fa-edit mr-2"></i> Edit Pemesan
+                                            </button>
+                                        <% } %>
+                                        
+                                        <!-- Detail Button for Preview -->
+                                        <% if (item.bukti_tf || item.mutasi) { %>
+                                            <button onclick="openPreviewModal(this)" 
+                                                    class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-medium rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 w-full justify-center"
+                                                    data-bukti-tf="<%= item.bukti_tf || '' %>"
+                                                    data-mutasi="<%= item.mutasi || '' %>"
+                                                    data-jamaah-name="<%= item.nama_jamaah || 'Unknown' %>"
+                                                    data-order-id="<%= item.order_id %>">
+                                                <i class="fas fa-eye mr-1"></i>
+                                                Detail
+                                            </button>
+                                        <% } %>
+                                        
+                                        <% if (!isFirstInGroup && !item.bukti_tf && !item.mutasi) { %>
+                                            <span class="text-gray-400 text-sm">-</span>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); 
+                        }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+<!-- Enhanced Modern Edit Modal -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden z-50 transition-all duration-300">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-primary to-primary-dark rounded-t-3xl px-8 py-6 relative overflow-hidden">
+                <div class="absolute inset-0 bg-black opacity-10"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">Edit Rekap Ongkir</h3>
+                        <p class="text-primary-light mt-1">Kelola data ongkir untuk pemesan</p>
+                        <div class="mt-2 flex items-center gap-4 text-sm text-primary-light">
+                            <span id="modalOrderInfo" class="bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+                                <i class="fas fa-hashtag mr-1"></i>Order: -
+                            </span>
+                            <span id="modalPemesanInfo" class="bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+                                <i class="fas fa-user mr-1"></i>Pemesan: -
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="closeEditModal()" 
+                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-xl transition-all duration-200 transform hover:scale-110 hover:rotate-90">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body with Scrollable Content -->
+            <div class="overflow-y-auto max-h-[calc(90vh-140px)]">
+                <form id="editForm" method="POST" enctype="multipart/form-data" class="p-8">
+                    <input type="hidden" id="edit_order_id" name="order_id">
+
+                    <!-- Progress Indicator -->
+                    <div id="progressIndicator" class="mb-6 hidden">
+                        <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                            <span>Progress</span>
+                            <span id="progressText">0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="progressBar" class="bg-gradient-to-r from-primary to-primary-dark h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Jamaah List Section -->
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-users text-primary mr-2"></i>
+                                Daftar Jamaah & Nominal Ongkir
+                            </h4>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="setAllNominal()" 
+                                        class="px-3 py-1.5 text-xs font-medium text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-all duration-200">
+                                    <i class="fas fa-magic mr-1"></i>Set Semua
+                                </button>
+                                <button type="button" onclick="clearAllNominal()" 
+                                        class="px-3 py-1.5 text-xs font-medium text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-all duration-200">
+                                    <i class="fas fa-eraser mr-1"></i>Clear
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Bulk Set Nominal -->
+                        <div id="bulkSetContainer" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-xl hidden">
+                            <div class="flex items-center gap-4">
+                                <label class="text-sm font-medium text-blue-800">Set nominal untuk semua jamaah:</label>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-blue-600">Rp</span>
+                                    <input type="text" id="bulkNominalInput" 
+                                           class="w-32 px-3 py-1.5 border border-blue-300 rounded-lg text-right font-semibold focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                                           placeholder="0" oninput="formatNominalInput(this)">
+                                </div>
+                                <button type="button" onclick="applyBulkNominal()" 
+                                        class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200">
+                                    <i class="fas fa-check mr-1"></i>Terapkan
+                                </button>
+                                <button type="button" onclick="cancelBulkSet()" 
+                                        class="px-3 py-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-all duration-200">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="jamaahListContainer" class="space-y-3 max-h-80 overflow-y-auto bg-gray-50 rounded-2xl p-6 border-2 border-gray-100">
+                            <!-- Dynamic list of jamaah nominal inputs will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Total Nominal Section -->
+                    <div class="mb-8 p-6 bg-gradient-to-r from-primary/10 to-primary-light/20 rounded-2xl border-2 border-primary/20">
+                        <div class="flex items-center justify-between">
+                            <div class="font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-calculator text-primary mr-2"></i>
+                                <div>
+                                    <div class="text-lg">Total Nominal Ongkir</div>
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <span id="jamaahCount">0</span> jamaah
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-lg font-medium text-gray-600">Rp</span>
+                                    <span id="totalNominal" class="text-3xl font-bold text-primary">0</span>
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Rata-rata: Rp <span id="averageNominal">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced File Upload Section -->
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <!-- Bukti Transfer -->
+                        <div class="space-y-3">
+                            <label for="bukti_tf" class="block text-sm font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-receipt text-primary mr-2"></i>
+                                Bukti Transfer
+                                <span class="text-xs text-gray-500 font-normal ml-2">(Opsional)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="file" 
+                                       id="bukti_tf" 
+                                       name="bukti_tf" 
+                                       accept="image/*,application/pdf"
+                                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div id="bukti_tf_upload_area" class="border-2 border-dashed border-primary/30 rounded-xl p-6 text-center bg-gradient-to-br from-primary/5 to-primary-light/20 hover:border-primary/50 hover:bg-primary/10 transition-all duration-200">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-primary mb-3"></i>
+                                    <p class="text-sm font-medium text-gray-700">Klik untuk upload bukti transfer</p>
+                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (Max 5MB)</p>
+                                </div>
+                            </div>
+                            <div id="current_bukti_tf" class="hidden">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm text-blue-800 font-medium">File saat ini:</p>
+                                            <a href="#" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm underline"></a>
+                                        </div>
+                                        <button type="button" onclick="removeCurrentFile('bukti_tf')" 
+                                                class="text-red-500 hover:text-red-700 p-1">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mutasi -->
+                        <div class="space-y-3">
+                            <label for="mutasi" class="block text-sm font-semibold text-gray-900 mb-2">
+                                <i class="fas fa-image text-primary mr-2"></i>
+                                Mutasi
+                                <span class="text-xs text-gray-500 font-normal ml-2">(Opsional)</span>
+                            </label>
+                            <div class="relative">
+                                <input type="file" 
+                                       id="mutasi" 
+                                       name="mutasi" 
+                                       accept="image/*,application/pdf"
+                                       class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                <div id="mutasi_upload_area" class="border-2 border-dashed border-emerald-300 rounded-xl p-6 text-center bg-gradient-to-br from-emerald-50 to-green-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all duration-200">
+                                    <i class="fas fa-camera text-3xl text-emerald-600 mb-3"></i>
+                                    <p class="text-sm font-medium text-gray-700">Klik untuk upload foto mutasi</p>
+                                    <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (Max 5MB)</p>
+                                </div>
+                            </div>
+                            <div id="current_mutasi" class="hidden">
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm text-green-800 font-medium">File saat ini:</p>
+                                            <a href="#" target="_blank" class="text-green-600 hover:text-green-800 text-sm underline"></a>
+                                        </div>
+                                        <button type="button" onclick="removeCurrentFile('mutasi')" 
+                                                class="text-red-500 hover:text-red-700 p-1">
+                                            <i class="fas fa-trash text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validation Summary -->
+                    <div id="validationSummary" class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl hidden">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5"></i>
+                            <div>
+                                <h5 class="font-semibold text-yellow-800 mb-2">Periksa Data Berikut:</h5>
+                                <ul id="validationList" class="text-sm text-yellow-700 space-y-1"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-between items-center gap-4 pt-6 border-t border-gray-200">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Pastikan semua data sudah benar sebelum menyimpan</span>
+                        </div>
+                        <div class="flex gap-3">
+                            <button type="button" 
+                                    onclick="closeEditModal()"
+                                    class="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 transform hover:scale-105">
+                                <i class="fas fa-times mr-2"></i>
+                                Batal
+                            </button>
+                            <button type="button" 
+                                    onclick="validateForm()"
+                                    class="px-6 py-3 text-sm font-semibold text-blue-700 bg-blue-100 rounded-xl hover:bg-blue-200 transition-all duration-200 transform hover:scale-105">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Validasi
+                            </button>
+                            <button type="submit"
+                                    class="px-8 py-3 text-sm font-semibold text-white bg-gradient-to-r from-primary to-primary-dark rounded-xl hover:from-primary-dark hover:to-primary transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-save mr-2"></i>
+                                Simpan Semua
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detail Penerima Modal -->
+<div id="detailPenerimaModal" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm hidden z-50 transition-all duration-300">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="detailPenerimaModalContent">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-3xl px-8 py-6 relative overflow-hidden">
+                <div class="absolute inset-0 bg-black opacity-10"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">Detail Penerima</h3>
+                        <p class="text-blue-100 mt-1">Informasi lengkap penerima untuk jamaah</p>
+                        <div class="mt-2 flex items-center gap-4 text-sm text-blue-100">
+                            <span id="detailJamaahInfo" class="bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+                                <i class="fas fa-user mr-1"></i>Jamaah: -
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="closeDetailPenerimaModal()" 
+                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-xl transition-all duration-200 transform hover:scale-110 hover:rotate-90">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="overflow-y-auto max-h-[calc(90vh-140px)] p-8">
+                <!-- Loading State -->
+                <div id="detailPenerimaLoading" class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                    <p class="mt-4 text-gray-600">Memuat data penerima...</p>
+                </div>
+
+                <!-- Error State -->
+                <div id="detailPenerimaError" class="hidden text-center py-12">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-2xl"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Data Tidak Ditemukan</h4>
+                    <p class="text-gray-600" id="detailPenerimaErrorMessage">Tidak ada data penerima untuk jamaah ini.</p>
+                </div>
+
+                <!-- Content -->
+                <div id="detailPenerimaContent" class="hidden space-y-6">
+                    <!-- Informasi Penerima -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-address-card text-blue-500 mr-2"></i>
+                            Informasi Penerima
+                        </h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Penerima</label>
+                                <div id="namaPenerima" class="text-lg font-semibold text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                                <div id="nomorTelp" class="text-lg font-semibold text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alamat Lengkap -->
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-6 border border-green-100">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>
+                            Alamat Pengiriman
+                        </h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label>
+                                <div id="alamatLengkap" class="text-gray-900 bg-white p-4 rounded-lg border min-h-[60px]">-</div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kecamatan</label>
+                                    <div id="kecamatan" class="text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kelurahan</label>
+                                    <div id="kelurahan" class="text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Provinsi</label>
+                                    <div id="provinsi" class="text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Kabupaten</label>
+                                    <div id="kabupaten" class="text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Informasi Tambahan -->
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100">
+                        <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-info-circle text-purple-500 mr-2"></i>
+                            Informasi Tambahan
+                        </h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Dibuat Pada</label>
+                                <div id="createdAt" class="text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Terakhir Diupdate</label>
+                                <div id="updatedAt" class="text-gray-900 bg-white px-4 py-2 rounded-lg border">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end items-center gap-4 pt-6 border-t border-gray-200">
+                    <button type="button" 
+                            onclick="closeDetailPenerimaModal()"
+                            class="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 transform hover:scale-105">
+                        <i class="fas fa-times mr-2"></i>
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Preview Modal -->
+<div id="previewModal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm hidden z-50 transition-all duration-300">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden transform transition-all duration-300 scale-95 opacity-0" id="previewModalContent">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-3xl px-8 py-6 relative overflow-hidden">
+                <div class="absolute inset-0 bg-black opacity-10"></div>
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">Preview Dokumen</h3>
+                        <p class="text-purple-100 mt-1">Bukti transfer dan mutasi</p>
+                        <div class="mt-2 flex items-center gap-4 text-sm text-purple-100">
+                            <span id="previewJamaahInfo" class="bg-white bg-opacity-20 px-3 py-1 rounded-lg">
+                                <i class="fas fa-user mr-1"></i>Jamaah: -
+                            </span>
+                            <span id="previewOrderInfo" class="bg-white hidden bg-opacity-20 px-3 py-1 rounded-lg">
+                                <i class="fas fa-hashtag mr-1"></i>Order: -
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="closePreviewModal()" 
+                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white p-3 rounded-xl transition-all duration-200 transform hover:scale-110 hover:rotate-90">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="overflow-y-auto max-h-[calc(95vh-140px)] p-8">
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Bukti Transfer Preview -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-receipt text-blue-500 mr-2"></i>
+                                Bukti Transfer
+                            </h4>
+                            <div id="buktiTfActions" class="hidden">
+                                <a id="buktiTfDownload" href="#" target="_blank" 
+                                   class="inline-flex items-center px-3 py-1.5 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600 transition-all duration-200">
+                                    <i class="fas fa-download mr-1"></i>
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                        <div id="buktiTfPreview" class="border-2 border-gray-200 rounded-xl min-h-[400px] flex items-center justify-center bg-gray-50">
+                            <div class="text-center text-gray-500">
+                                <i class="fas fa-file-alt text-4xl mb-3"></i>
+                                <p>Tidak ada bukti transfer</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mutasi Preview -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-image text-green-500 mr-2"></i>
+                                Mutasi
+                            </h4>
+                            <div id="mutasiActions" class="hidden">
+                                <a id="mutasiDownload" href="#" target="_blank" 
+                                   class="inline-flex items-center px-3 py-1.5 bg-green-500 text-white text-xs rounded-lg hover:bg-green-600 transition-all duration-200">
+                                    <i class="fas fa-download mr-1"></i>
+                                    Download
+                                </a>
+                            </div>
+                        </div>
+                        <div id="mutasiPreview" class="border-2 border-gray-200 rounded-xl min-h-[400px] flex items-center justify-center bg-gray-50">
+                            <div class="text-center text-gray-500">
+                                <i class="fas fa-image text-4xl mb-3"></i>
+                                <p>Tidak ada mutasi</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end items-center gap-4 pt-6 border-t border-gray-200 mt-8">
+                    <button onclick="closePreviewModal()" 
+                            class="px-6 py-3 text-sm font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 transform hover:scale-105">
+                        <i class="fas fa-times mr-2"></i>
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Debug: Log current filter values on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPaket = '<%= filters.paket %>';
+    const currentStatus = '<%= filters.status %>';
+    
+    console.log('[REKAP-ONGKIR] Current filters:', {
+        paket: currentPaket,
+        status: currentStatus
+    });
+    
+    // Verify selected value in dropdown
+    const packageFilter = document.getElementById('packageFilter');
+    if (packageFilter) {
+        console.log('[REKAP-ONGKIR] Package dropdown value:', packageFilter.value);
+        console.log('[REKAP-ONGKIR] Expected paket value:', currentPaket);
+        
+        if (packageFilter.value !== currentPaket) {
+            console.warn('[REKAP-ONGKIR] WARNING: Dropdown value does not match filter!');
+            console.warn('Attempting to set correct value...');
+            packageFilter.value = currentPaket;
+            console.log('[REKAP-ONGKIR] Dropdown value after fix:', packageFilter.value);
+        }
+        
+        // Add change event listener to package filter for debugging
+        packageFilter.addEventListener('change', function() {
+            console.log('[REKAP-ONGKIR] Package filter changed to:', this.value);
+            const selectedOption = this.options[this.selectedIndex];
+            console.log('[REKAP-ONGKIR] Selected package:', selectedOption.text);
+        });
+    }
+    
+    // Add event listener to form submit for debugging
+    const filterForm = document.getElementById('filterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            const paketValue = document.getElementById('packageFilter').value;
+            const statusValue = document.getElementById('statusFilter').value;
+            console.log('[REKAP-ONGKIR] Form submitting with:', {
+                paket: paketValue,
+                status: statusValue
+            });
+        });
+    }
+});
+
+function resetFilters() {
+    console.log('[REKAP-ONGKIR] Resetting filters...');
+    // Reset select elements to default values
+    document.getElementById('packageFilter').value = 'all';
+    document.getElementById('statusFilter').value = 'all';
+    
+    // Submit form to reload with default filters
+    const form = document.getElementById('filterForm');
+    
+    // Create URL without query parameters (reset to base URL)
+    const baseUrl = window.location.pathname;
+    window.location.href = baseUrl;
+}
+
+function openEditModal(button) {
+    const orderId = button.getAttribute('data-order-id');
+    const namaPemesan = button.getAttribute('data-nama-pemesan');
+    const totalOngkir = button.getAttribute('data-total-ongkir');
+
+    // Set order_id hidden input
+    document.getElementById('edit_order_id').value = orderId;
+
+    // Update modal header info
+    document.getElementById('modalOrderInfo').innerHTML = `<i class="fas fa-hashtag mr-1"></i>Order: ${orderId}`;
+    document.getElementById('modalPemesanInfo').innerHTML = `<i class="fas fa-user mr-1"></i>Pemesan: ${namaPemesan}`;
+
+    // Clear previous list and reset states
+    const container = document.getElementById('jamaahListContainer');
+    container.innerHTML = '';
+    hideValidationSummary();
+    resetFileUploads();
+
+    // Find all rows with this order_id
+    const groupRows = document.querySelectorAll('tr[data-order-id="' + orderId + '"]');
+    if (groupRows.length === 0) {
+        showNotification('Data tidak ditemukan', 'error');
+        return;
+    }
+
+    // For each jamaah, create enhanced input for nominal ongkir
+    let totalNominalFromData = 0;
+    let jamaahCount = 0;
+    
+    groupRows.forEach((row, index) => {
+        let data;
+        try {
+            data = JSON.parse(decodeURIComponent(row.getAttribute('data-item')));
+        } catch (e) {
+            console.error('Error parsing data:', e);
+            return;
+        }
+
+        // Add to total from existing data
+        totalNominalFromData += Number(data.nominal || 0);
+        jamaahCount++;
+
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-4 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-200';
+
+        const labelDiv = document.createElement('div');
+        labelDiv.className = 'flex-1';
+        labelDiv.innerHTML = `
+            <div class="font-semibold text-gray-900 flex items-center">
+                <i class="fas fa-user text-primary mr-2"></i>
+                ${data.nama_jamaah || 'Nama Jamaah'}
+                <span class="ml-2 px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">#${index + 1}</span>
+            </div>
+            <div class="text-sm text-gray-500 mt-1">
+                <i class="fas fa-id-card mr-1"></i>
+                Kelengkapan ID: ${data.kelengkapan_id || '-'}
+            </div>
+        `;
+
+        const inputDiv = document.createElement('div');
+        inputDiv.className = 'flex items-center gap-3';
+        inputDiv.innerHTML = `
+            <span class="text-sm font-medium text-gray-600">Rp</span>
+            <input type="text" 
+                   name="nominal_${data.kelengkapan_id}" 
+                   value="${(data.nominal || 0).toLocaleString('id-ID')}"
+                   class="nominal-input w-40 px-4 py-2 border-2 border-gray-200 rounded-xl text-right font-semibold focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+                   oninput="formatNominalInput(this)"
+                   onchange="updateTotalNominal()"
+                   placeholder="0"
+                   data-kelengkapan-id="${data.kelengkapan_id}">
+        `;
+
+        div.appendChild(labelDiv);
+        div.appendChild(inputDiv);
+        container.appendChild(div);
+    });
+
+    // Update totals and counts
+    updateTotalNominal();
+    document.getElementById('jamaahCount').textContent = jamaahCount;
+
+    // Show current files if they exist
+    const firstRowData = JSON.parse(decodeURIComponent(groupRows[0].getAttribute('data-item')));
+    
+    // Show current bukti_tf
+    const currentBuktiTf = document.getElementById('current_bukti_tf');
+    if (firstRowData.bukti_tf) {
+        currentBuktiTf.classList.remove('hidden');
+        const link = currentBuktiTf.querySelector('a');
+        link.href = '/uploads/rekap_ongkir/' + firstRowData.bukti_tf;
+        link.textContent = firstRowData.bukti_tf;
+    } else {
+        currentBuktiTf.classList.add('hidden');
+    }
+
+    // Show current mutasi
+    const currentMutasi = document.getElementById('current_mutasi');
+    if (firstRowData.mutasi) {
+        currentMutasi.classList.remove('hidden');
+        const link = currentMutasi.querySelector('a');
+        link.href = '/uploads/rekap_ongkir/' + firstRowData.mutasi;
+        link.textContent = firstRowData.mutasi;
+    } else {
+        currentMutasi.classList.add('hidden');
+    }
+
+    // Show modal with animation
+    const modal = document.getElementById('editModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    modal.classList.remove('hidden');
+    
+    // Force reflow to ensure the modal is rendered
+    modal.offsetHeight;
+    
+    // Animate modal appearance
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+// Enhanced helper functions for the improved modal
+function hideValidationSummary() {
+    document.getElementById('validationSummary').classList.add('hidden');
+}
+
+function resetFileUploads() {
+    // Reset bukti_tf upload area
+    const buktiTfArea = document.getElementById('bukti_tf_upload_area');
+    buktiTfArea.innerHTML = `
+        <i class="fas fa-cloud-upload-alt text-3xl text-primary mb-3"></i>
+        <p class="text-sm font-medium text-gray-700">Klik untuk upload bukti transfer</p>
+        <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (Max 5MB)</p>
+    `;
+    buktiTfArea.className = 'border-2 border-dashed border-primary/30 rounded-xl p-6 text-center bg-gradient-to-br from-primary/5 to-primary-light/20 hover:border-primary/50 hover:bg-primary/10 transition-all duration-200';
+
+    // Reset mutasi upload area
+    const mutasiArea = document.getElementById('mutasi_upload_area');
+    mutasiArea.innerHTML = `
+        <i class="fas fa-camera text-3xl text-emerald-600 mb-3"></i>
+        <p class="text-sm font-medium text-gray-700">Klik untuk upload foto mutasi</p>
+        <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (Max 5MB)</p>
+    `;
+    mutasiArea.className = 'border-2 border-dashed border-emerald-300 rounded-xl p-6 text-center bg-gradient-to-br from-emerald-50 to-green-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all duration-200';
+
+    // Clear file inputs
+    document.getElementById('bukti_tf').value = '';
+    document.getElementById('mutasi').value = '';
+}
+
+function setAllNominal() {
+    document.getElementById('bulkSetContainer').classList.remove('hidden');
+    document.getElementById('bulkNominalInput').focus();
+}
+
+function clearAllNominal() {
+    const inputs = document.querySelectorAll('.nominal-input');
+    inputs.forEach(input => {
+        input.value = '';
+    });
+    updateTotalNominal();
+}
+
+function cancelBulkSet() {
+    document.getElementById('bulkSetContainer').classList.add('hidden');
+    document.getElementById('bulkNominalInput').value = '';
+}
+
+function applyBulkNominal() {
+    const bulkValue = document.getElementById('bulkNominalInput').value;
+    if (!bulkValue) {
+        showNotification('Masukkan nominal terlebih dahulu', 'error');
+        return;
+    }
+
+    const inputs = document.querySelectorAll('.nominal-input');
+    inputs.forEach(input => {
+        input.value = bulkValue;
+        formatNominalInput(input);
+    });
+    
+    updateTotalNominal();
+    cancelBulkSet();
+    showNotification('Nominal berhasil diterapkan ke semua jamaah', 'success');
+}
+
+function removeCurrentFile(type) {
+    const currentFileDiv = document.getElementById(`current_${type}`);
+    currentFileDiv.classList.add('hidden');
+    
+    // Add hidden input to mark file for removal
+    const form = document.getElementById('editForm');
+    let removeInput = form.querySelector(`input[name="remove_${type}"]`);
+    if (!removeInput) {
+        removeInput = document.createElement('input');
+        removeInput.type = 'hidden';
+        removeInput.name = `remove_${type}`;
+        removeInput.value = '1';
+        form.appendChild(removeInput);
+    }
+    
+    showNotification(`File ${type} akan dihapus saat menyimpan`, 'info');
+}
+
+function validateForm() {
+    const validationList = document.getElementById('validationList');
+    const validationSummary = document.getElementById('validationSummary');
+    const issues = [];
+
+    // Check if all nominal inputs have valid values
+    const inputs = document.querySelectorAll('.nominal-input');
+    let emptyCount = 0;
+    let invalidCount = 0;
+
+    inputs.forEach((input, index) => {
+        const value = input.value.replace(/\./g, '');
+        if (!value || value === '0') {
+            emptyCount++;
+        } else if (isNaN(parseInt(value))) {
+            invalidCount++;
+        }
+    });
+
+    if (emptyCount > 0) {
+        issues.push(`${emptyCount} jamaah belum diisi nominal ongkir`);
+    }
+    if (invalidCount > 0) {
+        issues.push(`${invalidCount} jamaah memiliki nominal tidak valid`);
+    }
+
+    // Check total nominal
+    const totalNominal = parseInt(document.getElementById('totalNominal').textContent.replace(/\./g, ''));
+    if (totalNominal === 0) {
+        issues.push('Total nominal ongkir adalah 0');
+    }
+
+    // Display validation results
+    if (issues.length > 0) {
+        validationList.innerHTML = issues.map(issue => `<li>• ${issue}</li>`).join('');
+        validationSummary.classList.remove('hidden');
+        showNotification('Ditemukan masalah dalam validasi form', 'error');
+    } else {
+        validationSummary.classList.add('hidden');
+        showNotification('Validasi berhasil! Form siap untuk disimpan', 'success');
+    }
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editModal');
+    const modalContent = document.getElementById('modalContent');
+    
+    // Animate modal disappearance
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+// Close modal when clicking outside
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeEditModal();
+    }
+});
+
+// File upload preview functionality
+document.getElementById('bukti_tf').addEventListener('change', function(e) {
+    handleFilePreview(e.target, 'bukti_tf');
+});
+
+document.getElementById('mutasi').addEventListener('change', function(e) {
+    handleFilePreview(e.target, 'mutasi');
+});
+
+function handleFilePreview(input, type) {
+    const file = input.files[0];
+    const previewContainer = input.parentElement;
+    const uploadArea = previewContainer.querySelector('div');
+    
+    if (file) {
+        // Validate file size (5MB limit)
+        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > maxSize) {
+            showNotification('Ukuran file terlalu besar. Maksimal 5MB', 'error');
+            input.value = ''; // Clear the input
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+            showNotification('Tipe file tidak didukung. Gunakan JPG, PNG, atau PDF', 'error');
+            input.value = ''; // Clear the input
+            return;
+        }
+
+        const fileName = file.name;
+        const fileSize = (file.size / 1024 / 1024).toFixed(2);
+        const fileIcon = file.type === 'application/pdf' ? 'fa-file-pdf' : 'fa-file-image';
+        
+        uploadArea.innerHTML = `
+            <i class="fas ${fileIcon} text-3xl text-green-600 mb-3"></i>
+            <p class="text-sm font-medium text-gray-700">${fileName}</p>
+            <p class="text-xs text-gray-500 mt-1">${fileSize} MB</p>
+            <div class="mt-2">
+                <button type="button" onclick="clearFileInput('${type}')" 
+                        class="text-xs text-red-600 hover:text-red-800 underline">
+                    <i class="fas fa-times mr-1"></i>Hapus
+                </button>
+            </div>
+        `;
+        uploadArea.classList.remove('border-dashed');
+        uploadArea.classList.add('border-solid', 'border-green-400', 'bg-green-50');
+        
+        showNotification(`File ${type} berhasil dipilih`, 'success', 2000);
+    }
+}
+
+function clearFileInput(type) {
+    const input = document.getElementById(type);
+    const uploadArea = document.getElementById(`${type}_upload_area`);
+    
+    input.value = '';
+    
+    // Reset upload area based on type
+    if (type === 'bukti_tf') {
+        uploadArea.innerHTML = `
+            <i class="fas fa-cloud-upload-alt text-3xl text-primary mb-3"></i>
+            <p class="text-sm font-medium text-gray-700">Klik untuk upload bukti transfer</p>
+            <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (Max 5MB)</p>
+        `;
+        uploadArea.className = 'border-2 border-dashed border-primary/30 rounded-xl p-6 text-center bg-gradient-to-br from-primary/5 to-primary-light/20 hover:border-primary/50 hover:bg-primary/10 transition-all duration-200';
+    } else {
+        uploadArea.innerHTML = `
+            <i class="fas fa-camera text-3xl text-emerald-600 mb-3"></i>
+            <p class="text-sm font-medium text-gray-700">Klik untuk upload foto mutasi</p>
+            <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (Max 5MB)</p>
+        `;
+        uploadArea.className = 'border-2 border-dashed border-emerald-300 rounded-xl p-6 text-center bg-gradient-to-br from-emerald-50 to-green-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all duration-200';
+    }
+}
+
+function formatNominalInput(input) {
+    // Remove all non-digit characters
+    let value = input.value.replace(/[^0-9]/g, '');
+
+    // Format number with dot as thousands separator
+    if (value) {
+        const numberValue = parseInt(value, 10);
+        if (!isNaN(numberValue)) {
+            input.value = numberValue.toLocaleString('id-ID');
+        } else {
+            input.value = '';
+        }
+    } else {
+        input.value = '';
+    }
+}
+
+// Enhanced function to update total nominal with average calculation
+function updateTotalNominal() {
+    const inputs = document.querySelectorAll('.nominal-input');
+    let total = 0;
+    let validCount = 0;
+    
+    inputs.forEach(input => {
+        // Remove dots before parsing
+        const numericValue = parseInt(input.value.replace(/\./g, ''), 10);
+        if (!isNaN(numericValue) && numericValue > 0) {
+            total += numericValue;
+            validCount++;
+        }
+    });
+    
+    // Update total
+    document.getElementById('totalNominal').textContent = total.toLocaleString('id-ID');
+    
+    // Update average
+    const average = validCount > 0 ? Math.round(total / validCount) : 0;
+    document.getElementById('averageNominal').textContent = average.toLocaleString('id-ID');
+    
+    // Update jamaah count
+    document.getElementById('jamaahCount').textContent = inputs.length;
+}
+
+// Handle form submission for batch update with enhanced loading states
+document.getElementById('editForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const orderId = document.getElementById('edit_order_id').value;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalText = submitButton.innerHTML;
+
+    // Show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...';
+    submitButton.classList.remove('hover:from-primary-dark', 'hover:to-primary');
+    submitButton.classList.add('opacity-75');
+
+    // Prepare form data
+    const formData = new FormData(form);
+
+    // Collect nominal values for each kelengkapan_id
+    const nominalData = {};
+    let allNominalsProvided = true;
+    let totalNominal = 0;
+    const inputs = document.querySelectorAll('.nominal-input');
+    
+    inputs.forEach(input => {
+        const kelengkapanId = input.name.replace('nominal_', '');
+        // Remove dots before parsing, just like updateTotalNominal function
+        const numericValue = parseInt(input.value.replace(/\./g, ''), 10);
+        const value = isNaN(numericValue) ? 0 : numericValue;
+        if (!input.value || isNaN(numericValue) || numericValue <= 0) {
+            allNominalsProvided = false;
+        }
+        nominalData[kelengkapanId] = value;
+        totalNominal += value;
+    });
+
+    if (!allNominalsProvided) {
+        showNotification('Harap isi semua nominal ongkir untuk setiap jamaah dengan nilai yang valid', 'error');
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalText;
+        submitButton.classList.remove('opacity-75');
+        submitButton.classList.add('hover:from-primary-dark', 'hover:to-primary');
+        return;
+    }
+
+    // Append nominalData as JSON string
+    formData.append('nominalData', JSON.stringify(nominalData));
+
+    console.log('Submitting form data:');
+    console.log('orderId:', orderId);
+    console.log('nominalData:', nominalData);
+    console.log('totalNominal:', totalNominal);
+    console.log('bukti_tf file:', formData.has('bukti_tf') && formData.get('bukti_tf').size > 0);
+    console.log('mutasi file:', formData.has('mutasi') && formData.get('mutasi').size > 0);
+
+    try {
+        const response = await fetch('/jamaah/rekap-ongkir/batch-update/' + orderId, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error:', errorText);
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const responseData = await response.json();
+        console.log('Success response:', responseData);
+        
+        // Show success animation
+        submitButton.innerHTML = '<i class="fas fa-check mr-2"></i>Berhasil!';
+        submitButton.classList.remove('from-primary', 'to-primary-dark', 'opacity-75');
+        submitButton.classList.add('from-green-500', 'to-green-600');
+        
+        showNotification(`Data ongkir berhasil diperbarui dengan total: Rp ${responseData.total_nominal?.toLocaleString('id-ID') || totalNominal.toLocaleString('id-ID')}`, 'success');
+        
+        setTimeout(() => {
+            closeEditModal();
+            location.reload();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error submitting batch update:', error);
+        
+        // Show error state
+        submitButton.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Error!';
+        submitButton.classList.remove('from-primary', 'to-primary-dark', 'opacity-75');
+        submitButton.classList.add('from-red-500', 'to-red-600');
+        
+        showNotification('Terjadi kesalahan saat menyimpan data ongkir: ' + error.message, 'error');
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+            submitButton.classList.remove('from-red-500', 'to-red-600');
+            submitButton.classList.add('from-primary', 'to-primary-dark', 'hover:from-primary-dark', 'hover:to-primary');
+        }, 3000);
+    }
+});
+</script>
+
+<script>
+// Function to open Detail Penerima Modal
+function openDetailPenerimaModal(button) {
+    // Prevent DataTables conflicts by stopping event propagation
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const kelengkapanId = button.getAttribute('data-kelengkapan-id');
+    const namaJamaah = button.getAttribute('data-nama-jamaah');
+    const orderDetailsId = button.getAttribute('data-order-details-id');
+    
+    console.log('Opening detail penerima modal for:', { 
+        kelengkapanId, 
+        namaJamaah, 
+        orderDetailsId,
+        buttonElement: button 
+    });
+    
+    // Validate required data
+    if (!orderDetailsId || orderDetailsId === '') {
+        console.error('Order Details ID is missing or empty');
+        showNotification('Data tidak lengkap - Order Details ID tidak tersedia', 'error');
+        return;
+    }
+    
+    // Update modal header info
+    document.getElementById('detailJamaahInfo').innerHTML = `<i class="fas fa-user mr-1"></i>Jamaah: ${namaJamaah}`;
+    
+    // Show modal with animation
+    const modal = document.getElementById('detailPenerimaModal');
+    const modalContent = document.getElementById('detailPenerimaModalContent');
+    
+    modal.classList.remove('hidden');
+    
+    // Force reflow to ensure the modal is rendered
+    modal.offsetHeight;
+    
+    // Animate modal appearance
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+    
+    // Show loading state
+    document.getElementById('detailPenerimaLoading').classList.remove('hidden');
+    document.getElementById('detailPenerimaError').classList.add('hidden');
+    document.getElementById('detailPenerimaContent').classList.add('hidden');
+    
+    // Fetch detail penerima data
+    fetchDetailPenerima(orderDetailsId);
+}
+
+// Function to close Detail Penerima Modal
+function closeDetailPenerimaModal() {
+    const modal = document.getElementById('detailPenerimaModal');
+    const modalContent = document.getElementById('detailPenerimaModalContent');
+    
+    // Animate modal disappearance
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+// Function to fetch detail penerima data
+async function fetchDetailPenerima(orderDetailsId) {
+    try {
+        console.log('Fetching detail penerima for order_details_id:', orderDetailsId);
+        
+        // Construct the full URL for debugging
+        const apiUrl = `/jamaah/rekap-ongkir/detail-penerima/${orderDetailsId}`;
+        console.log('API URL:', apiUrl);
+        
+        const response = await fetch(apiUrl);
+        
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        if (!response.ok) {
+            console.error('HTTP Error:', response.status, response.statusText);
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            showDetailPenerimaError(errorData.message || errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+            return;
+        }
+        
+        const data = await response.json();
+        console.log('Detail penerima data received:', data);
+        
+        // Hide loading and error
+        document.getElementById('detailPenerimaLoading').classList.add('hidden');
+        document.getElementById('detailPenerimaError').classList.add('hidden');
+        document.getElementById('detailPenerimaContent').classList.remove('hidden');
+        
+        // Check if receiver data exists
+        if (!data.has_receiver_data) {
+            // Show no data message but still show jamaah info
+            showDetailPenerimaNoData(data);
+        } else {
+            // Populate with receiver data
+            populateDetailPenerima(data);
+        }
+        
+    } catch (error) {
+        console.error('Error fetching detail penerima:', error);
+        showDetailPenerimaError(`Terjadi kesalahan saat memuat data penerima: ${error.message}`);
+    }
+}
+
+// Function to show no data message
+function showDetailPenerimaNoData(data) {
+    document.getElementById('detailPenerimaLoading').classList.add('hidden');
+    document.getElementById('detailPenerimaContent').classList.remove('hidden');
+    document.getElementById('detailPenerimaError').classList.add('hidden');
+    
+    // Show empty fields for receiver data
+    document.getElementById('namaPenerima').textContent = '-';
+    document.getElementById('nomorTelp').textContent = '-';
+    document.getElementById('alamatLengkap').textContent = '-';
+    document.getElementById('kecamatan').textContent = '-';
+    document.getElementById('kelurahan').textContent = '-';
+    document.getElementById('provinsi').textContent = '-';
+    document.getElementById('kabupaten').textContent = '-';
+    document.getElementById('createdAt').textContent = '-';
+    document.getElementById('updatedAt').textContent = '-';
+    
+    // Show info message
+    showNotification(data.message || 'Data penerima belum diinput untuk jamaah ini', 'info');
+}
+
+// Function to show error in detail penerima modal
+function showDetailPenerimaError(message) {
+    document.getElementById('detailPenerimaLoading').classList.add('hidden');
+    document.getElementById('detailPenerimaContent').classList.add('hidden');
+    document.getElementById('detailPenerimaError').classList.remove('hidden');
+    document.getElementById('detailPenerimaErrorMessage').textContent = message;
+}
+
+// Function to populate detail penerima data
+function populateDetailPenerima(data) {
+    // Format dates
+    const formatDate = (dateStr) => {
+        if (!dateStr) return '-';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleString('id-ID', {
+                day: '2-digit',
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch (e) {
+            return dateStr;
+        }
+    };
+    
+    // Populate fields
+    document.getElementById('namaPenerima').textContent = data.nama_penerima || '-';
+    document.getElementById('nomorTelp').textContent = data.nomor_telp || '-';
+    document.getElementById('alamatLengkap').textContent = data.alamat_lengkap || '-';
+    document.getElementById('kecamatan').textContent = data.kecamatan || '-';
+    document.getElementById('kelurahan').textContent = data.kelurahan || '-';
+    document.getElementById('provinsi').textContent = data.provinsi_nama || '-';
+    document.getElementById('kabupaten').textContent = data.kabupaten_nama || '-';
+    document.getElementById('createdAt').textContent = formatDate(data.created_at);
+    document.getElementById('updatedAt').textContent = formatDate(data.updated_at);
+}
+
+// Close modal when clicking outside
+document.getElementById('detailPenerimaModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDetailPenerimaModal();
+    }
+});
+</script>
+
+<script>
+// Handle filter form submission
+document.getElementById('filterForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const paket = document.getElementById('packageFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    
+    // Show loading overlay
+    showLoadingOverlay();
+    
+    // Build query params
+    let queryParams = [];
+    
+    if (paket && paket !== 'all') {
+        queryParams.push(`paket=${encodeURIComponent(paket)}`);
+    }
+    
+    if (status && status !== 'all') {
+        queryParams.push(`status=${encodeURIComponent(status)}`);
+    }
+    
+    // Redirect with query params
+    const queryString = queryParams.length > 0 ? '?' + queryParams.join('&') : '';
+    
+    try {
+        window.location.href = `/jamaah/rekap-ongkir${queryString}`;
+    } catch (error) {
+        console.error('Error navigating to filtered page:', error);
+        // Hide loading overlay if error occurs
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.remove();
+        }
+        showNotification('Terjadi kesalahan saat memfilter data', 'error');
+    }
+});
+
+// Debounce function to prevent too frequent filter submissions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Create debounced filter function
+const debouncedFilterSubmit = debounce(() => {
+    document.getElementById('filterForm').dispatchEvent(new Event('submit'));
+}, 300);
+
+// Auto-submit filter when select values change
+document.getElementById('packageFilter').addEventListener('change', function() {
+    debouncedFilterSubmit();
+});
+
+document.getElementById('statusFilter').addEventListener('change', function() {
+    debouncedFilterSubmit();
+});
+
+// Initialize when document is ready
+$(document).ready(function() {
+    // Initialize Flowbite tooltips
+    const tooltipTriggerList = document.querySelectorAll('[data-tooltip-target]');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        const targetId = tooltipTriggerEl.getAttribute('data-tooltip-target');
+        const tooltipEl = document.getElementById(targetId);
+        if (tooltipEl) {
+            const placement = tooltipTriggerEl.getAttribute('data-tooltip-placement') || 'top';
+            const trigger = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) ? 'click' : 'hover';
+            new Tooltip(tooltipEl, tooltipTriggerEl, {
+                placement: placement,
+                triggerType: trigger,
+                delay: trigger === 'click' ? 0 : 200
+            });
+        }
+    });
+
+    // Initialize DataTable with proper configuration
+    const table = $('#rekapOngkirTable').DataTable({
+        language: {
+            search: "Cari:",
+            lengthMenu: "Tampilkan _MENU_ data",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+            infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+            infoFiltered: "(disaring dari _MAX_ total data)",
+            zeroRecords: "Tidak ada data yang ditemukan",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Selanjutnya",
+                previous: "Sebelumnya"
+            }
+        },
+        orderCellsTop: true,
+        fixedHeader: false,
+        pageLength: 50,
+        ordering: true, // Enable ordering since no rowspan conflicts
+        searching: true,
+        paging: true,
+        info: true,
+        autoWidth: false,
+        responsive: true, // Re-enable responsive since no rowspan conflicts
+        order: [[1, 'asc'], [2, 'asc']], // Default order by Nama Pemesan, then Nama Jamaah
+        columnDefs: [
+            { targets: '_all', className: 'align-top' },
+            { targets: [0], orderable: false }, // No column
+            { targets: [1], orderable: true }, // Nama Pemesan (dengan Order ID)
+            { targets: [2], orderable: true }, // Nama Jamaah
+            { targets: [3], orderable: true }, // Periode
+            { targets: [4], orderable: false }, // Kontak
+            { targets: [5], orderable: true }, // Total Ongkir
+            { targets: [6], orderable: true }, // Status Bayar
+            { targets: [7, 8], orderable: false } // Status Pengambilan and Actions
+        ],
+        dom: "<'row mb-4'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+             "<'row'<'col-sm-12'tr>>" +
+             "<'row mt-4'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        drawCallback: function(settings) {
+            // Handle group styling after each draw
+            var api = this.api();
+            var rows = api.rows({ page: 'current' }).nodes();
+            
+            // Apply group styling
+            $(rows).each(function(index, row) {
+                try {
+                    const $row = $(row);
+                    const item = JSON.parse(decodeURIComponent($row.attr('data-item')));
+                    const groupIndex = parseInt($row.attr('data-group-index'));
+                    
+                    // Add alternating group background
+                    if (groupIndex % 2 === 0) {
+                        $row.addClass('bg-gray-50');
+                    } else {
+                        $row.addClass('bg-white');
+                    }
+                    
+                    // Add group borders
+                    if ($row.hasClass('first-in-group')) {
+                        $row.find('td').addClass('border-t-2 border-primary/30');
+                    }
+                    if ($row.hasClass('last-in-group')) {
+                        $row.find('td').addClass('border-b-2 border-primary/30');
+                    }
+                } catch (e) {
+                    console.error('Error processing row styling:', e);
+                }
+            });
+        },
+        initComplete: function() {
+            console.log('DataTable initialized successfully');
+            
+            // Add enhanced search functionality
+            $('#rekapOngkirTable_filter input').addClass('px-4 py-2 border-2 border-gray-200 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200');
+            $('#rekapOngkirTable_filter input').attr('placeholder', 'Cari nama jamaah, pemesan, alamat...');
+            
+            // Style the length selector
+            $('#rekapOngkirTable_length select').addClass('px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200');
+        }
+    });
+
+    // Handle responsive layout
+    $(window).on('resize', function() {
+        if (table) {
+            table.columns.adjust();
+        }
+    });
+
+    // Fungsi untuk menghitung total jamaah dalam satu grup
+    function countJamaahInGroup(orderId) {
+        let count = 0;
+        $('tr[data-item]').each(function() {
+            try {
+                const item = JSON.parse(decodeURIComponent($(this).attr('data-item')));
+                if (item.order_id === orderId) {
+                    count++;
+                }
+            } catch (e) {
+                console.error('Error counting jamaah:', e);
+            }
+        });
+        return count;
+    }
+
+    // DataTables built-in search is sufficient for our needs
+    // Custom search functionality removed to prevent JavaScript errors
+});
+
+// Add event listeners for automatic status update when select changes
+$(document).ready(function() {
+    // Initialize previous values for all select elements
+    $('select[id^="status_"]').each(function() {
+        const selectElement = this;
+        const currentValue = selectElement.value;
+        selectElement.setAttribute('data-previous-value', currentValue);
+        console.log('Initialized select:', selectElement.id, 'with value:', currentValue);
+    });
+    
+    // Initialize previous values for all payment status select elements
+    $('select[id^="payment_status_"]').each(function() {
+        const selectElement = this;
+        const currentValue = selectElement.value;
+        selectElement.setAttribute('data-previous-value', currentValue);
+        console.log('Initialized payment status select:', selectElement.id, 'with value:', currentValue);
+        
+        // Apply initial styling based on current value
+        updatePaymentStatusStyling(selectElement, currentValue);
+    });
+    
+    // Add change event listener to all status select elements
+    $(document).on('change', 'select[id^="status_"]', function() {
+        const selectElement = this;
+        const selectId = selectElement.id;
+        const rowIndex = selectId.replace('status_', '');
+        const kelengkapanId = selectElement.getAttribute('data-kelengkapan-id');
+        
+        // Debug logs
+        console.log('Select changed:', { selectId, rowIndex, kelengkapanId });
+        
+        // Only proceed if kelengkapan_id exists and is not empty
+        if (!kelengkapanId || kelengkapanId.trim() === '') {
+            console.warn('No kelengkapan_id found for select:', selectId);
+            showNotification('ID kelengkapan tidak ditemukan. Silakan refresh halaman.', 'error');
+            return;
+        }
+        
+        // Call updateStatus function automatically
+        updateStatusAutomatically(rowIndex);
+    });
+    
+    // Add change event listener to all payment status select elements
+    $(document).on('change', 'select[id^="payment_status_"]', function() {
+        const selectElement = this;
+        const selectId = selectElement.id;
+        const rowIndex = selectId.replace('payment_status_', '');
+        const rekapId = selectElement.getAttribute('data-rekap-id');
+        
+        // Debug logs
+        console.log('Payment status select changed:', { selectId, rowIndex, rekapId });
+        
+        // Only proceed if rekap_id exists and is not empty
+        if (!rekapId || rekapId.trim() === '') {
+            console.warn('No rekap_id found for select:', selectId);
+            showNotification('ID rekap ongkir tidak ditemukan. Silakan refresh halaman.', 'error');
+            return;
+        }
+        
+        // Call updatePaymentStatus function automatically
+        updatePaymentStatusAutomatically(rowIndex);
+    });
+});
+
+// Automatic update function (without button interaction)
+async function updateStatusAutomatically(rowIndex) {
+    const selectElement = document.getElementById('status_' + rowIndex);
+    const kelengkapanId = selectElement.getAttribute('data-kelengkapan-id');
+    const newStatus = selectElement.value;
+    const buttonElement = selectElement.parentElement.querySelector('button');
+    
+    console.log('Auto update called with:', { rowIndex, kelengkapanId, newStatus });
+    
+    if (!kelengkapanId || kelengkapanId.trim() === '') {
+        console.error('No kelengkapan_id found');
+        showNotification('ID kelengkapan tidak ditemukan', 'error');
+        return { success: false, message: 'ID kelengkapan tidak ditemukan' };
+    }
+
+    // Store previous value for rollback
+    const previousValue = selectElement.getAttribute('data-previous-value') || selectElement.value;
+    selectElement.setAttribute('data-previous-value', previousValue);
+
+    try {
+        // Visual feedback: disable select and show loading
+        selectElement.disabled = true;
+        selectElement.style.opacity = '0.6';
+        if (buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        }
+        
+        // Construct the correct URL path
+        const url = `/jamaah/kelengkapan/${kelengkapanId}/status`;
+        console.log('Sending request to:', url, 'with data:', { status_pengambilan: newStatus });
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status_pengambilan: newStatus
+            })
+        });
+        
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Response error:', errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Response result:', result);
+        
+        if (result.success) {
+            showNotification('Status berhasil diperbarui otomatis', 'success');
+            
+            // Update stored previous value
+            selectElement.setAttribute('data-previous-value', newStatus);
+            
+            // Update visual indicator on the select element
+            selectElement.style.borderColor = '#10B981'; // Green border
+            setTimeout(() => {
+                selectElement.style.borderColor = ''; // Reset border
+            }, 2000);
+            
+            return { success: true };
+        } else {
+            throw new Error(result.message || 'Gagal memperbarui status');
+        }
+    } catch (error) {
+        console.error('Error updating status automatically:', error);
+        showNotification('Gagal memperbarui status: ' + error.message, 'error');
+        
+        // Rollback to previous value
+        const previousValue = selectElement.getAttribute('data-previous-value');
+        if (previousValue) {
+            selectElement.value = previousValue;
+        }
+        
+        selectElement.style.borderColor = '#EF4444'; // Red border
+        setTimeout(() => {
+            selectElement.style.borderColor = ''; // Reset border
+        }, 3000);
+        
+        return { success: false, message: error.message };
+    } finally {
+        // Re-enable elements
+        selectElement.disabled = false;
+        selectElement.style.opacity = '1';
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = '<i class="fas fa-save"></i>';
+        }
+    }
+}
+
+// Automatic update function for payment status
+async function updatePaymentStatusAutomatically(rowIndex) {
+    const selectElement = document.getElementById('payment_status_' + rowIndex);
+    const rekapId = selectElement.getAttribute('data-rekap-id');
+    const newStatus = selectElement.value;
+    
+    console.log('Auto payment status update called with:', { rowIndex, rekapId, newStatus });
+    
+    if (!rekapId || rekapId.trim() === '') {
+        console.error('No rekap_id found');
+        showNotification('ID rekap ongkir tidak ditemukan', 'error');
+        return { success: false, message: 'ID rekap ongkir tidak ditemukan' };
+    }
+
+    // Store previous value for rollback
+    const previousValue = selectElement.getAttribute('data-previous-value') || selectElement.value;
+    selectElement.setAttribute('data-previous-value', previousValue);
+
+    try {
+        // Visual feedback: disable select and show loading
+        selectElement.disabled = true;
+        selectElement.style.opacity = '0.6';
+        selectElement.style.borderColor = '#6B7280'; // Gray border during loading
+        
+        // Construct the correct URL path
+        const url = `/jamaah/rekap-ongkir/${rekapId}/update-status`;
+        console.log('Sending payment status request to:', url, 'with data:', { status: newStatus });
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status: newStatus
+            })
+        });
+
+        const result = await response.json();
+        console.log('Payment status update response:', result);
+
+        if (result.success) {
+            showNotification(result.message || 'Status pembayaran berhasil diperbarui', 'success');
+            
+            // Update previous value to current value
+            selectElement.setAttribute('data-previous-value', newStatus);
+            
+            // Update select styling based on new status
+            updatePaymentStatusStyling(selectElement, newStatus);
+            
+            // Update visual indicator on the select element
+            selectElement.style.borderColor = '#10B981'; // Green border
+            setTimeout(() => {
+                selectElement.style.borderColor = ''; // Reset border
+            }, 2000);
+            
+            return { success: true };
+        } else {
+            throw new Error(result.message || 'Gagal memperbarui status pembayaran');
+        }
+    } catch (error) {
+        console.error('Error updating payment status automatically:', error);
+        showNotification('Gagal memperbarui status pembayaran: ' + error.message, 'error');
+        
+        // Rollback to previous value
+        const previousValue = selectElement.getAttribute('data-previous-value');
+        if (previousValue) {
+            selectElement.value = previousValue;
+        }
+        
+        selectElement.style.borderColor = '#EF4444'; // Red border
+        setTimeout(() => {
+            selectElement.style.borderColor = ''; // Reset border
+        }, 3000);
+        
+        return { success: false, message: error.message };
+    } finally {
+        // Re-enable elements
+        selectElement.disabled = false;
+        selectElement.style.opacity = '1';
+    }
+}
+
+// Function to update payment status select styling
+function updatePaymentStatusStyling(selectElement, status) {
+    // Remove existing status classes
+    selectElement.classList.remove('bg-green-100', 'bg-red-100', 'text-green-800', 'text-red-800', 'border-green-400', 'border-red-400');
+    
+    // Reset inline styles
+    selectElement.style.background = '';
+    selectElement.style.borderColor = '';
+    selectElement.style.color = '';
+    selectElement.style.fontWeight = '';
+    
+    if (status === 'Sudah Bayar') {
+        selectElement.style.background = 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+        selectElement.style.borderColor = '#22c55e';
+        selectElement.style.color = '#15803d';
+        selectElement.style.fontWeight = '600';
+    } else if (status === 'Belum Bayar') {
+        selectElement.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+        selectElement.style.borderColor = '#ef4444';
+        selectElement.style.color = '#dc2626';
+        selectElement.style.fontWeight = '600';
+    }
+}
+
+// Function to update status pengambilan (kept for backward compatibility)
+// Function to update status pengambilan (manual button click)
+async function updateStatus(rowIndex) {
+    const selectElement = document.getElementById('status_' + rowIndex);
+    const kelengkapanId = selectElement.getAttribute('data-kelengkapan-id');
+    const newStatus = selectElement.value;
+    const updateBtn = selectElement.parentElement.querySelector('button');
+    
+    console.log('Manual update called with:', { rowIndex, kelengkapanId, newStatus });
+    
+    if (!kelengkapanId || kelengkapanId.trim() === '') {
+        console.error('No kelengkapan_id found for manual update');
+        showNotification('ID kelengkapan tidak ditemukan', 'error');
+        return { success: false, message: 'ID kelengkapan tidak ditemukan' };
+    }
+
+    try {
+        updateBtn.disabled = true;
+        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        // Construct the correct URL path
+        const url = `/jamaah/kelengkapan/${kelengkapanId}/status`;
+        console.log('Sending manual request to:', url, 'with data:', { status_pengambilan: newStatus });
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                status_pengambilan: newStatus
+            })
+        });
+        
+        console.log('Manual response status:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Manual response error:', errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Manual response result:', result);
+        
+        if (result.success) {
+            showNotification('Status berhasil diperbarui', 'success');
+            
+            // Update visual indicator
+            selectElement.style.borderColor = '#10B981'; // Green border
+            setTimeout(() => {
+                selectElement.style.borderColor = ''; // Reset border
+            }, 2000);
+            
+            return { success: true };
+        } else {
+            throw new Error(result.message || 'Gagal memperbarui status');
+        }
+    } catch (error) {
+        console.error('Error updating status:', error);
+        showNotification('Gagal memperbarui status: ' + error.message, 'error');
+        
+        selectElement.style.borderColor = '#EF4444'; // Red border
+        setTimeout(() => {
+            selectElement.style.borderColor = ''; // Reset border
+        }, 3000);
+        
+        return { success: false, message: error.message };
+    } finally {
+        updateBtn.disabled = false;
+        updateBtn.innerHTML = '<i class="fas fa-save"></i>';
+    }
+}
+
+// Enhanced notification system
+function showNotification(message, type = 'info', duration = 5000) {
+    const notification = document.createElement('div');
+    const bgColor = type === 'success' ? 'from-green-50 to-emerald-50 border-green-500' : 
+                   type === 'error' ? 'from-red-50 to-pink-50 border-red-500' : 
+                   'from-blue-50 to-indigo-50 border-blue-500';
+    const textColor = type === 'success' ? 'text-green-800' : 
+                     type === 'error' ? 'text-red-800' : 
+                     'text-blue-800';
+    const icon = type === 'success' ? 'fa-check-circle' : 
+                type === 'error' ? 'fa-exclamation-circle' : 
+                'fa-info-circle';
+    
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-xl bg-gradient-to-r ${bgColor} border-l-4 shadow-lg transform translate-x-full transition-all duration-300 max-w-sm`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas ${icon} ${textColor} text-xl mr-3"></i>
+            <div class="flex-1">
+                <p class="${textColor} font-medium">${message}</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    class="ml-3 ${textColor} hover:opacity-70 transition-opacity duration-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after specified duration
+    if (duration > 0) {
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
+        }, duration);
+    }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Close modal with Escape key
+    if (e.key === 'Escape' && !document.getElementById('editModal').classList.contains('hidden')) {
+        closeEditModal();
+    }
+    
+    // Refresh page with F5 or Ctrl+R
+    if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+        e.preventDefault();
+        location.reload();
+    }
+});
+
+// Add loading overlay for better UX during page transitions
+function showLoadingOverlay() {
+    const overlay = document.createElement('div');
+    overlay.id = 'loadingOverlay';
+    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 flex items-center justify-center';
+    overlay.innerHTML = `
+        <div class="bg-white rounded-2xl p-8 shadow-2xl">
+            <div class="flex items-center space-x-4">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span class="text-lg font-medium text-gray-700">Memuat...</span>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+// File Preview Modal Functions
+function openPreviewModal(button) {
+    const buktiTf = button.getAttribute('data-bukti-tf');
+    const mutasi = button.getAttribute('data-mutasi');
+    const jamaahName = button.getAttribute('data-jamaah-name');
+    const orderId = button.getAttribute('data-order-id');
+
+    // Update modal header info
+    document.getElementById('previewJamaahInfo').innerHTML = `<i class="fas fa-user mr-1"></i>Jamaah: ${jamaahName}`;
+    document.getElementById('previewOrderInfo').innerHTML = `<i class="fas fa-hashtag mr-1"></i>Order: ${orderId}`;
+
+    // Handle Bukti Transfer Preview
+    const buktiTfPreview = document.getElementById('buktiTfPreview');
+    const buktiTfActions = document.getElementById('buktiTfActions');
+    const buktiTfDownload = document.getElementById('buktiTfDownload');
+
+    if (buktiTf) {
+        const buktiTfUrl = `/uploads/rekap_ongkir/${buktiTf}`;
+        const fileExtension = buktiTf.split('.').pop().toLowerCase();
+        
+        // Set download link
+        buktiTfDownload.href = buktiTfUrl;
+        buktiTfActions.classList.remove('hidden');
+        
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+            // Image file - show preview
+            buktiTfPreview.innerHTML = `
+                <img src="${buktiTfUrl}" 
+                     alt="Bukti Transfer" 
+                     class="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-sm"
+                     onerror="this.parentElement.innerHTML='<div class=\\'text-center text-red-500\\'><i class=\\'fas fa-exclamation-triangle text-4xl mb-3\\'></i><p>Gagal memuat gambar</p></div>'">
+            `;
+        } else if (fileExtension === 'pdf') {
+            // PDF file - show embed or link
+            buktiTfPreview.innerHTML = `
+                <div class="w-full h-[400px] rounded-lg overflow-hidden shadow-sm">
+                    <embed src="${buktiTfUrl}" type="application/pdf" width="100%" height="100%" class="rounded-lg">
+                </div>
+            `;
+        } else {
+            // Other file types - show file info
+            buktiTfPreview.innerHTML = `
+                <div class="text-center text-gray-600">
+                    <i class="fas fa-file text-6xl mb-4 text-blue-500"></i>
+                    <p class="font-semibold text-lg mb-2">File: ${buktiTf}</p>
+                    <p class="text-sm text-gray-500 mb-4">Tipe: ${fileExtension.toUpperCase()}</p>
+                    <a href="${buktiTfUrl}" target="_blank" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200">
+                        <i class="fas fa-external-link-alt mr-2"></i>
+                        Buka File
+                    </a>
+                </div>
+            `;
+        }
+    } else {
+        buktiTfPreview.innerHTML = `
+            <div class="text-center text-gray-500">
+                <i class="fas fa-file-alt text-4xl mb-3"></i>
+                <p>Tidak ada bukti transfer</p>
+            </div>
+        `;
+        buktiTfActions.classList.add('hidden');
+    }
+
+    // Handle Mutasi Preview
+    const mutasiPreview = document.getElementById('mutasiPreview');
+    const mutasiActions = document.getElementById('mutasiActions');
+    const mutasiDownload = document.getElementById('mutasiDownload');
+
+    if (mutasi) {
+        const mutasiUrl = `/uploads/rekap_ongkir/${mutasi}`;
+        const fileExtension = mutasi.split('.').pop().toLowerCase();
+        
+        // Set download link
+        mutasiDownload.href = mutasiUrl;
+        mutasiActions.classList.remove('hidden');
+        
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(fileExtension)) {
+            // Image file - show preview
+            mutasiPreview.innerHTML = `
+                <img src="${mutasiUrl}" 
+                     alt="Mutasi" 
+                     class="w-full h-auto max-h-[400px] object-contain rounded-lg shadow-sm"
+                     onerror="this.parentElement.innerHTML='<div class=\\'text-center text-red-500\\'><i class=\\'fas fa-exclamation-triangle text-4xl mb-3\\'></i><p>Gagal memuat gambar</p></div>'">
+            `;
+        } else if (fileExtension === 'pdf') {
+            // PDF file - show embed or link
+            mutasiPreview.innerHTML = `
+                <div class="w-full h-[400px] rounded-lg overflow-hidden shadow-sm">
+                    <embed src="${mutasiUrl}" type="application/pdf" width="100%" height="100%" class="rounded-lg">
+                </div>
+            `;
+        } else {
+            // Other file types - show file info
+            mutasiPreview.innerHTML = `
+                <div class="text-center text-gray-600">
+                    <i class="fas fa-file text-6xl mb-4 text-green-500"></i>
+                    <p class="font-semibold text-lg mb-2">File: ${mutasi}</p>
+                    <p class="text-sm text-gray-500 mb-4">Tipe: ${fileExtension.toUpperCase()}</p>
+                    <a href="${mutasiUrl}" target="_blank" 
+                       class="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all duration-200">
+                        <i class="fas fa-external-link-alt mr-2"></i>
+                        Buka File
+                    </a>
+                </div>
+            `;
+        }
+    } else {
+        mutasiPreview.innerHTML = `
+            <div class="text-center text-gray-500">
+                <i class="fas fa-image text-4xl mb-3"></i>
+                <p>Tidak ada mutasi</p>
+            </div>
+        `;
+        mutasiActions.classList.add('hidden');
+    }
+
+    // Show modal with animation
+    const modal = document.getElementById('previewModal');
+    const modalContent = document.getElementById('previewModalContent');
+    
+    modal.classList.remove('hidden');
+    
+    // Force reflow to ensure the modal is rendered
+    modal.offsetHeight;
+    
+    // Animate modal appearance
+    setTimeout(() => {
+        modalContent.classList.remove('scale-95', 'opacity-0');
+        modalContent.classList.add('scale-100', 'opacity-100');
+    }, 10);
+}
+
+function closePreviewModal() {
+    const modal = document.getElementById('previewModal');
+    const modalContent = document.getElementById('previewModalContent');
+    
+    // Animate modal disappearance
+    modalContent.classList.remove('scale-100', 'opacity-100');
+    modalContent.classList.add('scale-95', 'opacity-0');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+// Close modal when clicking outside
+document.getElementById('previewModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closePreviewModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('previewModal');
+        if (!modal.classList.contains('hidden')) {
+            closePreviewModal();
+        }
+    }
+});
+</script>
+
+  </main>
+  <%- include('../partials/scripts') %>
+</body>
+</html>

@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 
+// Import rekap-ongkir sub-routes
+const rekapOngkirRoutes = require('./rekap-ongkir');
+
 // Kelengkapan jamaah
 router.get('/kelengkapan', async (req, res) => {
   try {
@@ -164,6 +167,42 @@ router.post('/pengiriman/:id/update-tracking', async (req, res) => {
   }
 });
 
+// Update kelengkapan status (for rekap-ongkir)
+router.post('/kelengkapan/:id/status', async (req, res) => {
+  try {
+    const { status_pengambilan } = req.body;
+    const kelengkapanId = req.params.id;
+
+    console.log(`[KELENGKAPAN-STATUS] Updating kelengkapan ${kelengkapanId} to status: ${status_pengambilan}`);
+
+    // Validate status
+    const validStatuses = ['pending', 'Di Kirim', 'Sudah Diambil'];
+    if (!validStatuses.includes(status_pengambilan)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Status tidak valid'
+      });
+    }
+
+    // Update the status
+    await db.query(
+      'UPDATE jamaah_kelengkapan SET status_pengambilan = ?, updated_at = NOW() WHERE id = ?',
+      [status_pengambilan, kelengkapanId]
+    );
+
+    res.json({
+      success: true,
+      message: `Status kelengkapan berhasil diupdate ke ${status_pengambilan}`
+    });
+  } catch (error) {
+    console.error('Error updating kelengkapan status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Terjadi kesalahan saat mengupdate status kelengkapan'
+    });
+  }
+});
+
 // Delete request
 router.delete('/request/:id', async (req, res) => {
   try {
@@ -173,5 +212,8 @@ router.delete('/request/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Mount rekap-ongkir routes
+router.use('/rekap-ongkir', rekapOngkirRoutes);
 
 module.exports = router;
