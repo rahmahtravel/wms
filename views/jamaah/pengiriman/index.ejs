@@ -123,6 +123,9 @@
                       </div>
                       <div class="ml-3">
                         <div class="text-sm font-medium text-gray-900"><%= item.nama_penerima || '-' %></div>
+                        <% if (item.paket_batch) { %>
+                          <div class="text-xs text-gray-500 mt-1">Batch: <%= item.paket_batch %></div>
+                        <% } %>
                       </div>
                     </div>
                   </td>

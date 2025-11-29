@@ -1,0 +1,919 @@
+<!-- Items Selection Modal -->
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .item-row {
+    min-height: 200px;
+    position: relative;
+  }
+  
+  .item-row:hover {
+    animation: gentle-bounce 0.3s ease-out;
+  }
+  
+  @keyframes gentle-bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-2px) scale(1.01); }
+  }
+  
+  .item-row.scale-105 {
+    transform: scale(1.03) translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  @media (max-width: 640px) {
+    .item-row {
+      min-height: 180px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .item-row {
+      min-height: 160px;
+    }
+  }
+  
+  .selection-pulse {
+    animation: pulse-glow 2s infinite;
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 5px rgba(59, 130, 246, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6); }
+  }
+  
+  .gradient-border {
+    background: linear-gradient(45deg, #f0f9ff, #dbeafe, #bfdbfe);
+    padding: 2px;
+    border-radius: 1rem;
+  }
+  
+  .gradient-border-inner {
+    background: white;
+    border-radius: 0.875rem;
+    height: 100%;
+  }
+</style>
+
+<div id="itemsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+  <div class="relative top-4 md:top-20 mx-auto p-4 md:p-5 border w-full md:w-11/12 lg:w-3/4 xl:w-2/3 2xl:w-1/2 shadow-2xl rounded-lg md:rounded-xl bg-white max-h-[95vh] md:max-h-[85vh] flex flex-col backdrop-blur-sm">
+    <div class="flex justify-between items-center mb-4 flex-shrink-0">
+      <h3 class="text-xl font-bold text-gray-900" id="itemsModalTitle">Kelengkapan Barang</h3>
+      <button onclick="closeItemsModal()" class="text-gray-400 hover:text-gray-600">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+    
+    <!-- Loading State -->
+    <div id="itemsLoading" class="flex justify-center items-center py-8 hidden">
+      <div class="flex items-center space-x-2">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <span class="text-gray-600">Memuat data barang...</span>
+      </div>
+    </div>
+
+    <!-- Jamaah Information -->
+    <div class="mb-4 flex-shrink-0" id="jamaahInfoContainer" style="display: none;">
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center space-x-3">
+          <div class="bg-blue-500 text-white p-2 rounded-full">
+            <i class="fas fa-user text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <h4 class="font-semibold text-gray-900 text-sm mb-1">Informasi Jamaah</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-id-badge text-blue-500"></i>
+                <span class="text-gray-600">Nama:</span>
+                <span id="jamaahNama" class="font-medium text-gray-800">-</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-phone text-blue-500"></i>
+                <span class="text-gray-600">No. HP:</span>
+                <span id="jamaahNoHp" class="font-medium text-gray-800">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jamaah Information -->
+    <div class="mb-4 flex-shrink-0" id="jamaahInfoContainer" style="display: none;">
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center space-x-3">
+          <div class="bg-blue-500 text-white p-2 rounded-full">
+            <i class="fas fa-user text-sm"></i>
+          </div>
+          <div class="flex-1">
+            <h4 class="font-semibold text-gray-900 text-sm mb-1">Informasi Jamaah</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-id-badge text-blue-500"></i>
+                <span class="text-gray-600">Nama:</span>
+                <span id="jamaahNama" class="font-medium text-gray-800">-</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <i class="fas fa-phone text-blue-500"></i>
+                <span class="text-gray-600">No. HP:</span>
+                <span id="jamaahNoHp" class="font-medium text-gray-800">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="mb-4 flex-shrink-0" id="itemsSearchContainer" style="display: none;">
+      <div class="relative">
+        <input type="text" id="itemsSearch" placeholder="Cari nama barang..." class="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-search text-gray-400"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items List -->
+    <div class="flex-1 overflow-y-auto" id="itemsContainer" style="display: none;">
+      <div class="space-y-2" id="itemsList">
+        <!-- Items will be loaded here -->
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="flex justify-between items-center pt-4 mt-4 border-t border-gray-200 flex-shrink-0" id="itemsFooter" style="display: none;">
+      <div class="text-sm text-gray-600">
+        <span id="selectedCount">0</span> item dipilih
+      </div>
+      <div class="flex space-x-3">
+        <button type="button" onclick="closeItemsModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
+          Batal
+        </button>
+        <button type="button" onclick="saveSelectedItems()" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+          <i class="fas fa-save mr-2"></i>Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentKelengkapanId = null;
+let selectedItems = new Set();
+let currentStatusPengambilan = 'Belum Diambil';
+
+function openItemsModal(kelengkapanId) {
+  currentKelengkapanId = kelengkapanId;
+  selectedItems.clear();
+  
+  const modal = document.getElementById('itemsModal');
+  const loading = document.getElementById('itemsLoading');
+  const jamaahInfoContainer = document.getElementById('jamaahInfoContainer');
+  const searchContainer = document.getElementById('itemsSearchContainer');
+  const container = document.getElementById('itemsContainer');
+  const footer = document.getElementById('itemsFooter');
+  
+  // Show modal and loading state
+  modal.classList.remove('hidden');
+  loading.classList.remove('hidden');
+  jamaahInfoContainer.style.display = 'none';
+  searchContainer.style.display = 'none';
+  container.style.display = 'none';
+  footer.style.display = 'none';
+  
+  // Load items and current selections
+  loadItemsAndSelections();
+}
+
+function closeItemsModal() {
+  document.getElementById('itemsModal').classList.add('hidden');
+  currentKelengkapanId = null;
+  selectedItems.clear();
+  currentStatusPengambilan = 'Belum Diambil';
+  document.getElementById('itemsList').innerHTML = '';
+  
+  // Hide status update info
+  const updateInfo = document.getElementById('statusUpdateInfo');
+  if (updateInfo) {
+    updateInfo.style.display = 'none';
+  }
+  
+  // Reset status containers
+  const jamaahInfoContainer = document.getElementById('jamaahInfoContainer');
+  const statusContainer = document.getElementById('statusPengambilanContainer');
+  const itemsContainer = document.getElementById('itemsContainer');
+  const searchContainer = document.getElementById('itemsSearchContainer');
+  const footer = document.getElementById('itemsFooter');
+  
+  if (jamaahInfoContainer) jamaahInfoContainer.style.display = 'none';
+  if (statusContainer) statusContainer.style.display = 'none';
+  if (itemsContainer) itemsContainer.style.display = 'none';
+  if (searchContainer) searchContainer.style.display = 'none';
+  if (footer) footer.style.display = 'none';
+}
+
+async function loadItemsAndSelections() {
+  try {
+    console.log('Loading items and selections for kelengkapan ID:', currentKelengkapanId);
+    
+    // Load items, current selections, and kelengkapan data (includes jamaah info)
+    const [itemsResponse, selectionsResponse, kelengkapanResponse] = await Promise.all([
+      fetch('/jamaah/kelengkapan/items/available'),
+      fetch(`/jamaah/kelengkapan/${currentKelengkapanId}/items`),
+      fetch(`/jamaah/kelengkapan/${currentKelengkapanId}/status`)
+    ]);
+    
+    // Check if responses are OK and handle non-JSON responses
+    if (!itemsResponse.ok) {
+      const errorText = await itemsResponse.text();
+      console.error('Items response error:', errorText);
+      throw new Error(`Failed to fetch items: ${itemsResponse.status}`);
+    }
+    if (!selectionsResponse.ok) {
+      const errorText = await selectionsResponse.text();
+      console.error('Selections response error:', errorText);
+      throw new Error(`Failed to fetch selections: ${selectionsResponse.status}`);
+    }
+    if (!kelengkapanResponse.ok) {
+      const errorText = await kelengkapanResponse.text();
+      console.error('Kelengkapan response error:', errorText);
+      throw new Error(`Failed to fetch kelengkapan: ${kelengkapanResponse.status}`);
+    }
+    
+    // Parse JSON responses with error handling
+    let items, currentSelections, kelengkapanData;
+    
+    try {
+      items = await itemsResponse.json();
+    } catch (err) {
+      console.error('Error parsing items JSON:', err);
+      throw new Error('Invalid response from items endpoint');
+    }
+    
+    try {
+      currentSelections = await selectionsResponse.json();
+    } catch (err) {
+      console.error('Error parsing selections JSON:', err);
+      throw new Error('Invalid response from selections endpoint');
+    }
+    
+    try {
+      kelengkapanData = await kelengkapanResponse.json();
+    } catch (err) {
+      console.error('Error parsing kelengkapan JSON:', err);
+      throw new Error('Invalid response from kelengkapan endpoint');
+    }
+    
+    // Mark currently selected items
+    currentSelections.forEach(item => {
+      selectedItems.add(item.barang_id);
+    });
+    
+    displayItems(items);
+    updateSelectedCount();
+    
+    // Display jamaah information
+    displayJamaahInfo(kelengkapanData);
+    
+    // Load and display current status
+    loadStatusPengambilan(kelengkapanData.status_pengambilan || 'Belum Diambil');
+    
+    // Show UI elements
+    document.getElementById('itemsLoading').classList.add('hidden');
+    document.getElementById('jamaahInfoContainer').style.display = 'block';
+    document.getElementById('itemsSearchContainer').style.display = 'block';
+    document.getElementById('statusPengambilanContainer').style.display = 'block';
+    document.getElementById('itemsContainer').style.display = 'block';
+    document.getElementById('itemsFooter').style.display = 'flex';
+    
+    // Setup search functionality
+    setupItemsSearch(items);
+    
+  } catch (error) {
+    console.error('Error loading items:', error);
+    // Show error state
+    document.getElementById('itemsLoading').innerHTML = `
+      <div class="text-center text-red-600">
+        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+        <p>Gagal memuat data barang</p>
+        <p class="text-sm mt-2">${error.message}</p>
+        <button onclick="loadItemsAndSelections()" class="mt-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Coba Lagi
+        </button>
+      </div>
+    `;
+  }
+}
+
+function groupItemsByCategory(items) {
+  const groups = {
+    'Perlengkapan Umroh': {
+      icon: 'fas fa-luggage-cart',
+      color: 'emerald',
+      items: []
+    },
+    'Laki - Laki': {
+      icon: 'fas fa-male',
+      color: 'blue',
+      items: []
+    },
+    'Perempuan': {
+      icon: 'fas fa-female',
+      color: 'pink',
+      items: []
+    },
+    'Jaket': {
+      icon: 'fas fa-tshirt',
+      color: 'purple',
+      items: []
+    }
+  };
+  
+  const perlengkapanItems = [
+    'bantal leher', 'buku doa', 'congratulation', 'certificate', 'koper 24 inch', 'gold', 
+    'syal', 'tas paspor', 'tas serut', 'sepatu'
+  ];
+  
+  const lakiItems = ['kain ihrom anak', 'kain ihrom dewasa', 'ihrom anak', 'ihrom dewasa'];
+  const perempuanItems = ['jilbab', 'mukena', 'mukena anak', 'mukena dewasa'];
+  
+  items.forEach(item => {
+    const itemName = item.nama_barang.toLowerCase();
+    
+    if (itemName.includes('jaket')) {
+      groups['Jaket'].items.push(item);
+    } else if (lakiItems.some(keyword => itemName.includes(keyword))) {
+      groups['Laki - Laki'].items.push(item);
+    } else if (perempuanItems.some(keyword => itemName.includes(keyword))) {
+      groups['Perempuan'].items.push(item);
+    } else if (perlengkapanItems.some(keyword => itemName.includes(keyword))) {
+      groups['Perlengkapan Umroh'].items.push(item);
+    } else {
+      groups['Perlengkapan Umroh'].items.push(item); // Default group
+    }
+  });
+  
+  return groups;
+}
+
+function displayJamaahInfo(kelengkapanData) {
+  try {
+    // Update jamaah name
+    const jamaahNamaElement = document.getElementById('jamaahNama');
+    const jamaahNoHpElement = document.getElementById('jamaahNoHp');
+    
+    if (jamaahNamaElement) {
+      jamaahNamaElement.textContent = kelengkapanData.nama_jamaah || 'Tidak tersedia';
+    }
+    
+    if (jamaahNoHpElement) {
+      jamaahNoHpElement.textContent = kelengkapanData.nomor_telp || 'Tidak tersedia';
+    }
+    
+    console.log('Jamaah Info:', {
+      nama: kelengkapanData.nama_jamaah,
+      no_hp: kelengkapanData.nomor_telp
+    });
+    
+  } catch (error) {
+    console.error('Error displaying jamaah info:', error);
+  }
+}
+
+function displayItems(items) {
+  const itemsList = document.getElementById('itemsList');
+  itemsList.innerHTML = '';
+  
+  const groupedItems = groupItemsByCategory(items);
+  
+  Object.entries(groupedItems).forEach(([groupName, groupData]) => {
+    if (groupData.items.length === 0) return;
+    
+    // Create group header
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'mb-4';
+    
+    const totalSelected = groupData.items.filter(item => selectedItems.has(item.id_barang)).length;
+    const totalItems = groupData.items.length;
+    
+    groupHeader.innerHTML = `
+      <div class="bg-gradient-to-r from-${groupData.color}-500 to-${groupData.color}-600 text-white p-4 rounded-lg shadow-md mb-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="bg-white bg-opacity-20 p-2 rounded-full">
+              <i class="${groupData.icon} text-lg"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-lg">${groupName}</h4>
+              <p class="text-${groupData.color}-100 text-sm">${totalItems} items tersedia</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="bg-white bg-opacity-20 px-3 py-1 rounded-full">
+              <span class="text-sm font-medium">${totalSelected}/${totalItems}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    itemsList.appendChild(groupHeader);
+    
+    // Create items grid for this group
+    const itemsGrid = document.createElement('div');
+    itemsGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8';
+    
+    groupData.items.forEach(item => {
+      const isSelected = selectedItems.has(item.id_barang);
+      const itemElement = document.createElement('div');
+      itemElement.className = `item-row cursor-pointer transition-all duration-300 ease-out transform hover:-translate-y-2 hover:shadow-2xl rounded-2xl overflow-hidden backdrop-blur-sm ${
+        isSelected 
+          ? `bg-gradient-to-br from-${groupData.color}-50 to-${groupData.color}-100 border-2 border-${groupData.color}-300 shadow-lg scale-105` 
+          : 'bg-white border-2 border-gray-200 hover:border-gray-300 hover:shadow-lg'
+      }`;
+      itemElement.onclick = () => toggleItem(item.id_barang);
+      
+      itemElement.innerHTML = `
+        <div class="relative h-full">
+          <!-- Selection Indicator -->
+          <div class="absolute -top-2 -right-2 z-10">
+            <div class="w-5 h-5 rounded-full border-2 border-white shadow-md flex items-center justify-center transition-all duration-300 ${
+              isSelected 
+                ? `bg-${groupData.color}-500 text-white` 
+                : 'bg-gray-100 text-gray-400'
+            }">
+              <i class="fas ${isSelected ? 'fa-check' : 'fa-plus'} text-xs"></i>
+            </div>
+          </div>
+          
+          <!-- Hidden Checkbox -->
+          <input type="checkbox" 
+                 ${isSelected ? 'checked' : ''} 
+                 class="hidden"
+                 onchange="toggleItem(${item.id_barang})"
+                 onclick="event.stopPropagation()">
+          
+          <!-- Card Content -->
+          <div class="p-3 h-full flex flex-col">
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-${groupData.color}-100 text-${groupData.color}-700">
+                ${item.kode_barang}
+              </span>
+              ${item.is_required === 1 || item.is_required === '1' ? `
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
+                  <i class="fas fa-star mr-1"></i>Wajib
+                </span>
+              ` : ''}
+            </div>
+            
+            <!-- Title -->
+            <h5 class="font-semibold text-gray-900 text-sm leading-tight line-clamp-2 mb-2 flex-shrink-0">
+              ${item.nama_barang}
+            </h5>
+            
+            <!-- Info Tags -->
+            <div class="flex flex-wrap gap-1.5 mb-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs bg-${groupData.color}-50 text-${groupData.color}-600 border border-${groupData.color}-200">
+                <i class="fas fa-cube mr-1"></i>${item.satuan}
+              </span>
+              ${item.size_type !== 'none' ? `
+                <span class="inline-flex hidden items-center px-2 py-0.5 rounded text-xs bg-blue-50 text-blue-600 border border-blue-200">
+                  <i class="fas fa-ruler mr-1"></i>${getSizeTypeLabel(item.size_type)}
+                </span>
+              ` : ''}
+            </div>
+            
+            <!-- Stock Info -->
+            <div class="flex-1 flex items-end">
+              <div class="w-full bg-gray-50 rounded-lg p-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs text-gray-600">Stok</span>
+                  <div class="flex items-center space-x-1">
+                    <span class="text-sm font-bold text-${groupData.color}-600">${item.stock_akhir}</span>
+                    <div class="w-1.5 h-1.5 rounded-full ${item.stock_akhir > item.stock_minimal ? 'bg-green-400' : 'bg-yellow-400'}"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Selection Status -->
+            <div class="mt-2 pt-2 border-t border-gray-100">
+              <div class="text-center text-xs font-medium ${
+                isSelected 
+                  ? `text-${groupData.color}-600` 
+                  : 'text-gray-400'
+              }">
+                <i class="fas ${isSelected ? 'fa-check-circle' : 'fa-circle'} mr-1"></i>
+                <span>${isSelected ? 'Terpilih' : 'Pilih Item'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      itemsGrid.appendChild(itemElement);
+    });
+    
+    itemsList.appendChild(itemsGrid);
+  });
+
+  // Add Status Pengambilan Section after items list
+  const statusSection = document.createElement('div');
+  statusSection.id = 'statusPengambilanContainer';
+  statusSection.className = 'bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6 border border-blue-200 shadow-sm mt-6';
+  statusSection.style.display = 'none';
+
+  statusSection.innerHTML = `
+    <div class="mb-4">
+      <h4 class="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+        <i class="fas fa-clipboard-check text-blue-600 mr-2"></i>
+        Status Pengambilan Kelengkapan
+      </h4>
+      <p class="text-sm text-gray-600 mb-4">Pilih status pengambilan untuk kelengkapan jamaah ini</p>
+      
+      <!-- Current Status Display -->
+      <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Status Saat Ini:</label>
+        <div id="currentStatusDisplay">
+          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+            <i class="fas fa-circle mr-1 text-gray-500"></i>
+            Memuat...
+          </span>
+        </div>
+      </div>
+      
+      <!-- Status Selection -->
+      <div class="space-y-4">
+        <div>
+          <label for="statusPengambilanSelect" class="block text-sm font-medium text-gray-700 mb-2">
+            Ubah Status:
+          </label>
+          <select id="statusPengambilanSelect" 
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+                  onchange="updateStatusPengambilan(this.value)">
+            <option value="Belum Diambil">Belum Diambil</option>
+            <option value="Sudah Diambil">Sudah Diambil</option>
+            <option value="Di Kirim">Di Kirim</option>
+            <option value="Di Ambil Di Kantor">Di Ambil Di Kantor</option>
+          </select>
+        </div>
+        
+        <!-- Status Visual Indicator -->
+        <div class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200">
+          <div class="flex items-center space-x-2">
+            <div id="statusIndicatorDot" class="w-3 h-3 rounded-full bg-gray-400"></div>
+            <div class="text-sm">
+              <div id="statusIndicatorText" class="font-medium text-gray-900">Belum Diambil</div>
+              <div id="statusIndicatorDesc" class="text-xs text-gray-500">Belum diproses</div>
+            </div>
+          </div>
+          <div class="ml-auto">
+            <i id="statusIndicatorIcon" class="fas fa-clock text-gray-400"></i>
+          </div>
+        </div>
+        
+        <!-- Status Update Info -->
+        <div id="statusUpdateInfo" class="bg-blue-50 border border-blue-200 rounded-lg p-3" style="display: none;">
+          <div class="flex items-center text-sm text-blue-600">
+            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+            <span>Status akan diubah. Klik Simpan untuk menyimpan perubahan.</span>
+          </div>
+        </div>
+        
+        <!-- Status Descriptions -->
+        <div class="bg-gray-50 rounded-lg p-4">
+          <h5 class="text-sm font-semibold text-gray-700 mb-2">Keterangan Status:</h5>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-gray-600">
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 rounded-full bg-red-400"></div>
+              <span><strong>Belum Diambil:</strong> Kelengkapan belum diproses</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 rounded-full bg-green-400"></div>
+              <span><strong>Sudah Diambil:</strong> Jamaah telah mengambil langsung</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 rounded-full bg-purple-400"></div>
+              <span><strong>Di Kirim:</strong> Kelengkapan dikirim ke alamat jamaah</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+              <span><strong>Di Ambil Di Kantor:</strong> Dijadwalkan diambil di kantor</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  itemsList.appendChild(statusSection);
+  
+  // Update group counters
+  updateGroupCounters();
+}
+
+function getSizeTypeLabel(sizeType) {
+  const labels = {
+    'clothing': 'Pakaian',
+    'age_group': 'Kelompok Umur',
+    'none': ''
+  };
+  return labels[sizeType] || sizeType;
+}
+
+function updateGroupCounters() {
+  // Update group counters after item selection changes
+  const groups = document.querySelectorAll('[class*="bg-gradient-to-r"]');
+  groups.forEach(groupHeader => {
+    const groupElement = groupHeader.closest('.mb-4');
+    if (groupElement) {
+      const nextSibling = groupElement.nextElementSibling;
+      if (nextSibling && nextSibling.classList.contains('grid')) {
+        const totalItems = nextSibling.querySelectorAll('.item-row').length;
+        const selectedItems = nextSibling.querySelectorAll('.item-row input[type="checkbox"]:checked').length;
+        const counterElement = groupHeader.querySelector('[class*="bg-white bg-opacity-20 px-3"]');
+        if (counterElement) {
+          counterElement.querySelector('span').textContent = `${selectedItems}/${totalItems}`;
+        }
+      }
+    }
+  });
+}
+
+function setupItemsSearch(items) {
+  const searchInput = document.getElementById('itemsSearch');
+  let searchTimeout;
+  
+  searchInput.oninput = function() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const searchTerm = this.value.toLowerCase();
+      const filteredItems = items.filter(item => 
+        item.nama_barang.toLowerCase().includes(searchTerm) ||
+        item.kode_barang.toLowerCase().includes(searchTerm)
+      );
+      displayItems(filteredItems);
+    }, 300);
+  };
+}
+
+function toggleItem(itemId) {
+  if (selectedItems.has(itemId)) {
+    selectedItems.delete(itemId);
+  } else {
+    selectedItems.add(itemId);
+  }
+  
+  // Update checkbox and styling
+  const checkbox = document.querySelector(`input[onchange="toggleItem(${itemId})"]`);
+  const itemRow = checkbox.closest('.item-row');
+  
+  // Determine the color class from the group
+  let colorClass = 'emerald'; // default
+  const groupContainer = itemRow.closest('.mb-6');
+  if (groupContainer) {
+    const groupHeader = groupContainer.previousElementSibling?.querySelector('[class*="bg-gradient-to-r"]');
+    if (groupHeader) {
+      const classList = groupHeader.className;
+      if (classList.includes('emerald')) colorClass = 'emerald';
+      else if (classList.includes('blue')) colorClass = 'blue';
+      else if (classList.includes('pink')) colorClass = 'pink';
+      else if (classList.includes('purple')) colorClass = 'purple';
+    }
+  }
+  
+  // Update visual state with smooth animations
+  const selectionIndicator = itemRow.querySelector('.absolute.-top-2.-right-2 > div');
+  const selectionIcon = selectionIndicator.querySelector('i');
+  const selectionStatus = itemRow.querySelector('.border-t.border-gray-100 + div span:last-child');
+  const selectionStatusIcon = itemRow.querySelector('.border-t.border-gray-100 + div i');
+  
+  if (selectedItems.has(itemId)) {
+    // Item selected
+    checkbox.checked = true;
+    
+    // Update card styling
+    itemRow.classList.add(`bg-gradient-to-br`, `from-${colorClass}-50`, `to-${colorClass}-100`, `border-${colorClass}-300`, 'shadow-lg', 'scale-105');
+    itemRow.classList.remove('border-gray-200', 'hover:border-gray-300', 'bg-white');
+    
+    // Update selection indicator
+    selectionIndicator.className = selectionIndicator.className
+      .replace(/bg-gray-100|text-gray-400/g, '')
+      .replace(new RegExp(`bg-\\w+-500|text-white`, 'g'), '') + ` bg-${colorClass}-500 text-white shadow-lg`;
+    
+    selectionIcon.className = selectionIcon.className.replace('fa-plus', 'fa-check');
+    
+    // Update status text
+    if (selectionStatus) {
+      selectionStatus.textContent = 'Terpilih';
+      selectionStatus.className = selectionStatus.className.replace('text-gray-400', `text-${colorClass}-600`);
+    }
+    if (selectionStatusIcon) {
+      selectionStatusIcon.className = selectionStatusIcon.className
+        .replace('fa-circle', 'fa-check-circle')
+        .replace('text-gray-400', `text-${colorClass}-600`);
+    }
+    
+  } else {
+    // Item deselected
+    checkbox.checked = false;
+    
+    // Reset card styling
+    itemRow.classList.remove(`bg-gradient-to-br`, `from-${colorClass}-50`, `to-${colorClass}-100`, `border-${colorClass}-300`, 'shadow-lg', 'scale-105');
+    itemRow.classList.add('border-gray-200', 'hover:border-gray-300', 'bg-white');
+    
+    // Reset selection indicator
+    selectionIndicator.className = selectionIndicator.className
+      .replace(new RegExp(`bg-${colorClass}-500|text-white`, 'g'), '') + ' bg-gray-100 text-gray-400';
+    
+    selectionIcon.className = selectionIcon.className.replace('fa-check', 'fa-plus');
+    
+    // Reset status text
+    if (selectionStatus) {
+      selectionStatus.textContent = 'Pilih Item';
+      selectionStatus.className = selectionStatus.className.replace(new RegExp(`text-${colorClass}-600`, 'g'), 'text-gray-400');
+    }
+    if (selectionStatusIcon) {
+      selectionStatusIcon.className = selectionStatusIcon.className
+        .replace('fa-check-circle', 'fa-circle')
+        .replace(new RegExp(`text-${colorClass}-600`, 'g'), 'text-gray-400');
+    }
+  }
+  
+  updateSelectedCount();
+  updateGroupCounters();
+}
+
+function updateSelectedCount() {
+  document.getElementById('selectedCount').textContent = selectedItems.size;
+}
+
+// Load and display status pengambilan
+function loadStatusPengambilan(status) {
+  currentStatusPengambilan = status || 'Belum Diambil';
+  
+  // Set select value
+  const selectElement = document.getElementById('statusPengambilanSelect');
+  if (selectElement) {
+    selectElement.value = currentStatusPengambilan;
+  }
+  
+  // Update visual indicator
+  updateStatusVisualIndicator(currentStatusPengambilan);
+  
+  // Update status display
+  const currentStatusDisplay = document.getElementById('currentStatusDisplay');
+  if (currentStatusDisplay) {
+    const statusConfig = getStatusConfig(currentStatusPengambilan);
+    currentStatusDisplay.innerHTML = `
+      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${statusConfig.color}-100 text-${statusConfig.color}-800">
+        <i class="fas fa-circle mr-1 text-${statusConfig.color}-500"></i>
+        ${currentStatusPengambilan}
+      </span>
+    `;
+  }
+}
+
+// Update status pengambilan
+function updateStatusPengambilan(newStatus) {
+  if (currentStatusPengambilan !== newStatus) {
+    currentStatusPengambilan = newStatus;
+    
+    // Update visual indicator
+    updateStatusVisualIndicator(newStatus);
+    
+    // Update current status display
+    const currentStatusDisplay = document.getElementById('currentStatusDisplay');
+    if (currentStatusDisplay) {
+      const config = getStatusConfig(newStatus);
+      currentStatusDisplay.innerHTML = `
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${config.color}-100 text-${config.color}-800">
+          <i class="fas fa-circle mr-1 text-${config.color}-500"></i>
+          ${newStatus}
+        </span>
+      `;
+    }
+    
+    // Show update info
+    const updateInfo = document.getElementById('statusUpdateInfo');
+    if (updateInfo) {
+      updateInfo.style.display = 'block';
+      updateInfo.innerHTML = `
+        <div class="flex items-center text-sm text-blue-600">
+          <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+          <span>Status berubah ke "<strong>${getStatusLabel(newStatus)}</strong>". Klik Simpan untuk menyimpan perubahan.</span>
+        </div>
+      `;
+    }
+  }
+}
+
+// Get status label helper
+function getStatusLabel(status) {
+  // Return the status as-is since we're using the exact enum values
+  return status || 'Belum Diambil';
+}
+
+// Get status configuration
+function getStatusConfig(status) {
+  const statusConfig = {
+    'Belum Diambil': { 
+      color: 'red', 
+      icon: 'fas fa-clock', 
+      text: 'Belum Diambil', 
+      desc: 'Belum diproses' 
+    },
+    'Sudah Diambil': { 
+      color: 'green', 
+      icon: 'fas fa-hand-holding', 
+      text: 'Sudah Diambil', 
+      desc: 'Diambil langsung' 
+    },
+    'Di Kirim': { 
+      color: 'purple', 
+      icon: 'fas fa-shipping-fast', 
+      text: 'Di Kirim', 
+      desc: 'Dikirim ke alamat' 
+    },
+    'Di Ambil Di Kantor': { 
+      color: 'blue', 
+      icon: 'fas fa-building', 
+      text: 'Di Ambil Di Kantor', 
+      desc: 'Diambil di kantor' 
+    }
+  };
+  
+  return statusConfig[status] || statusConfig['Belum Diambil'];
+}
+
+// Update status visual indicator
+function updateStatusVisualIndicator(status) {
+  const config = getStatusConfig(status);
+  
+  const dot = document.getElementById('statusIndicatorDot');
+  const text = document.getElementById('statusIndicatorText');
+  const desc = document.getElementById('statusIndicatorDesc');
+  const icon = document.getElementById('statusIndicatorIcon');
+  
+  if (dot) {
+    dot.className = `w-3 h-3 rounded-full bg-${config.color}-500`;
+  }
+  
+  if (text) {
+    text.textContent = config.text;
+  }
+  
+  if (desc) {
+    desc.textContent = config.desc;
+  }
+  
+  if (icon) {
+    icon.className = `${config.icon} text-${config.color}-500`;
+  }
+}
+
+async function saveSelectedItems() {
+  if (!currentKelengkapanId) {
+    swalError('ID kelengkapan tidak ditemukan');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`/jamaah/kelengkapan/${currentKelengkapanId}/items`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        selectedItems: Array.from(selectedItems),
+        status_pengambilan: currentStatusPengambilan
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      swalSuccess('Kelengkapan barang dan status berhasil disimpan');
+      closeItemsModal();
+      // Optionally reload the page or update the UI
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+    } else {
+      swalError(result.error || 'Gagal menyimpan kelengkapan barang');
+    }
+    
+  } catch (error) {
+    console.error('Error saving items:', error);
+    swalError('Terjadi kesalahan saat menyimpan data');
+  }
+}
+</script>

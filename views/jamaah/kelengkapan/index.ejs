@@ -2,49 +2,277 @@
 <html lang="id">
 <head>
   <%- include('../../partials/head', { title: 'Kelengkapan Jamaah' }) %>
+  
+  <style>
+    /* Gradient Header Styles */
+    :root {
+      --primary-color: #f9a825;
+      --primary-light: #ffd54f;
+      --primary-dark: #f57f17;
+    }
+
+    .gradient-header {
+      background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-light) 100%
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.6;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .animate-slideInRight {
+      animation: slideInRight 0.6s ease-out forwards;
+    }
+
+    .animate-pulse-soft {
+      animation: pulse-soft 3s ease-in-out infinite;
+    }
+  </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
   <%- include('../../partials/navbar') %>
   <%- include('../../partials/sidebar') %>
 
-  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 min-h-screen">
-    <!-- Header -->
-    <div class="mb-6">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-          <i class="fas fa-user-check text-primary mr-3"></i>
-          <%= title %>
-        </h1>
-        <button onclick="openModal('createModal')" class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
-          <i class="fas fa-plus mr-2"></i>
-          Tambah Kelengkapan
-        </button>
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 lg:p-8 transition-all duration-300 min-h-screen">
+    <!-- Page Header - Ultra Modern Design -->
+    <div class="mb-8 animate-fadeInUp">
+      <div class="rounded-2xl overflow-hidden shadow-2xl">
+        <div class="gradient-header text-white p-8 md:p-10">
+          
+          <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <!-- Modern Icon Container -->
+              <div class="flex-none">
+                <div class="relative group">
+                  <div class="absolute inset-0 bg-white opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
+                  <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                    <img src="/images/logo.png" alt="Logo" class="max-h-16 md:max-h-20 max-w-full object-contain">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Text Content -->
+              <div class="flex-1 text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-black leading-tight text-white mb-2 tracking-tight">
+                  <%= title %>
+                </h1>
+                <p class="text-base md:text-lg text-white/90 font-medium max-w-2xl">
+                  Kelola kelengkapan dan pengiriman barang jamaah umroh secara efisien
+                </p>
+              </div>
+
+              <!-- Quick Stats Badge -->
+              <div class="flex-none hidden lg:block">
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
+                  <div class="text-center">
+                    <div class="text-3xl font-bold text-white"><%= new Date().toLocaleDateString('id-ID', { day: 'numeric' }) %></div>
+                    <div class="text-sm text-white/80"><%= new Date().toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) %></div>
+                    <div class="text-xs text-white/70 mt-1"><i class="far fa-calendar mr-1"></i>Today</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Filter Section -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Cari</label>
-          <input type="text" id="searchInput" placeholder="Cari nama jamaah..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <input type="text" id="searchInput" placeholder="Cari nama jamaah..." value="<%= filters.search %>" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengambilan</label>
           <select id="filterStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
             <option value="">Semua Status</option>
-            <option value="lengkap">Lengkap</option>
-            <option value="kurang">Kurang</option>
-            <option value="tidak_lengkap">Tidak Lengkap</option>
+            <option value="Belum Diambil" <%= filters.status === 'Belum Diambil' ? 'selected' : '' %>>Belum Diambil</option>
+            <option value="Sudah Diambil" <%= filters.status === 'Sudah Diambil' ? 'selected' : '' %>>Sudah Diambil</option>
+            <option value="Di Kirim" <%= filters.status === 'Di Kirim' ? 'selected' : '' %>>Di Kirim</option>
+            <option value="Di Ambil Di Kantor" <%= filters.status === 'Di Ambil Di Kantor' ? 'selected' : '' %>>Di Ambil Di Kantor</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Dari</label>
-          <input type="date" id="dateFrom" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Paket Umroh</label>
+          <select id="filterPaket" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">Semua Paket</option>
+            <!-- Options will be populated by JavaScript -->
+          </select>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Sampai</label>
-          <input type="date" id="dateTo" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+      </div>
+      <div class="flex justify-end">
+        <button onclick="resetFilters()" class="inline-flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+          <i class="fas fa-undo mr-2"></i>
+          Reset Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- Statistics Cards Section -->
+    <div class="mb-6">
+      <!-- Header with Collapse Toggle -->
+      <div class="flex stats-header-mobile items-center justify-between mb-4">
+        <div class="flex items-center space-x-3">
+          <div class="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-600 rounded-full"></div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-800">Statistik Jamaah</h2>
+            <p class="text-sm text-gray-500">Overview kelengkapan jamaah real-time</p>
+          </div>
+        </div>
+        <button 
+          id="statsToggle" 
+          onclick="toggleStats()"
+          class="group stats-toggle-mobile flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm hover:shadow-md"
+          aria-label="Toggle statistics visibility"
+        >
+          <span class="text-sm font-medium text-gray-600 group-hover:text-gray-800">Sembunyikan</span>
+          <i class="fas fa-chevron-up text-gray-400 group-hover:text-gray-600 transition-all duration-300" id="statsChevron"></i>
+        </button>
+      </div>
+
+      <!-- Statistics Cards Container with Enhanced Animation -->
+      <div id="statsCards" class="stats-expanded transition-all duration-500 ease-in-out overflow-hidden">
+        <div class="grid stats-mobile-grid stats-tablet-grid stats-desktop-grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+          <!-- Total Jamaah Card - Enhanced Design -->
+          <div class="group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <!-- Gradient Border Effect -->
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 blur-sm"></div>
+            <div class="relative bg-white rounded-2xl p-6 m-0.5">
+              <!-- Header Section -->
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Jamaah</p>
+                  </div>
+                  <div class="flex items-baseline space-x-2">
+                    <h3 class="text-3xl font-black text-gray-800 tabular-nums" id="totalJamaah">-</h3>
+                    <span class="text-sm font-medium text-gray-500">jamaah</span>
+                  </div>
+                </div>
+                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-users text-blue-600 text-lg"></i>
+                </div>
+              </div>
+              
+              <!-- Additional Info Section -->
+              <div class="space-y-2 pt-3 border-t border-gray-100">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-gray-500">*Tidak termasuk infant</span>
+                  <div class="flex items-center space-x-1">
+                    <i class="fas fa-baby text-purple-500 text-xs"></i>
+                    <span class="font-semibold text-gray-700">Infant: <span id="totalInfantCount" class="tabular-nums">-</span></span>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                  <span>Total keseluruhan jamaah terdaftar</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Belum Diambil Card -->
+          <div class="group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-red-400 via-red-500 to-red-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 blur-sm"></div>
+            <div class="relative bg-white rounded-2xl p-6 m-0.5">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Belum Diambil</p>
+                  </div>
+                  <div class="flex items-baseline space-x-2">
+                    <h3 class="text-3xl font-black text-gray-800 tabular-nums" id="belumDiambil">-</h3>
+                    <span class="text-sm font-medium text-gray-500">jamaah</span>
+                  </div>
+                </div>
+                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-100 to-red-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-clock text-red-600 text-lg"></i>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-gray-100">
+                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                  <span>Menunggu proses pengambilan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sudah Diambil Card -->
+          <div class="group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-green-400 via-green-500 to-green-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 blur-sm"></div>
+            <div class="relative bg-white rounded-2xl p-6 m-0.5">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Sudah Diambil</p>
+                  </div>
+                  <div class="flex items-baseline space-x-2">
+                    <h3 class="text-3xl font-black text-gray-800 tabular-nums" id="sudahDiambil">-</h3>
+                    <span class="text-sm font-medium text-gray-500">jamaah</span>
+                  </div>
+                </div>
+                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-check-circle text-green-600 text-lg"></i>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-gray-100">
+                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                  <span>Kelengkapan telah diselesaikan</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -56,18 +284,47 @@
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Pemesan</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Jamaah</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Telepon</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Keberangkatan</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelengkapan Items</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Pengambilan</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengiriman</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
             <% if (kelengkapan && kelengkapan.length > 0) { %>
               <% kelengkapan.forEach((item, index) => { %>
-                <tr class="hover:bg-gray-50 transition">
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= index + 1 %></td>
+                <% const rowNumber = ((pagination.currentPage - 1) * pagination.limit) + index + 1; %>
+                <tr class="hover:bg-gray-50 transition" data-tanggal-keberangkatan="<%= item.tanggal_keberangkatan ? new Date(item.tanggal_keberangkatan).toISOString() : '' %>" data-created-at="<%= item.created_at ? new Date(item.created_at).toISOString() : '' %>" data-batch="<%= item.paket_batch ? item.paket_batch : '' %>" data-status-pengambilan="<%= item.status_pengambilan || '' %>" data-paket-id="<%= item.paket_id || '' %>" data-nama-jamaah="<%= (item.nama_jamaah || '').toLowerCase() %>">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= rowNumber %></td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <% if (item.nama_pemesan && item.nama_pemesan.trim() !== '') { %>
+                      <!-- Display nama_pemesan only when it exists -->
+                      <div class="flex items-center">
+                        <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
+                          <%= item.nama_pemesan.charAt(0).toUpperCase() %>
+                        </div>
+                        <div class="ml-3">
+                          <div class="text-sm font-medium text-gray-900"><%= item.nama_pemesan %></div>
+                          <% if (item.order_id) { %>
+                            <div class="text-xs text-gray-500 mt-1">
+                              <i class="fas fa-hashtag mr-1"></i>Order: <%= item.order_id %>
+                            </div>
+                          <% } %>
+                        </div>
+                      </div>
+                    <% } else { %>
+                      <!-- Empty cell for duplicate order_id entries - just show order_id -->
+                      <% if (item.order_id) { %>
+                        <div class="text-xs text-gray-400 text-center">
+                          <i class="fas fa-hashtag mr-1"></i>Order: <%= item.order_id %>
+                        </div>
+                      <% } %>
+                    <% } %>
+                  </td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                       <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
@@ -75,34 +332,185 @@
                       </div>
                       <div class="ml-3">
                         <div class="text-sm font-medium text-gray-900"><%= item.nama_jamaah || '-' %></div>
+                        <% if (item.nomor_telp) { %>
+                          <div class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-phone mr-1"></i><%= item.nomor_telp %>
+                          </div>
+                        <% } %>
+                        <div class="flex items-center gap-2 mt-1">
+                          <% if (item.title) { %>
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                              <i class="fas fa-user-tag mr-1 text-xs"></i><%= item.title %>
+                            </span>
+                          <% } %>
+                          <% if (item.clothing_size) { %>
+                            <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                              <i class="fas fa-tshirt mr-1 text-xs"></i><%= item.clothing_size %>
+                            </span>
+                          <% } %>
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= item.nomor_telp || '-' %></td>
-                  <td class="px-6 py-4 whitespace-nowrap" data-status="<%= item.status || '' %>">
-                    <% if (item.status === 'lengkap') { %>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <% if (item.tanggal_keberangkatan) { %>
+                      <div class="text-sm font-medium text-gray-900"><%= new Date(item.tanggal_keberangkatan).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) %></div>
+                      <% if (item.paket_batch) { %>
+                        <div class="text-xs text-gray-500 mt-1">Batch: <%= item.paket_batch %></div>
+                      <% } %>
+                    <% } else { %>
+                      <div class="text-sm text-gray-900">-</div>
+                    <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="kelengkapan-items-checklist" data-kelengkapan-id="<%= item.id %>">
+                      <div class="grid grid-cols-4 gap-1 text-xs">
+                        <div class="checklist-item flex items-center space-x-1" data-item="bantal" title="Bantal">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Bantal</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="buku" title="Buku">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Buku</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="congratulation" title="Congratulation">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Congrats</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="jaket" title="Jaket">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Jaket</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="jilbab" title="Jilbab">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Jilbab</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="kain" title="Kain">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Kain</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="koper" title="Koper">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Koper</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="mukena" title="Mukena">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Mukena</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="syal" title="Syal">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">Syal</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="tas paspor" title="Tas Paspor">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">T.Paspor</span>
+                        </div>
+                        <div class="checklist-item flex items-center space-x-1" data-item="tas serut" title="Tas Serut">
+                          <span class="w-3 h-3 rounded border border-gray-300 flex items-center justify-center bg-gray-50">
+                            <i class="fas fa-times text-red-500 text-xs hidden"></i>
+                            <i class="fas fa-check text-green-500 text-xs hidden"></i>
+                          </span>
+                          <span class="text-gray-600 truncate">T.Serut</span>
+                        </div>
+                      </div>
+                      <div class="mt-2 text-center">
+                        <span class="text-xs text-gray-500 checklist-summary">
+                          <i class="fas fa-spinner fa-spin mr-1"></i>Loading...
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap" data-status-pengambilan="<%= item.status_pengambilan || '' %>">
+                    <% if (item.status_pengambilan === 'Sudah Diambil') { %>
                       <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        <i class="fas fa-check-circle mr-1"></i> Lengkap
+                        <i class="fas fa-check-circle mr-1"></i> Sudah Diambil
                       </span>
-                    <% } else if (item.status === 'kurang') { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800" data-status-label="kurang">
-                        <i class="fas fa-exclamation-circle mr-1"></i> Kurang
+                    <% } else if (item.status_pengambilan === 'Di Kirim') { %>
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <i class="fas fa-shipping-fast mr-1"></i> Di Kirim
+                      </span>
+                    <% } else if (item.status_pengambilan === 'Di Ambil Di Kantor') { %>
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                        <i class="fas fa-building mr-1"></i> Di Ambil Di Kantor
                       </span>
                     <% } else { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" data-status-label="tidak_lengkap">
-                        <i class="fas fa-times-circle mr-1"></i> Tidak Lengkap
+                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                        <i class="fas fa-clock mr-1"></i> Belum Diambil
                       </span>
                     <% } %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <%= item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : '-' %>
                   </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <% if (item.no_resi) { %>
+                      <div class="space-y-2">
+                        <div class="space-y-1">
+                          <div class="flex items-center text-blue-600">
+                            <i class="fas fa-shipping-fast mr-2"></i>
+                            <span class="font-medium"><%= item.ekspedisi %></span>
+                          </div>
+                          <div class="text-xs text-gray-500">
+                            <i class="fas fa-barcode mr-1"></i>
+                            <%= item.no_resi %>
+                          </div>
+                          <% if (item.tracking_notes) { %>
+                            <div class="text-xs text-gray-400 truncate max-w-32" title="<%= item.tracking_notes %>">
+                              <i class="fas fa-sticky-note mr-1"></i>
+                              <%= item.tracking_notes %>
+                            </div>
+                          <% } %>
+                        </div>
+                        <button onclick="openShippingModal('<%= item.id %>')" 
+                                class="inline-flex items-center px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition">
+                          <i class="fas fa-edit mr-1"></i>
+                          Edit
+                        </button>
+                      </div>
+                    <% } else { %>
+                      <button onclick="openShippingModal('<%= item.id %>')" 
+                              class="inline-flex items-center px-3 py-1 bg-blue-500 text-white text-xs rounded-md hover:bg-blue-600 transition">
+                        <i class="fas fa-plus mr-1"></i>
+                        Tambah Resi
+                      </button>
+                    <% } %>
+                  </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button onclick="viewDetail('<%= item.id %>')" class="text-blue-600 hover:text-blue-900 mr-3" title="Detail">
+                    <button onclick="openDetailModal('<%= item.id %>')" class="text-blue-600 hover:text-blue-900 mr-3" title="Detail">
                       <i class="fas fa-eye"></i>
                     </button>
-                    <button onclick="editItem('<%= item.id %>')" class="text-green-600 hover:text-green-900 mr-3" title="Edit">
-                      <i class="fas fa-edit"></i>
+                    <button onclick="openItemsModal('<%= item.id %>')" class="text-green-600 hover:text-green-900 mr-3" title="Kelengkapan Barang">
+                      <i class="fas fa-list-check"></i>
                     </button>
                     <button onclick="deleteItem('<%= item.id %>')" class="text-red-600 hover:text-red-900" title="Hapus">
                       <i class="fas fa-trash"></i>
@@ -112,7 +520,7 @@
               <% }) %>
             <% } else { %>
               <tr>
-                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                   <i class="fas fa-inbox text-4xl mb-2"></i>
                   <p>Belum ada data kelengkapan jamaah</p>
                 </td>
@@ -121,8 +529,97 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination -->
+      <% if (pagination && pagination.totalPages > 1) { %>
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Info -->
+            <div class="text-sm text-gray-700">
+              Menampilkan 
+              <span class="font-semibold"><%= ((pagination.currentPage - 1) * pagination.limit) + 1 %></span>
+              sampai 
+              <span class="font-semibold"><%= Math.min(pagination.currentPage * pagination.limit, pagination.totalRecords) %></span>
+              dari 
+              <span class="font-semibold"><%= pagination.totalRecords %></span>
+              data
+            </div>
+
+            <!-- Pagination Buttons -->
+            <div class="flex items-center gap-2">
+              <!-- First Page -->
+              <% if (pagination.currentPage > 1) { %>
+                <a href="#" onclick="navigateToPage(1)" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              <% } %>
+
+              <!-- Previous Page -->
+              <% if (pagination.currentPage > 1) { %>
+                <a href="#" onclick="navigateToPage(<%= pagination.currentPage - 1 %>)" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                  <i class="fas fa-angle-left"></i> Prev
+                </a>
+              <% } %>
+
+              <!-- Page Numbers -->
+              <% 
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, pagination.currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(pagination.totalPages, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage < maxVisiblePages - 1) {
+                  startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+              %>
+
+              <% if (startPage > 1) { %>
+                <span class="px-3 py-2 text-sm text-gray-500">...</span>
+              <% } %>
+
+              <% for (let i = startPage; i <= endPage; i++) { %>
+                <% if (i === pagination.currentPage) { %>
+                  <span class="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg">
+                    <%= i %>
+                  </span>
+                <% } else { %>
+                  <a href="#" onclick="navigateToPage(<%= i %>)" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                    <%= i %>
+                  </a>
+                <% } %>
+              <% } %>
+
+              <% if (endPage < pagination.totalPages) { %>
+                <span class="px-3 py-2 text-sm text-gray-500">...</span>
+              <% } %>
+
+              <!-- Next Page -->
+              <% if (pagination.currentPage < pagination.totalPages) { %>
+                <a href="#" onclick="navigateToPage(<%= pagination.currentPage + 1 %>)" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                  Next <i class="fas fa-angle-right"></i>
+                </a>
+              <% } %>
+
+              <!-- Last Page -->
+              <% if (pagination.currentPage < pagination.totalPages) { %>
+                <a href="#" onclick="navigateToPage(<%= pagination.totalPages %>)" class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% } %>
     </div>
   </main>
+
+  <!-- Include Items Modal -->
+  <%- include('partials/items-modal') %>
+  
+  <!-- Include Detail Modal -->
+  <%- include('partials/detail-modal') %>
+  
+  <!-- Include Shipping Modal -->
+  <%- include('partials/shipping-modal') %>
 
   <!-- Create/Edit Modal -->
   <div id="createModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
@@ -177,7 +674,367 @@
 
   <%- include('../../partials/scripts') %>
   
+  <style>
+    /* Enhanced Statistics Cards Styles */
+    .stats-card-hover {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .stats-card-hover:hover {
+      transform: translateY(-8px) scale(1.02);
+    }
+    
+    .stats-collapsed {
+      max-height: 0;
+      opacity: 0;
+      margin-bottom: 0 !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .stats-expanded {
+      max-height: 500px;
+      opacity: 1;
+    }
+    
+    /* Advanced Card Animations */
+    @keyframes cardPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    
+    .card-loading .animate-pulse {
+      animation: cardPulse 1.5s ease-in-out infinite;
+    }
+    
+    /* Enhanced Number Animation */
+    .number-animate {
+      transition: all 0.6s ease-in-out;
+    }
+    
+    /* Responsive Grid Improvements */
+    @media (max-width: 640px) {
+      .stats-card-mobile {
+        padding: 1rem !important;
+      }
+      
+      .stats-title-mobile {
+        font-size: 0.75rem !important;
+      }
+      
+      .stats-number-mobile {
+        font-size: 1.5rem !important;
+      }
+      
+      /* Mobile grid adjustment */
+      .stats-mobile-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+      }
+      
+      /* Mobile header adjustments */
+      .stats-header-mobile {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+      }
+      
+      .stats-toggle-mobile {
+        align-self: stretch !important;
+        justify-content: center !important;
+      }
+    }
+    
+    @media (min-width: 640px) and (max-width: 1024px) {
+      /* Tablet adjustments */
+      .stats-tablet-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.5rem !important;
+      }
+    }
+    
+    @media (min-width: 1280px) {
+      /* Desktop and larger */
+      .stats-desktop-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 1.5rem !important;
+      }
+    }
+    
+    @media (min-width: 1536px) {
+      .stats-grid-2xl {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 2rem !important;
+      }
+    }
+    
+    /* Dark mode support (if needed in future) */
+    @media (prefers-color-scheme: dark) {
+      .stats-dark-mode {
+        background-color: #1f2937;
+        color: #f9fafb;
+      }
+    }
+    
+    /* Gradient Border Animation */
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      padding: 2px;
+      background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.3), transparent);
+      border-radius: inherit;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: xor;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .gradient-border:hover::before {
+      opacity: 1;
+    }
+
+    /* Existing Checklist Styles */
+    .kelengkapan-items-checklist {
+      max-width: 280px;
+      min-width: 240px;
+    }
+    
+    .checklist-item {
+      transition: all 0.2s ease-in-out;
+      margin-bottom: 2px;
+    }
+    
+    .checklist-item:hover {
+      transform: translateY(-1px);
+      background-color: rgba(249, 250, 251, 0.8);
+      border-radius: 4px;
+      padding: 1px 2px;
+    }
+    
+    .checklist-item span:first-child {
+      transition: all 0.3s ease;
+      min-width: 12px;
+      min-height: 12px;
+    }
+    
+    @media (max-width: 768px) {
+      .kelengkapan-items-checklist {
+        max-width: 200px;
+        min-width: 180px;
+      }
+      
+      .checklist-item {
+        font-size: 0.7rem;
+      }
+      
+      .checklist-item span:first-child {
+        min-width: 10px;
+        min-height: 10px;
+      }
+      
+      .checklist-item .fa-check,
+      .checklist-item .fa-times {
+        font-size: 0.6rem;
+      }
+    }
+    
+    .checklist-item .fa-check {
+      animation: checkAnimation 0.3s ease-in-out;
+    }
+    
+    .checklist-item .fa-times {
+      animation: xAnimation 0.3s ease-in-out;
+    }
+    
+    @keyframes checkAnimation {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    @keyframes xAnimation {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    .checklist-summary {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      border-radius: 6px;
+      padding: 4px 8px;
+      border: 1px solid #d1d5db;
+    }
+  </style>
+  
   <script>
+    // Statistics Toggle Functionality
+    let isStatsVisible = true;
+
+    function toggleStats() {
+      const statsCards = document.getElementById('statsCards');
+      const statsToggle = document.getElementById('statsToggle');
+      const statsChevron = document.getElementById('statsChevron');
+      const toggleText = statsToggle.querySelector('span');
+      
+      if (isStatsVisible) {
+        // Hide stats
+        statsCards.classList.add('stats-collapsed');
+        statsCards.classList.remove('stats-expanded');
+        statsChevron.classList.remove('fa-chevron-up');
+        statsChevron.classList.add('fa-chevron-down');
+        toggleText.textContent = 'Tampilkan';
+        
+        // Store preference
+        localStorage.setItem('jamaah-stats-visible', 'false');
+      } else {
+        // Show stats
+        statsCards.classList.remove('stats-collapsed');
+        statsCards.classList.add('stats-expanded');
+        statsChevron.classList.remove('fa-chevron-down');
+        statsChevron.classList.add('fa-chevron-up');
+        toggleText.textContent = 'Sembunyikan';
+        
+        // Store preference
+        localStorage.setItem('jamaah-stats-visible', 'true');
+      }
+      
+      isStatsVisible = !isStatsVisible;
+    }
+
+    // Enhanced Number Animation with Easing
+    function animateNumberEnhanced(elementId, targetNumber, duration = 1500) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      
+      const start = 0;
+      const end = parseInt(targetNumber) || 0;
+      const startTime = performance.now();
+      
+      // Add loading class for pulse effect
+      element.closest('.group')?.classList.add('card-loading');
+      
+      function easeOutQuart(t) {
+        return 1 - Math.pow(1 - t, 4);
+      }
+      
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeOutQuart(progress);
+        
+        const current = Math.floor(start + (end - start) * easedProgress);
+        element.textContent = current.toLocaleString('id-ID');
+        
+        // Add scale effect during animation
+        const scale = 1 + (Math.sin(progress * Math.PI) * 0.05);
+        element.style.transform = `scale(${scale})`;
+        
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          element.style.transform = 'scale(1)';
+          // Remove loading class
+          element.closest('.group')?.classList.remove('card-loading');
+        }
+      }
+      
+      requestAnimationFrame(update);
+    }
+
+    // Load paket umroh data and statistics on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Restore stats visibility preference
+      const savedVisibility = localStorage.getItem('jamaah-stats-visible');
+      if (savedVisibility === 'false') {
+        // Delay to ensure DOM is ready
+        setTimeout(() => {
+          toggleStats();
+        }, 100);
+      }
+      
+      loadPaketUmrohFilter();
+      loadStatistics();
+      loadAllChecklistItems();
+      
+      // Add smooth scroll behavior for stats cards
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fadeInUp');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      // Observe stats cards for animation
+      document.querySelectorAll('.group').forEach((card) => {
+        observer.observe(card);
+      });
+    });
+
+    async function loadPaketUmrohFilter() {
+      try {
+        const response = await fetch('/jamaah/paket-umroh-list');
+        const paketData = await response.json();
+        
+        const filterPaket = document.getElementById('filterPaket');
+        
+        // Clear existing options (keep "Semua Paket")
+        filterPaket.innerHTML = '<option value="">Semua Paket</option>';
+        
+        // Group paket by month and populate options
+        Object.keys(paketData).forEach(monthYear => {
+          const optgroup = document.createElement('optgroup');
+          optgroup.label = monthYear;
+          
+          paketData[monthYear].forEach(paket => {
+            const option = document.createElement('option');
+            option.value = paket.id;
+            option.textContent = `${paket.nama_paket} - Batch ${paket.batch} (${new Date(paket.tanggal_keberangkatan).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })})`;
+            optgroup.appendChild(option);
+          });
+          
+          filterPaket.appendChild(optgroup);
+        });
+        
+        // Set selected value from server-side filter
+        const selectedPaket = '<%= filters.paket %>';
+        if (selectedPaket) {
+          filterPaket.value = selectedPaket;
+        }
+        
+      } catch (error) {
+        console.error('Error loading paket umroh data:', error);
+      }
+    }
+
+    async function loadStatistics() {
+      try {
+        // Get current filter parameters
+        const params = new URLSearchParams(window.location.search);
+        const response = await fetch(`/jamaah/kelengkapan-stats?${params.toString()}`);
+        const stats = await response.json();
+        
+        // Update statistics with enhanced animation
+        animateNumberEnhanced('totalJamaah', stats.totalJamaah, 1200);
+        setTimeout(() => animateNumberEnhanced('belumDiambil', stats.belumDiambil, 1000), 200);
+        setTimeout(() => animateNumberEnhanced('sudahDiambil', stats.sudahDiambil, 1000), 400);
+        setTimeout(() => animateNumberEnhanced('infantJamaah', stats.infantJamaah || 0, 1000), 600);
+        setTimeout(() => animateNumberEnhanced('totalInfantCount', stats.infantJamaah || 0, 800), 100);
+        
+      } catch (error) {
+        console.error('Error loading statistics:', error);
+        // Set fallback values with animation
+        animateNumberEnhanced('totalJamaah', 0);
+        animateNumberEnhanced('belumDiambil', 0);
+        animateNumberEnhanced('sudahDiambil', 0);
+        animateNumberEnhanced('infantJamaah', 0);
+        animateNumberEnhanced('totalInfantCount', 0);
+      }
+    }
+
+
+
     function openModal(modalId) {
       document.getElementById(modalId).classList.remove('hidden');
       document.getElementById('kelengkapanForm').reset();
@@ -240,34 +1097,198 @@
       .catch(err => swalError(err.message));
     });
 
-    // Filter functionality
-    document.getElementById('searchInput').addEventListener('input', filterTable);
-    document.getElementById('filterStatus').addEventListener('change', filterTable);
-    document.getElementById('dateFrom').addEventListener('change', filterTable);
-    document.getElementById('dateTo').addEventListener('change', filterTable);
+    // Filter functionality - now uses server-side filtering
+    let filterTimeout;
+    document.getElementById('searchInput').addEventListener('input', debounceFilter);
+    document.getElementById('filterStatus').addEventListener('change', applyFilter);
+    document.getElementById('filterPaket').addEventListener('change', applyFilter);
 
-    function filterTable() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    function debounceFilter() {
+      clearTimeout(filterTimeout);
+      filterTimeout = setTimeout(applyFilter, 500); // Wait 500ms after user stops typing
+    }
+
+    function applyFilter() {
+      const searchTerm = document.getElementById('searchInput').value;
       const statusFilter = document.getElementById('filterStatus').value;
-      const dateFrom = document.getElementById('dateFrom').value;
-      const dateTo = document.getElementById('dateTo').value;
+      const paketFilter = document.getElementById('filterPaket').value;
       
-      const rows = document.querySelectorAll('#tableBody tr');
-      rows.forEach(row => {
-        if (row.cells.length === 1) return; // Skip empty state row
+      // Build URL with filter parameters
+      const params = new URLSearchParams();
+      if (searchTerm) params.set('search', searchTerm);
+      if (statusFilter) params.set('status', statusFilter);
+      if (paketFilter) params.set('paket', paketFilter);
+      params.set('page', '1'); // Reset to page 1 when filtering
+      
+      // Redirect with filters
+      window.location.href = `${window.location.pathname}?${params.toString()}`;
+      
+      // Also reload statistics with new filters
+      loadStatistics();
+    }
+
+    function getFilterUrl(page) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', page);
+      return `${window.location.pathname}?${params.toString()}`;
+    }
+
+    function navigateToPage(page) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', page);
+      window.location.href = `${window.location.pathname}?${params.toString()}`;
+      return false; // Prevent default link behavior
+    }
+
+    function resetFilters() {
+      // Redirect to page without any filter parameters
+      window.location.href = window.location.pathname;
+    }
+    
+    // Function to load checklist items for all jamaah
+    async function loadAllChecklistItems() {
+      const checklistContainers = document.querySelectorAll('.kelengkapan-items-checklist');
+      
+      for (const [index, container] of checklistContainers.entries()) {
+        const kelengkapanId = container.dataset.kelengkapanId;
         
-        const nama = row.cells[1].textContent.toLowerCase();
-        const status = (row.querySelector('[data-status]')?.getAttribute('data-status') || '').toLowerCase();
-        const date = row.cells[4].textContent;
+        // Add small delay between requests to prevent server overload
+        if (index > 0) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
         
-        let show = true;
+        await loadChecklistItems(kelengkapanId);
+      }
+    }
+
+    // Function to load checklist items for specific jamaah (different from modal items)
+    async function loadChecklistItems(kelengkapanId) {
+      try {
+        const response = await fetch(`/jamaah/kelengkapan/${kelengkapanId}/checklist-items`);
+        const data = await response.json();
         
-        if (searchTerm && !nama.includes(searchTerm)) show = false;
-        if (statusFilter && !status.includes(statusFilter)) show = false;
-        // Add date filtering logic here if needed
+        const container = document.querySelector(`[data-kelengkapan-id="${kelengkapanId}"]`);
+        if (!container) return;
         
-        row.style.display = show ? '' : 'none';
-      });
+        // Define the items to check
+        const itemsToCheck = [
+          'bantal', 'buku', 'congratulation', 'jaket', 'jilbab', 
+          'kain', 'koper', 'mukena', 'syal', 'tas paspor', 'tas serut'
+        ];
+        
+        let checkedCount = 0;
+        let totalCount = itemsToCheck.length;
+        
+        // Reset all items first
+        itemsToCheck.forEach(itemName => {
+          const item = container.querySelector(`[data-item="${itemName}"]`);
+          if (item) {
+            const checkIcon = item.querySelector('.fa-check');
+            const xIcon = item.querySelector('.fa-times');
+            const box = item.querySelector('span');
+            
+            checkIcon.classList.add('hidden');
+            xIcon.classList.add('hidden');
+            box.classList.remove('bg-green-100', 'border-green-500', 'bg-red-100', 'border-red-500');
+            box.classList.add('bg-gray-50', 'border-gray-300');
+          }
+        });
+        
+        // Update based on data from server
+        if (data.success && data.items) {
+          data.items.forEach(item => {
+            const itemNameLower = item.nama_barang ? item.nama_barang.toLowerCase().trim() : '';
+            
+            // Enhanced matching logic for better accuracy
+            const matchedItem = itemsToCheck.find(checkItem => {
+              const checkItemLower = checkItem.toLowerCase();
+              
+              // Direct match
+              if (itemNameLower === checkItemLower) return true;
+              
+              // Partial matches with common variations
+              const patterns = [
+                checkItemLower,
+                checkItemLower.replace(' ', ''),
+                checkItemLower.replace(' ', '_'),
+                checkItemLower.replace(' ', '-')
+              ];
+              
+              return patterns.some(pattern => {
+                return itemNameLower.includes(pattern) || 
+                       pattern.includes(itemNameLower) ||
+                       itemNameLower.replace(/[^a-z]/g, '').includes(pattern.replace(/[^a-z]/g, '')) ||
+                       pattern.replace(/[^a-z]/g, '').includes(itemNameLower.replace(/[^a-z]/g, ''));
+              });
+            });
+            
+            if (matchedItem) {
+              const itemElement = container.querySelector(`[data-item="${matchedItem}"]`);
+              if (itemElement && item.is_selected) {
+                checkedCount++;
+                const checkIcon = itemElement.querySelector('.fa-check');
+                const xIcon = itemElement.querySelector('.fa-times');
+                const box = itemElement.querySelector('span');
+                
+                checkIcon.classList.remove('hidden');
+                xIcon.classList.add('hidden');
+                box.classList.remove('bg-gray-50', 'border-gray-300', 'bg-red-100', 'border-red-500');
+                box.classList.add('bg-green-100', 'border-green-500');
+              }
+            }
+          });
+          
+          // Mark unselected items
+          itemsToCheck.forEach(itemName => {
+            const itemElement = container.querySelector(`[data-item="${itemName}"]`);
+            if (itemElement) {
+              const checkIcon = itemElement.querySelector('.fa-check');
+              if (checkIcon.classList.contains('hidden')) {
+                const xIcon = itemElement.querySelector('.fa-times');
+                const box = itemElement.querySelector('span');
+                
+                xIcon.classList.remove('hidden');
+                box.classList.remove('bg-gray-50', 'border-gray-300', 'bg-green-100', 'border-green-500');
+                box.classList.add('bg-red-100', 'border-red-500');
+              }
+            }
+          });
+        }
+        
+        // Update summary
+        const summary = container.querySelector('.checklist-summary');
+        if (summary) {
+          const percentage = Math.round((checkedCount / totalCount) * 100);
+          summary.innerHTML = `${checkedCount}/${totalCount} items (${percentage}%)`;
+          
+          // Remove loading spinner
+          summary.querySelector('.fa-spinner')?.remove();
+          
+          if (percentage === 100) {
+            summary.classList.remove('text-gray-500', 'text-yellow-600', 'text-red-600');
+            summary.classList.add('text-green-600', 'font-semibold');
+            summary.innerHTML = `<i class="fas fa-check-circle mr-1"></i>${checkedCount}/${totalCount} items (${percentage}%)`;
+          } else if (percentage >= 50) {
+            summary.classList.remove('text-gray-500', 'text-green-600', 'text-red-600');
+            summary.classList.add('text-yellow-600', 'font-medium');
+            summary.innerHTML = `<i class="fas fa-exclamation-triangle mr-1"></i>${checkedCount}/${totalCount} items (${percentage}%)`;
+          } else {
+            summary.classList.remove('text-gray-500', 'text-green-600', 'text-yellow-600');
+            summary.classList.add('text-red-600', 'font-medium');
+            summary.innerHTML = `<i class="fas fa-times-circle mr-1"></i>${checkedCount}/${totalCount} items (${percentage}%)`;
+          }
+        }
+        
+      } catch (error) {
+        console.error('Error loading checklist items:', error);
+        const container = document.querySelector(`[data-kelengkapan-id="${kelengkapanId}"]`);
+        const summary = container ? container.querySelector('.checklist-summary') : null;
+        if (summary) {
+          summary.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>Error loading';
+          summary.classList.remove('text-gray-500', 'text-green-600', 'text-yellow-600');
+          summary.classList.add('text-red-500', 'font-medium');
+        }
+      }
     }
   </script>
 </body>

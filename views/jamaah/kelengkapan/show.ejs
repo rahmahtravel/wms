@@ -22,6 +22,13 @@
           <p class="text-sm text-gray-600">Nomor Telepon</p>
           <h3 class="font-medium text-gray-900"><%= kelengkapan.nomor_telp || '-' %></h3>
         </div>
+        <div>
+          <p class="text-sm text-gray-600">Tanggal Keberangkatan</p>
+          <h3 class="font-medium text-gray-900"><%= kelengkapan.tanggal_keberangkatan ? new Date(kelengkapan.tanggal_keberangkatan).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-' %></h3>
+          <% if (kelengkapan.paket_batch) { %>
+            <div class="text-xs text-gray-500 mt-1">Batch: <%= kelengkapan.paket_batch %></div>
+          <% } %>
+        </div>
       </div>
 
       <div class="mb-4">
