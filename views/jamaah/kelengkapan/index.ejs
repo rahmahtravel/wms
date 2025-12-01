@@ -804,16 +804,6 @@
                             <span>Konfirmasi Pengambilan</span>
                           </div>
                           
-                          <div onclick="copyTemplate(event, '<%= item.id %>', 'jika_ambil_dikantor')" class="dropdown-item blue">
-                            <i class="fas fa-building"></i>
-                            <span>Jika Ambil di kantor</span>
-                          </div>
-                          
-                          <div onclick="copyTemplate(event, '<%= item.id %>', 'jika_ekspedisi_dikirim')" class="dropdown-item indigo">
-                            <i class="fas fa-truck"></i>
-                            <span>Jika Ekspedisi/Dikirim</span>
-                          </div>
-                          
                           <div onclick="copyTemplate(event, '<%= item.id %>', 'info_ongkir')" class="dropdown-item cyan">
                             <i class="fas fa-money-bill-wave"></i>
                             <span>Info Ongkir</span>
@@ -2075,9 +2065,14 @@
 
         switch(templateType) {
           case 'konfirmasi_pengambilan':
-            message = `Assalamu'alaikum, Kak ${namaJamaahFormatted} 👋 Semoga Kakak dalam keadaan sehat dan bahagia 😊.
-
-Terkait pengambilan perlengkapan umroh, mohon konfirmasi nya kak, Kakak ingin ambil langsung di kantor atau dikirim via ekspedisi?`;
+            message = `Assalamu'alaikum Kak ${namaJamaahFormatted} 👋
+Terkait pengambilan perlengkapan umroh, mohon bantu isi form berikut ya Kak 🙏
+📌 Form Pengambilan Perlengkapan:
+https://app.rahmahtravel.id/purchasing/public-docs/form?order_details_id=${orderDetailsId}
+Di form ini, Kakak bisa memilih opsi:
+1️⃣ Ambil langsung di kantor (alamat dan jadwal bisa Kakak pilih di form)
+2️⃣ Dikirim via ekspedisi (cukup isi alamat pengiriman, nanti tim kami hitungkan ongkir terbaiknya)
+Dengan mengisi form ini, proses persiapan perlengkapan akan lebih cepat dan sesuai kebutuhan Kakak 😊`;
             break;
 
           case 'jika_ambil_dikantor':

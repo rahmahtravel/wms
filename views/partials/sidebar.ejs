@@ -46,12 +46,15 @@
     position: relative;
     display: flex;
     align-items: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 12px;
     margin: 4px 12px;
-    padding: 12px 16px !important;
+    padding: 14px 18px !important;
     animation: slideInLeft 0.5s ease forwards;
     opacity: 0;
+    text-decoration: none;
+    color: #475569;
+    font-weight: 500;
   }
 
   .sidebar-item:nth-child(1) { animation-delay: 0.05s; }
@@ -66,16 +69,25 @@
   .sidebar-item:nth-child(10) { animation-delay: 0.5s; }
 
   .sidebar-item:hover {
-    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
-    transform: translateX(6px);
-    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+    background: #fff7ed;
+    transform: translateX(4px);
+    color: #ea580c;
+    box-shadow: 0 2px 8px rgba(251, 146, 60, 0.15);
+  }
+
+  .sidebar-item:hover i {
+    color: #ea580c !important;
+  }
+
+  .sidebar-item:hover span {
+    color: #ea580c !important;
   }
 
   .sidebar-item.active {
-    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    background: #fb923c;
     color: white !important;
-    box-shadow: 0 6px 20px rgba(251, 146, 60, 0.4);
     transform: translateX(4px);
+    box-shadow: 0 3px 10px rgba(251, 146, 60, 0.4);
   }
 
   .sidebar-item.active::before {
@@ -177,131 +189,301 @@
       transform: translateX(0) !important;
     }
   }
+
+  /* Dropdown Styles */
+  .sidebar-dropdown {
+    position: relative;
+    margin: 8px 0;
+  }
+
+  .sidebar-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #64748b;
+    margin: 12px 0 0 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    border-radius: 8px;
+    background: #f8fafc;
+    border-left: 4px solid transparent;
+  }
+
+  .sidebar-dropdown-header:hover {
+    color: #fb923c;
+    background: #fff7ed;
+    border-left-color: #fb923c;
+    transform: translateX(4px);
+  }
+
+  .sidebar-dropdown.open .sidebar-dropdown-header {
+    background: #fb923c;
+    color: white;
+    border-left-color: #ea580c;
+    box-shadow: 0 2px 8px rgba(251, 146, 60, 0.3);
+  }
+
+  .sidebar-dropdown.open .sidebar-dropdown-header i,
+  .sidebar-dropdown.open .sidebar-dropdown-header span,
+  .sidebar-dropdown.open .sidebar-dropdown-header .sidebar-dropdown-arrow {
+    color: white !important;
+  }
+
+  .sidebar-dropdown-arrow {
+    transition: transform 0.3s ease;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+  }
+
+  .sidebar-dropdown.open .sidebar-dropdown-arrow {
+    transform: rotate(180deg);
+    color: white !important;
+  }
+
+  .sidebar-dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background: rgba(251, 146, 60, 0.02);
+    margin: 0 12px;
+    border-radius: 0 0 8px 8px;
+  }
+
+  .sidebar-dropdown.open .sidebar-dropdown-content {
+    max-height: 500px;
+    padding: 8px 0;
+  }
+
+  .sidebar-dropdown.open .sidebar-dropdown-content .sidebar-item {
+    margin: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .sidebar-dropdown-header i {
+    font-size: 14px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 </style>
+
+<script>
+// Sidebar Dropdown Functionality
+function initSidebarDropdowns() {
+  const dropdowns = document.querySelectorAll('.sidebar-dropdown');
+  
+  dropdowns.forEach(dropdown => {
+    const header = dropdown.querySelector('.sidebar-dropdown-header');
+    const content = dropdown.querySelector('.sidebar-dropdown-content');
+    
+    // Check if any child is active to auto-open dropdown
+    const hasActiveChild = content.querySelector('.sidebar-item.active');
+    if (hasActiveChild) {
+      dropdown.classList.add('open');
+    }
+    
+    header.addEventListener('click', function() {
+      const isOpen = dropdown.classList.contains('open');
+      
+      // Close all other dropdowns
+      dropdowns.forEach(otherDropdown => {
+        if (otherDropdown !== dropdown) {
+          otherDropdown.classList.remove('open');
+        }
+      });
+      
+      // Toggle current dropdown
+      if (isOpen) {
+        dropdown.classList.remove('open');
+      } else {
+        dropdown.classList.add('open');
+      }
+    });
+  });
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSidebarDropdowns);
+} else {
+  initSidebarDropdowns();
+}
+</script>
 
 <!-- Sidebar -->
 <aside id="sidebar" class="sidebar w-64 h-screen fixed left-0 top-16 shadow-xl overflow-y-auto">
   <div class="py-6">
     <!-- Dashboard -->
-    <a href="/" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath === '/' ? 'active' : '' %>">
-      <i class="fas fa-home text-gray-400"></i>
-      <span class="ml-3 font-medium">Dashboard</span>
-    </a>
+    <div class="mb-2">
+      <a href="/" class="sidebar-item <%= typeof currentPath !== 'undefined' && (currentPath === '/' || currentPath === '/dashboard' || currentPath.includes('dashboard')) ? 'active' : '' %>">
+        <i class="fas fa-home"></i>
+        <span class="ml-3 font-medium">Dashboard</span>
+      </a>
+    </div>
     
     <!-- Master Data Section -->
-    <div class="sidebar-section-header">
-      <i class="fas fa-database mr-2 text-gray-400"></i>Master Data
-    </div>
-    
-    <a href="/branches" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/branches') ? 'active' : '' %>">
-      <i class="fas fa-building text-gray-400"></i>
-      <span class="ml-3 font-medium">Cabang</span>
-    </a>
-    
-    <a href="/categories" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/categories') ? 'active' : '' %>">
-      <i class="fas fa-tags text-gray-400"></i>
-      <span class="ml-3 font-medium">Kategori</span>
-    </a>
-    
-    <a href="/jenis-barang" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jenis-barang') ? 'active' : '' %>">
-      <i class="fas fa-box text-gray-400"></i>
-      <span class="ml-3 font-medium">Jenis Barang</span>
-    </a>
-    
-    <a href="/suppliers" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/suppliers') ? 'active' : '' %>">
-      <i class="fas fa-truck text-gray-400"></i>
-      <span class="ml-3 font-medium">Supplier</span>
-    </a>
+    <div class="sidebar-dropdown">
+      <div class="sidebar-dropdown-header">
+        <div class="flex items-center">
+          <i class="fas fa-database mr-2 text-slate-600"></i>
+          <span>Master Data</span>
+        </div>
+        <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+      </div>
+      
+      <div class="sidebar-dropdown-content">
+        <a href="/branches" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/branches') ? 'active' : '' %>">
+          <i class="fas fa-building text-slate-500"></i>
+          <span class="ml-3 font-medium">Cabang</span>
+        </a>
+        
+        <a href="/categories" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/categories') ? 'active' : '' %>">
+          <i class="fas fa-tags text-slate-500"></i>
+          <span class="ml-3 font-medium">Kategori</span>
+        </a>
+        
+        <a href="/jenis-barang" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jenis-barang') ? 'active' : '' %>">
+          <i class="fas fa-box text-slate-500"></i>
+          <span class="ml-3 font-medium">Jenis Barang</span>
+        </a>
+        
+        <a href="/suppliers" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/suppliers') ? 'active' : '' %>">
+          <i class="fas fa-truck text-slate-500"></i>
+          <span class="ml-3 font-medium">Supplier</span>
+        </a>
 
-    <a href="/barang" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/barang') ? 'active' : '' %>">
-      <i class="fas fa-box text-gray-400"></i>
-      <span class="ml-3 font-medium">Data Barang</span>
-    </a>
+        <a href="/barang" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/barang') ? 'active' : '' %>">
+          <i class="fas fa-cube text-slate-500"></i>
+          <span class="ml-3 font-medium">Data Barang</span>
+        </a>
+      </div>
+    </div>
     
     <!-- Warehouse Section -->
-    <div class="sidebar-section-header">
-      <i class="fas fa-warehouse mr-2 text-gray-400"></i>Warehouse
+    <div class="sidebar-dropdown">
+      <div class="sidebar-dropdown-header">
+        <div class="flex items-center">
+          <i class="fas fa-warehouse mr-2 text-slate-600"></i>
+          <span>Warehouse</span>
+        </div>
+        <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+      </div>
+      
+      <div class="sidebar-dropdown-content">
+        <a href="/warehouse/locations" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/locations') ? 'active' : '' %>">
+          <i class="fas fa-warehouse text-slate-500"></i>
+          <span class="ml-3 font-medium">Lokasi Gudang</span>
+        </a>
+        
+        <a href="/warehouse/racks" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/racks') ? 'active' : '' %>">
+          <i class="fas fa-layer-group text-slate-500"></i>
+          <span class="ml-3 font-medium">Rak</span>
+        </a>
+        
+        <a href="/warehouse/bins" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/bins') ? 'active' : '' %>">
+          <i class="fas fa-inbox text-slate-500"></i>
+          <span class="ml-3 font-medium">Bin</span>
+        </a>
+        
+        <a href="/stock" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath === '/stock' ? 'active' : '' %>">
+          <i class="fas fa-cubes text-slate-500"></i>
+          <span class="ml-3 font-medium">Stok Barang</span>
+        </a>
+      </div>
     </div>
-    
-    <a href="/warehouse/locations" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/locations') ? 'active' : '' %>">
-      <i class="fas fa-warehouse text-gray-400"></i>
-      <span class="ml-3 font-medium">Lokasi Gudang</span>
-    </a>
-    
-    <a href="/warehouse/racks" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/racks') ? 'active' : '' %>">
-      <i class="fas fa-layer-group text-gray-400"></i>
-      <span class="ml-3 font-medium">Rak</span>
-    </a>
-    
-    <a href="/warehouse/bins" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/warehouse/bins') ? 'active' : '' %>">
-      <i class="fas fa-inbox text-gray-400"></i>
-      <span class="ml-3 font-medium">Bin</span>
-    </a>
-    
-    <a href="/stock" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath === '/stock' ? 'active' : '' %>">
-      <i class="fas fa-cubes text-gray-400"></i>
-      <span class="ml-3 font-medium">Stok Barang</span>
-    </a>
     
     <!-- Transaksi Section -->
-    <div class="sidebar-section-header">
-      <i class="fas fa-exchange-alt mr-2"></i>Transaksi
+    <div class="sidebar-dropdown">
+      <div class="sidebar-dropdown-header">
+        <div class="flex items-center">
+          <i class="fas fa-exchange-alt mr-2 text-slate-600"></i>
+          <span>Transaksi</span>
+        </div>
+        <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+      </div>
+      
+      <div class="sidebar-dropdown-content">
+        <a href="/incoming" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/incoming') ? 'active' : '' %>">
+          <i class="fas fa-arrow-down icon-green"></i>
+          <span class="ml-3 font-medium">Barang Masuk</span>
+        </a>
+        
+        <a href="/outgoing" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/outgoing') ? 'active' : '' %>">
+          <i class="fas fa-arrow-up icon-red"></i>
+          <span class="ml-3 font-medium">Barang Keluar</span>
+        </a>
+        
+        <a href="/transfer" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/transfer') ? 'active' : '' %>">
+          <i class="fas fa-exchange-alt icon-blue"></i>
+          <span class="ml-3 font-medium">Transfer Barang</span>
+        </a>
+        
+        <a href="/opname" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/opname') ? 'active' : '' %>">
+          <i class="fas fa-clipboard-check icon-purple"></i>
+          <span class="ml-3 font-medium">Stock Opname</span>
+        </a>
+      </div>
     </div>
-    
-    <a href="/incoming" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/incoming') ? 'active' : '' %>">
-      <i class="fas fa-arrow-down icon-green"></i>
-      <span class="ml-3 font-medium">Barang Masuk</span>
-    </a>
-    
-    <a href="/outgoing" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/outgoing') ? 'active' : '' %>">
-      <i class="fas fa-arrow-up icon-red"></i>
-      <span class="ml-3 font-medium">Barang Keluar</span>
-    </a>
-    
-    <a href="/transfer" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/transfer') ? 'active' : '' %>">
-      <i class="fas fa-exchange-alt icon-blue"></i>
-      <span class="ml-3 font-medium">Transfer Barang</span>
-    </a>
-    
-    <a href="/opname" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/opname') ? 'active' : '' %>">
-      <i class="fas fa-clipboard-check icon-purple"></i>
-      <span class="ml-3 font-medium">Stock Opname</span>
-    </a>
     
     <!-- Jamaah & Pengiriman Section -->
-    <div class="sidebar-section-header">
-      <i class="fas fa-users mr-2 text-gray-400"></i>Jamaah & Pengiriman
+    <div class="sidebar-dropdown">
+      <div class="sidebar-dropdown-header">
+        <div class="flex items-center">
+          <i class="fas fa-users mr-2 text-slate-600"></i>
+          <span>Jamaah & Pengiriman</span>
+        </div>
+        <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+      </div>
+      
+      <div class="sidebar-dropdown-content">
+        <a href="/jamaah/kelengkapan" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/kelengkapan') ? 'active' : '' %>">
+          <i class="fas fa-user-check text-slate-500"></i>
+          <span class="ml-3 font-medium">Kelengkapan Jamaah</span>
+        </a>
+        
+        <a href="/jamaah/request" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/request') ? 'active' : '' %>">
+          <i class="fas fa-envelope-open-text text-slate-500"></i>
+          <span class="ml-3 font-medium">Request Perlengkapan</span>
+        </a>
+        
+        <a href="/jamaah/pengiriman" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/pengiriman') ? 'active' : '' %>">
+          <i class="fas fa-shipping-fast text-slate-500"></i>
+          <span class="ml-3 font-medium">Pengiriman</span>
+        </a>
+        
+        <a href="/jamaah/rekap-ongkir" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/rekap-ongkir') ? 'active' : '' %>">
+          <i class="fas fa-money-bill-wave text-slate-500"></i>
+          <span class="ml-3 font-medium">Rekap Ongkir</span>
+        </a>
+      </div>
     </div>
-    
-    <a href="/jamaah/kelengkapan" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/kelengkapan') ? 'active' : '' %>">
-      <i class="fas fa-user-check text-gray-400"></i>
-      <span class="ml-3 font-medium">Kelengkapan Jamaah</span>
-    </a>
-    
-    <a href="/jamaah/request" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/request') ? 'active' : '' %>">
-      <i class="fas fa-envelope-open-text text-gray-400"></i>
-      <span class="ml-3 font-medium">Request Perlengkapan</span>
-    </a>
-    
-    <a href="/jamaah/pengiriman" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/pengiriman') ? 'active' : '' %>">
-      <i class="fas fa-shipping-fast text-gray-400"></i>
-      <span class="ml-3 font-medium">Pengiriman</span>
-    </a>
-    
-    <a href="/jamaah/rekap-ongkir" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/jamaah/rekap-ongkir') ? 'active' : '' %>">
-      <i class="fas fa-money-bill-wave text-gray-400"></i>
-      <span class="ml-3 font-medium">Rekap Ongkir</span>
-    </a>
     
     <!-- Laporan Section -->
-    <div class="sidebar-section-header">
-      <i class="fas fa-chart-line mr-2"></i>Laporan
+    <div class="sidebar-dropdown">
+      <div class="sidebar-dropdown-header">
+        <div class="flex items-center">
+          <i class="fas fa-chart-line mr-2 text-slate-600"></i>
+          <span>Laporan</span>
+        </div>
+        <i class="fas fa-chevron-down sidebar-dropdown-arrow"></i>
+      </div>
+      
+      <div class="sidebar-dropdown-content">
+        <a href="/stock/movements" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/stock/movements') ? 'active' : '' %>">
+          <i class="fas fa-history text-slate-500"></i>
+          <span class="ml-3 font-medium">Histori Pergerakan</span>
+        </a>
+      </div>
     </div>
-    
-    <a href="/stock/movements" class="sidebar-item <%= typeof currentPath !== 'undefined' && currentPath.includes('/stock/movements') ? 'active' : '' %>">
-      <i class="fas fa-history"></i>
-      <span class="ml-3 font-medium">Histori Pergerakan</span>
-    </a>
     
     <!-- Bottom Spacing -->
     <div class="h-6"></div>

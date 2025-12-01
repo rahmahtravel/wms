@@ -28,10 +28,10 @@
 
   /* Modern Navbar Styles */
   .modern-navbar {
-    background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fdba74 100%);
+    background: white;
     backdrop-filter: blur(10px);
     animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
 
   /* Sidebar Toggle Button */
@@ -43,12 +43,12 @@
     justify-content: center;
     border-radius: 10px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(10px);
   }
 
   .sidebar-toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -68,14 +68,14 @@
   }
 
   .logo-image-wrapper {
-    width: 44px;
-    height: 44px;
-    background: white;
+    width: 52px;
+    height: 52px;
+    background: #fb923c;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
     transition: all 0.3s ease;
   }
 
@@ -87,14 +87,14 @@
   .logo-title {
     font-size: 20px;
     font-weight: 700;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #1f2937;
+    text-shadow: none;
     letter-spacing: -0.5px;
   }
 
   .logo-subtitle {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.95);
+    color: #6b7280;
     font-weight: 500;
     letter-spacing: 0.5px;
   }
@@ -109,12 +109,12 @@
     justify-content: center;
     border-radius: 10px;
     transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(10px);
   }
 
   .notification-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.1);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
@@ -161,12 +161,12 @@
   .user-avatar {
     width: 36px;
     height: 36px;
-    background: white;
+    background: #fb923c;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(251, 146, 60, 0.3);
     transition: all 0.3s ease;
   }
 
@@ -184,14 +184,14 @@
   .user-name {
     font-size: 14px;
     font-weight: 600;
-    color: white;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    color: #1f2937;
+    text-shadow: none;
     line-height: 1.2;
   }
 
   .user-role {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.9);
+    color: #6b7280;
     font-weight: 500;
     line-height: 1.2;
   }
@@ -349,14 +349,14 @@
       <!-- Left Section -->
       <div class="flex items-center space-x-3">
         <!-- Sidebar Toggle (Hidden on Desktop) -->
-        <button id="sidebarToggle" class="sidebar-toggle-btn text-white focus:outline-none lg:hidden">
+        <button id="sidebarToggle" class="sidebar-toggle-btn text-gray-600 focus:outline-none lg:hidden">
           <i class="fas fa-bars text-lg"></i>
         </button>
         
         <!-- Logo & Brand -->
         <div class="logo-container">
           <div class="logo-image-wrapper">
-            <img src="/images/logo.png" alt="Rahmah Travel Logo" class="h-8 w-8 object-contain">
+            <img src="/images/logo.png" alt="Rahmah Travel Logo" class="h-12 w-12 object-contain filter brightness-0 invert p-2">
           </div>
           <div class="logo-text-wrapper hidden md:flex">
             <span class="logo-title">Rahmah Travel</span>
@@ -370,9 +370,9 @@
         
         <!-- User Menu -->
         <div class="relative">
-          <button type="button" id="userMenuBtn" class="user-menu-btn text-white focus:outline-none">
+          <button type="button" id="userMenuBtn" class="user-menu-btn text-gray-700 focus:outline-none">
             <div class="user-avatar">
-              <i class="fas fa-user text-orange-500"></i>
+              <i class="fas fa-user text-white"></i>
             </div>
             <div class="user-info hidden md:flex">
               <span class="user-name"><%= user ? user.name : 'Guest' %></span>
