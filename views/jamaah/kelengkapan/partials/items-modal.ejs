@@ -887,6 +887,17 @@ async function saveSelectedItems() {
   }
   
   try {
+    // Show loading indicator
+    Swal.fire({
+      title: 'Menyimpan...',
+      html: 'Menyimpan kelengkapan dan mengupdate stock barang...',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+    
     const response = await fetch(`/jamaah/kelengkapan/${currentKelengkapanId}/items`, {
       method: 'POST',
       headers: {
@@ -901,19 +912,69 @@ async function saveSelectedItems() {
     const result = await response.json();
     
     if (result.success) {
-      swalSuccess('Kelengkapan barang dan status berhasil disimpan');
-      closeItemsModal();
-      // Optionally reload the page or update the UI
-      setTimeout(() => {
+      // Build success message with stock update info
+      let successMessage = 'Kelengkapan barang dan status berhasil disimpan!';
+      
+      if (result.stockUpdates) {
+        const { restored, reduced } = result.stockUpdates;
+        if (restored > 0 || reduced > 0) {
+          successMessage += '<br><br><div class="text-sm mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">';
+          successMessage += '<div class="font-semibold text-blue-800 mb-2"><i class="fas fa-box mr-1"></i>Update Stock:</div>';
+          if (reduced > 0) {
+            successMessage += `<div class="text-blue-700"><i class="fas fa-minus-circle text-red-500 mr-1"></i> ${reduced} item diambil (stock berkurang)</div>`;
+          }
+          if (restored > 0) {
+            successMessage += `<div class="text-blue-700"><i class="fas fa-plus-circle text-green-500 mr-1"></i> ${restored} item dikembalikan (stock bertambah)</div>`;
+          }
+          successMessage += '</div>';
+        }
+      }
+      
+      // Add request status update info
+      if (result.requestStatusUpdate) {
+        const { action, from, to, requestStatus } = result.requestStatusUpdate;
+        successMessage += '<br><br><div class="text-sm mt-2 p-3 bg-green-50 rounded-lg border border-green-200">';
+        successMessage += '<div class="font-semibold text-green-800 mb-2"><i class="fas fa-clipboard-check mr-1"></i>Update Request Perlengkapan:</div>';
+        
+        if (action === 'completed') {
+          successMessage += `<div class="text-green-700"><i class="fas fa-check-circle text-green-500 mr-1"></i>Status pengambilan: "${from}" → "${to}"</div>`;
+          successMessage += `<div class="text-green-700"><i class="fas fa-flag-checkered text-green-500 mr-1"></i>Request perlengkapan otomatis diselesaikan (status: ${requestStatus})</div>`;
+        } else if (action === 'reverted') {
+          successMessage += `<div class="text-green-700"><i class="fas fa-undo text-blue-500 mr-1"></i>Status pengambilan: "${from}" → "${to}"</div>`;
+          successMessage += `<div class="text-green-700"><i class="fas fa-arrow-left text-blue-500 mr-1"></i>Request perlengkapan dikembalikan ke status: ${requestStatus}</div>`;
+        }
+        
+        successMessage += '</div>';
+      }
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        html: successMessage,
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+        timer: 3000,
+        timerProgressBar: true
+      }).then(() => {
+        closeItemsModal();
         window.location.reload();
-      }, 1500);
+      });
+      
     } else {
-      swalError(result.error || 'Gagal menyimpan kelengkapan barang');
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: result.error || 'Gagal menyimpan kelengkapan barang'
+      });
     }
     
   } catch (error) {
     console.error('Error saving items:', error);
-    swalError('Terjadi kesalahan saat menyimpan data');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Terjadi kesalahan saat menyimpan data'
+    });
   }
 }
 </script>

@@ -7,113 +7,197 @@
   <%- include('../../partials/navbar') %>
   <%- include('../../partials/sidebar') %>
 
-  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 min-h-screen">
-    <!-- Header -->
-    <div class="mb-6">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center">
-          <i class="fas fa-envelope-open-text text-primary mr-3"></i>
-          <%= title %>
-        </h1>
-        <button onclick="openModal('createModal')" class="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
-          <i class="fas fa-plus mr-2"></i>
-          Tambah Request
-        </button>
+  <main id="mainContent" class="ml-64 mt-16 p-4 md:p-6 lg:p-8 transition-all duration-300 min-h-screen bg-gray-100">
+    <!-- Page Header - Ultra Modern Design -->
+    <div class="mb-8 animate-fadeInUp">
+      <div class="rounded-2xl overflow-hidden shadow-2xl">
+        <div class="gradient-header text-white p-8 md:p-10">
+          <!-- Floating Circles Decoration -->
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32 animate-pulse-soft"></div>
+          <div class="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24 animate-pulse-soft" style="animation-delay: 1s;"></div>
+          
+          <div class="relative z-10">
+            <div class="flex flex-col md:flex-row items-center gap-6">
+              <!-- Modern Icon Container -->
+              <div class="flex-none">
+                <div class="relative group">
+                  <div class="absolute inset-0 bg-white opacity-20 rounded-2xl blur-xl group-hover:opacity-30 transition-opacity"></div>
+                  <div class="relative w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                    <img src="/images/logo.png" alt="Logo" class="max-h-16 md:max-h-20 max-w-full object-contain">
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Text Content -->
+              <div class="flex-1 text-center md:text-left">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-black leading-tight text-white mb-2 tracking-tight">
+                  <%= title %>
+                </h1>
+                <p class="text-base md:text-lg text-white/90 font-medium max-w-2xl">
+                  Kelola permintaan perlengkapan jamaah dengan sistem yang terintegrasi
+                </p>
+              </div>
+
+              <!-- Action Button -->
+              <div class="flex-none">
+                <button onclick="openModal('createModal')" class="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30 hover:border-white/50 px-6 py-3 rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <i class="fas fa-plus mr-2"></i>
+                  Tambah Request
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <div class="bg-white rounded-xl shadow-sm p-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="stat-card bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl">
         <div class="flex items-center">
-          <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+          <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
             <i class="fas fa-clock text-2xl"></i>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">Pending</p>
-            <p class="text-2xl font-bold text-gray-900">
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Pending</p>
+            <p class="text-3xl font-black text-gray-900 mt-1">
               <%= requests.filter(r => r.status === 'pending').length %>
             </p>
           </div>
         </div>
-      </div>
-      
-      <div class="bg-white rounded-xl shadow-sm p-6">
-        <div class="flex items-center">
-          <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-            <i class="fas fa-hourglass-half text-2xl"></i>
-          </div>
-          <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">Diproses</p>
-            <p class="text-2xl font-bold text-gray-900">
-              <%= requests.filter(r => r.status === 'processing').length %>
-            </p>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+          <div class="flex items-center text-xs text-gray-500">
+            <i class="fas fa-info-circle mr-1"></i>
+            <span>Menunggu konfirmasi</span>
           </div>
         </div>
       </div>
       
-      <div class="bg-white rounded-xl shadow-sm p-6">
+      <div class="stat-card bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl">
         <div class="flex items-center">
-          <div class="p-3 rounded-full bg-green-100 text-green-600">
+          <div class="p-4 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 text-white shadow-lg">
+            <i class="fas fa-check-double text-2xl"></i>
+          </div>
+          <div class="ml-4">
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Confirmed</p>
+            <p class="text-3xl font-black text-gray-900 mt-1">
+              <%= requests.filter(r => r.status === 'confirmed').length %>
+            </p>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+          <div class="flex items-center text-xs text-gray-500">
+            <i class="fas fa-check mr-1"></i>
+            <span>Telah dikonfirmasi</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="stat-card bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl">
+        <div class="flex items-center">
+          <div class="p-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">
             <i class="fas fa-check-circle text-2xl"></i>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">Selesai</p>
-            <p class="text-2xl font-bold text-gray-900">
-              <%= requests.filter(r => r.status === 'completed').length %>
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Selesai</p>
+            <p class="text-3xl font-black text-gray-900 mt-1">
+              <%= requests.filter(r => r.status === 'selesai').length %>
             </p>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+          <div class="flex items-center text-xs text-gray-500">
+            <i class="fas fa-check-double mr-1"></i>
+            <span>Proses selesai</span>
           </div>
         </div>
       </div>
       
-      <div class="bg-white rounded-xl shadow-sm p-6">
+      <div class="stat-card bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl">
         <div class="flex items-center">
-          <div class="p-3 rounded-full bg-red-100 text-red-600">
-            <i class="fas fa-times-circle text-2xl"></i>
+          <div class="p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white shadow-lg">
+            <i class="fas fa-chart-bar text-2xl"></i>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">Dibatalkan</p>
-            <p class="text-2xl font-bold text-gray-900">
-              <%= requests.filter(r => r.status === 'cancelled').length %>
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total</p>
+            <p class="text-3xl font-black text-gray-900 mt-1">
+              <%= requests.length %>
             </p>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-gray-100">
+          <div class="flex items-center text-xs text-gray-500">
+            <i class="fas fa-database mr-1"></i>
+            <span>Total semua request</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Filter Section -->
-    <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-gray-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-medium text-gray-800">Filter & Pencarian</h3>
+        <div class="flex items-center space-x-4">
+          <button onclick="resetAllFilters()" class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors duration-200">
+            <i class="fas fa-undo-alt mr-2"></i>
+            Reset Filter
+          </button>
+          <label class="flex items-center cursor-pointer">
+            <input type="checkbox" id="showSelesai" class="sr-only" onchange="toggleSelesaiVisibility()">
+            <div class="relative">
+              <div class="w-10 h-6 bg-gray-200 rounded-full shadow-inner transition-colors duration-200 ease-in-out"></div>
+              <div class="absolute left-0 top-0 w-6 h-6 bg-white rounded-full shadow transition-transform duration-200 ease-in-out transform"></div>
+            </div>
+            <span class="ml-3 text-sm font-medium text-gray-700">Tampilkan Data Selesai</span>
+          </label>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Cari</label>
-          <input type="text" id="searchInput" placeholder="Cari nama penerima..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <input type="text" id="searchInput" placeholder="Cari nama jamaah, penerima, paket umroh, atau status pengambilan..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-          <select id="filterStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-            <option value="">Semua Status</option>
-            <option value="pending">Pending</option>
-            <option value="processing">Diproses</option>
-            <option value="completed">Selesai</option>
-            <option value="cancelled">Dibatalkan</option>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status Pengambilan</label>
+          <select id="filterStatusPengambilan" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">Semua Status Pengambilan</option>
+            <option value="Belum Diambil">Belum Diambil</option>
+            <option value="Sudah Diambil">Sudah Diambil</option>
+            <option value="Di Kirim">Di Kirim</option>
+            <option value="Di Ambil Di Kantor">Di Ambil Di Kantor</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Periode</label>
-          <input type="date" id="dateFilter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status Request</label>
+          <select id="filterStatus" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">Semua Status Request</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="selesai">Selesai</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Paket Umroh</label>
+          <select id="filterPaket" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">Semua Paket</option>
+            <!-- Options will be populated by JavaScript -->
+          </select>
         </div>
       </div>
     </div>
 
     <!-- Table Card -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Jamaah</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Penerima</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No. Telepon</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paket Umroh</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Pengambilan</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Request</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
@@ -122,37 +206,107 @@
           <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
             <% if (requests && requests.length > 0) { %>
               <% requests.forEach((item, index) => { %>
-                <tr class="hover:bg-gray-50 transition">
+                <tr class="hover:bg-gray-50 transition <%= (item.status === 'selesai') ? 'row-selesai' : '' %>" 
+                    data-status="<%= item.status || 'pending' %>" 
+                    data-status-pengambilan="<%= item.status_pengambilan || '' %>" 
+                    data-paket="<%= item.nama_paket || '' %>" 
+                    data-original-index="<%= index + 1 %>" 
+                    style="<%= (item.status === 'selesai') ? 'display: none;' : '' %>">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= index + 1 %></td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                      <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
-                        <%= item.nama_penerima ? item.nama_penerima.charAt(0).toUpperCase() : 'J' %>
+                      <div class="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
+                        <%= item.nama_jamaah ? item.nama_jamaah.charAt(0).toUpperCase() : 'J' %>
                       </div>
                       <div class="ml-3">
-                        <div class="text-sm font-medium text-gray-900"><%= item.nama_penerima || '-' %></div>
+                        <div class="text-sm font-medium text-gray-900"><%= item.nama_jamaah || '-' %></div>
+                        <% if (item.title) { %>
+                          <div class="text-xs text-blue-600 mt-1 font-medium">
+                            <%= item.title %>
+                          </div>
+                        <% } %>
+                        <% if (item.clothing_size) { %>
+                          <div class="text-xs text-purple-600 mt-1 font-medium">
+                            <i class="fas fa-tshirt mr-1"></i><%= item.clothing_size %>
+                          </div>
+                        <% } %>
+                        <% if (item.no_hp) { %>
+                          <div class="text-xs text-gray-500 mt-1">
+                            <%= item.no_hp %>
+                          </div>
+                        <% } %>
                       </div>
                     </div>
                   </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= item.nomor_telp || '-' %></td>
                   <td class="px-6 py-4 whitespace-nowrap">
-                    <% if (item.status === 'completed') { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        <i class="fas fa-check-circle mr-1"></i> Selesai
-                      </span>
-                    <% } else if (item.status === 'processing') { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                        <i class="fas fa-hourglass-half mr-1"></i> Diproses
-                      </span>
-                    <% } else if (item.status === 'cancelled') { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        <i class="fas fa-times-circle mr-1"></i> Dibatalkan
-                      </span>
+                    <div class="flex items-center">
+                      <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
+                        <%= item.nama_penerima ? item.nama_penerima.charAt(0).toUpperCase() : 'P' %>
+                      </div>
+                      <div class="ml-3">
+                        <div class="text-sm font-medium text-gray-900"><%= item.nama_penerima || '-' %></div>
+                        <% if (item.nomor_telp) { %>
+                          <div class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-phone mr-1"></i><%= item.nomor_telp %>
+                          </div>
+                        <% } %>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="space-y-1">
+                      <% if (item.nama_paket) { %>
+                        <div class="text-sm font-medium text-green-600">
+                          <%= item.nama_paket %>
+                        </div>
+                      <% } else { %>
+                        <div class="text-sm text-gray-500">-</div>
+                      <% } %>
+                      <% if (item.tanggal_keberangkatan) { %>
+                        <div class="text-xs text-gray-500">
+                          <i class="fas fa-calendar mr-1"></i><%= new Date(item.tanggal_keberangkatan).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) %>
+                        </div>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <% if (item.status_pengambilan) { %>
+                      <% if (item.status_pengambilan === 'Belum Diambil') { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                          <i class="fas fa-times-circle mr-1"></i>Belum Diambil
+                        </span>
+                      <% } else if (item.status_pengambilan === 'Sudah Diambil') { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <i class="fas fa-check-circle mr-1"></i>Sudah Diambil
+                        </span>
+                      <% } else if (item.status_pengambilan === 'Di Kirim') { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <i class="fas fa-shipping-fast mr-1"></i>Di Kirim
+                        </span>
+                      <% } else if (item.status_pengambilan === 'Di Ambil Di Kantor') { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <i class="fas fa-building mr-1"></i>Di Ambil Di Kantor
+                        </span>
+                      <% } else { %>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                          <i class="fas fa-question mr-1"></i><%= item.status_pengambilan %>
+                        </span>
+                      <% } %>
                     <% } else { %>
-                      <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                        <i class="fas fa-clock mr-1"></i> Pending
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                        <i class="fas fa-minus mr-1"></i>Belum Ada
                       </span>
                     <% } %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-center">
+                    <select class="status-select text-xs font-medium rounded-full border-0 focus:ring-2 focus:ring-primary" 
+                            data-id="<%= item.id %>" 
+                            onchange="updateRequestStatus(<%= item.id %>, this.value)"
+                            style="background-color: <%= (item.status === 'selesai') ? '#dcfce7' : (item.status === 'confirmed') ? '#fef3c7' : '#dbeafe' %>; color: <%= (item.status === 'selesai') ? '#166534' : (item.status === 'confirmed') ? '#92400e' : '#1e40af' %>;">
+                      <option value="pending" <%= (item.status === 'pending' || !item.status) ? 'selected' : '' %>>🕐 Pending</option>
+                      <option value="confirmed" <%= (item.status === 'confirmed') ? 'selected' : '' %>>✅ Confirmed</option>
+                      <option value="selesai" <%= (item.status === 'selesai') ? 'selected' : '' %>>🎉 Selesai</option>
+                    </select>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <%= item.requested_at ? new Date(item.requested_at).toLocaleDateString('id-ID') : '-' %>
@@ -172,7 +326,7 @@
               <% }) %>
             <% } else { %>
               <tr>
-                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                   <i class="fas fa-inbox text-4xl mb-2"></i>
                   <p>Belum ada request perlengkapan</p>
                 </td>
@@ -186,6 +340,96 @@
 
   <%- include('../../partials/scripts') %>
   
+  <style>
+    /* Gradient Header Styles */
+    :root {
+      --primary-color: #f9a825;
+      --primary-light: #ffd54f;
+      --primary-dark: #f57f17;
+    }
+
+    .gradient-header {
+      background: linear-gradient(
+        135deg,
+        var(--primary-color) 0%,
+        var(--primary-light) 100%
+      );
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gradient-header::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+      opacity: 0.6;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse-soft {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    .animate-fadeInUp {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .stat-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.2s; }
+    .stat-card:nth-child(4) { animation-delay: 0.3s; }
+
+    .row-selesai {
+      transition: opacity 0.3s ease-in-out;
+    }
+    
+    /* Toggle switch styling */
+    input[type="checkbox"]:checked + div > div:first-child {
+      background-color: #10b981 !important;
+    }
+    
+    input[type="checkbox"]:checked + div > div:last-child {
+      transform: translateX(1rem);
+    }
+    
+    .toggle-bg {
+      transition: background-color 0.2s ease-in-out;
+    }
+    
+    .toggle-dot {
+      transition: transform 0.2s ease-in-out;
+    }
+  </style>
+  
   <script>
     function openModal(modalId) {
       // Implement modal functionality
@@ -195,35 +439,300 @@
       window.location.href = `/jamaah/request/${id}`;
     }
 
+    // Reset all filters function
+    function resetAllFilters() {
+      console.log('Resetting all filters...');
+      
+      // Reset all filter inputs
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterStatusPengambilan').value = '';
+      document.getElementById('filterPaket').value = '';
+      
+      // Reset toggle for showing selesai data
+      const showSelesaiToggle = document.getElementById('showSelesai');
+      showSelesaiToggle.checked = false;
+      
+      // Update toggle visual state
+      const toggle = showSelesaiToggle.nextElementSibling;
+      const toggleBg = toggle.querySelector('div:first-child');
+      const toggleDot = toggle.querySelector('div:last-child');
+      
+      if (toggleBg && toggleDot) {
+        toggleBg.classList.remove('bg-green-500');
+        toggleBg.classList.add('bg-gray-200');
+        toggleDot.classList.remove('translate-x-4');
+      }
+      
+      // Apply the reset by calling filter functions
+      toggleSelesaiVisibility();
+      filterTable();
+      
+      // Optional: Show notification that filters have been reset
+      const resetButton = event.target;
+      const originalText = resetButton.innerHTML;
+      resetButton.innerHTML = '<i class="fas fa-check mr-2"></i>Reset';
+      resetButton.classList.remove('bg-gray-100', 'hover:bg-gray-200', 'text-gray-700');
+      resetButton.classList.add('bg-green-100', 'text-green-700');
+      
+      setTimeout(() => {
+        resetButton.innerHTML = originalText;
+        resetButton.classList.remove('bg-green-100', 'text-green-700');
+        resetButton.classList.add('bg-gray-100', 'hover:bg-gray-200', 'text-gray-700');
+      }, 1500);
+      
+      console.log('All filters reset successfully');
+    }
+
+    // Update request status function
+    async function updateRequestStatus(id, newStatus) {
+      try {
+        const response = await fetch(`/jamaah/request/${id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Status berhasil diperbarui',
+            timer: 1500,
+            showConfirmButton: false
+          });
+          
+          // Update select styling based on new status
+          const select = document.querySelector(`select[data-id="${id}"]`);
+          if (select) {
+            const colors = {
+              'pending': { bg: '#dbeafe', color: '#1e40af' },
+              'confirmed': { bg: '#fef3c7', color: '#92400e' },
+              'selesai': { bg: '#dcfce7', color: '#166534' }
+            };
+            select.style.backgroundColor = colors[newStatus].bg;
+            select.style.color = colors[newStatus].color;
+          }
+          
+          // Refresh page after 1.5 seconds to update stats
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          throw new Error(result.error || 'Gagal memperbarui status');
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error!',
+          text: error.message || 'Terjadi kesalahan saat memperbarui status'
+        });
+      }
+    }
+
     function updateStatus(id) {
-      // Implement status update
+      // Legacy function - now handled by updateRequestStatus
+      console.log('Use dropdown to update status');
     }
 
     function deleteItem(id) {
       swalConfirmFetch(`/jamaah/request/${id}`, { method: 'DELETE' }, 'Request berhasil dihapus', 'Gagal menghapus request');
     }
 
+    // Toggle visibility for 'selesai' status data
+    function toggleSelesaiVisibility() {
+      const checkbox = document.getElementById('showSelesai');
+      const toggle = checkbox.nextElementSibling;
+      const toggleBg = toggle.querySelector('div:first-child');
+      const toggleDot = toggle.querySelector('div:last-child');
+      
+      if (checkbox.checked) {
+        toggleBg.classList.add('bg-green-500');
+        toggleBg.classList.remove('bg-gray-200');
+        toggleDot.classList.add('translate-x-4');
+        
+        // Show all selesai data
+        document.querySelectorAll('.row-selesai').forEach(row => {
+          row.style.display = '';
+        });
+      } else {
+        toggleBg.classList.remove('bg-green-500');
+        toggleBg.classList.add('bg-gray-200');
+        toggleDot.classList.remove('translate-x-4');
+        
+        // Hide selesai data (but keep them visible if filtered)
+        const statusFilter = document.getElementById('filterStatus').value;
+        const statusPengambilanFilter = document.getElementById('filterStatusPengambilan').value;
+        const paketFilter = document.getElementById('filterPaket').value;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        document.querySelectorAll('.row-selesai').forEach(row => {
+          // Only hide if no active filter is showing them
+          if (!statusFilter && !statusPengambilanFilter && !paketFilter && !searchTerm) {
+            row.style.display = 'none';
+          } else {
+            // Let the filter function handle visibility
+            filterTable();
+          }
+        });
+      }
+      
+      // Update row numbering
+      updateRowNumbers();
+    }
+    
+    // Update row numbering for visible rows
+    function updateRowNumbers() {
+      const visibleRows = Array.from(document.querySelectorAll('#tableBody tr')).filter(row => 
+        row.style.display !== 'none' && row.cells.length > 1
+      );
+      
+      visibleRows.forEach((row, index) => {
+        row.cells[0].textContent = index + 1;
+      });
+    }
+
+    // Load paket options
+    loadPakets();
+    
     // Filter functionality
     document.getElementById('searchInput').addEventListener('input', filterTable);
     document.getElementById('filterStatus').addEventListener('change', filterTable);
+    document.getElementById('filterStatusPengambilan').addEventListener('change', filterTable);
+    document.getElementById('filterPaket').addEventListener('change', filterTable);
 
     function filterTable() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       const statusFilter = document.getElementById('filterStatus').value;
+      const statusPengambilanFilter = document.getElementById('filterStatusPengambilan').value;
+      const paketFilter = document.getElementById('filterPaket').value;
+      const showSelesai = document.getElementById('showSelesai').checked;
       
       const rows = document.querySelectorAll('#tableBody tr');
       rows.forEach(row => {
         if (row.cells.length === 1) return;
         
-        const nama = row.cells[1].textContent.toLowerCase();
-        const status = row.querySelector('span')?.textContent.toLowerCase() || '';
+        const namaJamaah = row.cells[1].textContent.toLowerCase();
+        const namaPenerima = row.cells[2].textContent.toLowerCase();
+        const paketInfo = row.cells[3].textContent.toLowerCase();
+        const statusPengambilanText = row.cells[4].textContent.toLowerCase();
+        const statusSelect = row.cells[5].querySelector('select');
+        const currentStatus = statusSelect ? statusSelect.value : '';
+        const rowStatus = row.dataset.status;
         
         let show = true;
-        if (searchTerm && !nama.includes(searchTerm)) show = false;
-        if (statusFilter && !status.includes(statusFilter)) show = false;
+        
+        // Search filter
+        if (searchTerm && !namaJamaah.includes(searchTerm) && !namaPenerima.includes(searchTerm) && !paketInfo.includes(searchTerm) && !statusPengambilanText.includes(searchTerm)) {
+          show = false;
+        }
+        
+        // Status request filter
+        if (statusFilter && statusFilter !== currentStatus) {
+          show = false;
+        }
+        
+        // Status pengambilan filter
+        if (statusPengambilanFilter) {
+          const rowStatusPengambilan = row.dataset.statusPengambilan || '';
+          if (rowStatusPengambilan !== statusPengambilanFilter) {
+            show = false;
+          }
+        }
+        
+        // Paket filter
+        if (paketFilter) {
+          const rowPaket = row.dataset.paket || '';
+          if (rowPaket !== paketFilter) {
+            show = false;
+          }
+        }
+        
+        // Selesai visibility logic
+        if (rowStatus === 'selesai' && !showSelesai) {
+          // If filtering by 'selesai' status or searching, show the row
+          if (statusFilter === 'selesai' || (searchTerm && show) || (statusPengambilanFilter && show) || (paketFilter && show)) {
+            show = true;
+          } else {
+            show = false;
+          }
+        }
         
         row.style.display = show ? '' : 'none';
       });
+      
+      // Update row numbering
+      updateRowNumbers();
+    }
+    
+    // Load paket options for filter
+    async function loadPakets() {
+      try {
+        console.log('Loading paket umroh data...');
+        const response = await fetch('/jamaah/paket-umroh-list');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const pakets = await response.json();
+        console.log('Paket data loaded:', pakets);
+        
+        const filterPaket = document.getElementById('filterPaket');
+        
+        // Clear existing options except "Semua Paket"
+        while (filterPaket.children.length > 1) {
+          filterPaket.removeChild(filterPaket.lastChild);
+        }
+        
+        // Check if pakets is empty
+        if (!pakets || Object.keys(pakets).length === 0) {
+          const noDataOption = document.createElement('option');
+          noDataOption.textContent = 'Tidak ada data paket';
+          noDataOption.disabled = true;
+          filterPaket.appendChild(noDataOption);
+          return;
+        }
+        
+        // Data is already grouped by month-year from the endpoint
+        // Add grouped options
+        Object.keys(pakets).forEach(monthKey => {
+          // Add month header (disabled option)
+          const headerOption = document.createElement('option');
+          headerOption.textContent = `${monthKey}`;
+          headerOption.disabled = true;
+          headerOption.style.fontWeight = 'bold';
+          headerOption.style.color = '#6b7280';
+          filterPaket.appendChild(headerOption);
+          
+          // Add pakets for this month
+          pakets[monthKey].forEach(paket => {
+            const option = document.createElement('option');
+            option.value = paket.nama_paket;
+            option.textContent = `${paket.nama_paket}`;
+            if (paket.tanggal_keberangkatan) {
+              const date = new Date(paket.tanggal_keberangkatan);
+              option.textContent += ` (${date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })})`;
+            }
+            if (paket.batch) {
+              option.textContent += ` - Batch ${paket.batch}`;
+            }
+            filterPaket.appendChild(option);
+          });
+        });
+      } catch (error) {
+        console.error('Error loading pakets:', error);
+        
+        // Add error option to dropdown
+        const filterPaket = document.getElementById('filterPaket');
+        const errorOption = document.createElement('option');
+        errorOption.textContent = 'Error memuat data paket';
+        errorOption.disabled = true;
+        errorOption.style.color = '#ef4444';
+        filterPaket.appendChild(errorOption);
+      }
     }
   </script>
 </body>

@@ -5,8 +5,8 @@ require("dotenv").config();
 const WATZAP_CONFIG = {
   name: "WatZap",
   url: "https://api.watzap.id/v1/send_message",
-  apiKey: process.env.WATZAP_API_KEY || "5Q8ZI2EQSGFALPMJ",
-  numberKey: process.env.WATZAP_NUMBER_KEY || "qsYFC4841uf7n02f", // Default number_key, can be overridden per service
+  apiKey: process.env.WATZAP_API_KEY || "SDBN9DVJUL5YBZEO",
+  numberKey: process.env.WATZAP_NUMBER_KEY || "J73z49puyIonbJ1h", // Default number_key, can be overridden per service
 };
 
 // Development mode configuration

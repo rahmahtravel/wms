@@ -74,6 +74,106 @@
     .animate-pulse-soft {
       animation: pulse-soft 3s ease-in-out infinite;
     }
+
+    /* Dropdown Menu Styles */
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 0.5rem;
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      min-width: 240px;
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-header {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #374151;
+      background: #f9fafb;
+      border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 0.625rem 1rem;
+      font-size: 0.875rem;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .dropdown-item:hover {
+      background: #f9fafb;
+      border-left-color: var(--primary-color);
+      padding-left: 1.25rem;
+    }
+
+    .dropdown-item i {
+      margin-right: 0.75rem;
+      width: 20px;
+      text-align: center;
+      font-size: 0.875rem;
+    }
+
+    .dropdown-item.purple i {
+      color: #8b5cf6;
+    }
+
+    .dropdown-item.blue i {
+      color: #3b82f6;
+    }
+
+    .dropdown-item.indigo i {
+      color: #6366f1;
+    }
+
+    .dropdown-item.cyan i {
+      color: #06b6d4;
+    }
+
+    .dropdown-item.teal i {
+      color: #14b8a6;
+    }
+
+    .dropdown-item.green i {
+      color: #10b981;
+    }
+
+    .dropdown-item.emerald i {
+      color: #059669;
+    }
+
+    .dropdown-item.orange i {
+      color: #f97316;
+    }
+
+    .dropdown-item.red i {
+      color: #ef4444;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: #f3f4f6;
+      margin: 0.25rem 0;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
@@ -181,7 +281,7 @@
 
       <!-- Statistics Cards Container with Enhanced Animation -->
       <div id="statsCards" class="stats-expanded transition-all duration-500 ease-in-out overflow-hidden">
-        <div class="grid stats-mobile-grid stats-tablet-grid stats-desktop-grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
+        <div class="grid stats-mobile-grid stats-tablet-grid stats-desktop-grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 lg:gap-6">
           <!-- Total Jamaah Card - Enhanced Design -->
           <div class="group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
             <!-- Gradient Border Effect -->
@@ -247,6 +347,33 @@
             </div>
           </div>
 
+          <!-- Dalam Pengiriman Card -->
+          <div class="group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-400 via-indigo-500 to-indigo-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 blur-sm"></div>
+            <div class="relative bg-white rounded-2xl p-6 m-0.5">
+              <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-2">
+                    <div class="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+                    <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Dalam Pengiriman</p>
+                  </div>
+                  <div class="flex items-baseline space-x-2">
+                    <h3 class="text-3xl font-black text-gray-800 tabular-nums" id="dalamPengiriman">-</h3>
+                    <span class="text-sm font-medium text-gray-500">jamaah</span>
+                  </div>
+                </div>
+                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <i class="fas fa-shipping-fast text-indigo-600 text-lg"></i>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-gray-100">
+                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                  <span>Sedang dalam proses pengiriman</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Sudah Diambil Card -->
           <div class="group relative bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-br from-green-400 via-green-500 to-green-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 -z-10 blur-sm"></div>
@@ -277,6 +404,131 @@
       </div>
     </div>
 
+    <!-- Action Buttons Legend Section -->
+    <div class="mb-6">
+      <div class="bg-gradient-to-r from-white via-blue-50 to-purple-50 rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300" onclick="toggleLegend()">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                <i class="fas fa-info-circle text-white text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-white">Panduan Tombol Aksi</h3>
+                <p class="text-xs text-white/80">Keterangan fungsi tombol-tombol pada kolom aksi</p>
+              </div>
+            </div>
+            <button class="group flex items-center space-x-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg transition-all duration-200">
+              <span class="text-xs font-medium text-white" id="legendToggleText">Sembunyikan</span>
+              <i class="fas fa-chevron-up text-white text-sm transition-transform duration-300" id="legendChevron"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Content -->
+        <div id="legendContent" class="legend-content-expanded transition-all duration-500 ease-in-out overflow-hidden">
+          <div class="p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Detail Button Info -->
+            <div class="legend-card-item group bg-white rounded-xl p-4 border-2 border-blue-100 hover:border-blue-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <div class="action-btn action-btn-detail pointer-events-none">
+                    <i class="fas fa-eye"></i>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-bold text-gray-800 mb-1 group-hover:text-blue-600 transition-colors">Detail</h4>
+                  <p class="text-xs text-gray-600 leading-relaxed">Melihat informasi lengkap jamaah dan kelengkapan</p>
+                  <div class="mt-2 flex items-center space-x-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <i class="fas fa-mouse-pointer mr-1 text-xs"></i>View
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Items Button Info -->
+            <div class="legend-card-item group bg-white rounded-xl p-4 border-2 border-green-100 hover:border-green-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <div class="action-btn action-btn-items pointer-events-none">
+                    <i class="fas fa-list-check"></i>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-bold text-gray-800 mb-1 group-hover:text-green-600 transition-colors">Kelengkapan</h4>
+                  <p class="text-xs text-gray-600 leading-relaxed">Mengelola checklist barang kelengkapan jamaah</p>
+                  <div class="mt-2 flex items-center space-x-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <i class="fas fa-check-circle mr-1 text-xs"></i>Manage
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Delete Button Info -->
+            <div class="legend-card-item group bg-white rounded-xl p-4 border-2 border-red-100 hover:border-red-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <div class="action-btn action-btn-delete pointer-events-none">
+                    <i class="fas fa-trash"></i>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-bold text-gray-800 mb-1 group-hover:text-red-600 transition-colors">Hapus</h4>
+                  <p class="text-xs text-gray-600 leading-relaxed">Menghapus data kelengkapan jamaah secara permanen</p>
+                  <div class="mt-2 flex items-center space-x-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      <i class="fas fa-exclamation-triangle mr-1 text-xs"></i>Delete
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Template Button Info -->
+            <div class="legend-card-item group bg-white rounded-xl p-4 border-2 border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <div class="action-btn action-btn-template pointer-events-none">
+                    <i class="fas fa-ellipsis-v"></i>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-sm font-bold text-gray-800 mb-1 group-hover:text-purple-600 transition-colors">Template Pesan</h4>
+                  <p class="text-xs text-gray-600 leading-relaxed">Menu template pesan WhatsApp untuk komunikasi jamaah</p>
+                  <div class="mt-2 flex items-center space-x-1">
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      <i class="fas fa-comment-dots mr-1 text-xs"></i>Templates
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Info Footer -->
+          <div class="mt-6 pt-4 border-t border-gray-200">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div class="flex items-center space-x-2 text-xs text-gray-600">
+                <i class="fas fa-lightbulb text-yellow-500"></i>
+                <span><strong>Tips:</strong> Hover tombol untuk melihat tooltip detail</span>
+              </div>
+              <div class="flex items-center space-x-2 text-xs text-gray-600">
+                <i class="fas fa-keyboard text-blue-500"></i>
+                <span>Gunakan keyboard untuk navigasi lebih cepat</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Table Card -->
     <div class="bg-white rounded-xl shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
@@ -289,7 +541,6 @@
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Keberangkatan</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kelengkapan Items</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Pengambilan</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengiriman</th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
@@ -298,7 +549,21 @@
             <% if (kelengkapan && kelengkapan.length > 0) { %>
               <% kelengkapan.forEach((item, index) => { %>
                 <% const rowNumber = ((pagination.currentPage - 1) * pagination.limit) + index + 1; %>
-                <tr class="hover:bg-gray-50 transition" data-tanggal-keberangkatan="<%= item.tanggal_keberangkatan ? new Date(item.tanggal_keberangkatan).toISOString() : '' %>" data-created-at="<%= item.created_at ? new Date(item.created_at).toISOString() : '' %>" data-batch="<%= item.paket_batch ? item.paket_batch : '' %>" data-status-pengambilan="<%= item.status_pengambilan || '' %>" data-paket-id="<%= item.paket_id || '' %>" data-nama-jamaah="<%= (item.nama_jamaah || '').toLowerCase() %>">
+                <tr class="hover:bg-gray-50 transition" 
+                    data-kelengkapan-id="<%= item.id %>"
+                    data-tanggal-keberangkatan="<%= item.tanggal_keberangkatan ? new Date(item.tanggal_keberangkatan).toISOString() : '' %>" 
+                    data-created-at="<%= item.created_at ? new Date(item.created_at).toISOString() : '' %>" 
+                    data-batch="<%= item.paket_batch ? item.paket_batch : '' %>" 
+                    data-status-pengambilan="<%= item.status_pengambilan || '' %>" 
+                    data-paket-id="<%= item.paket_id || '' %>" 
+                    data-nama-jamaah="<%= (item.nama_jamaah || '').toLowerCase() %>"
+                    data-nama-pemesan="<%= item.nama_pemesan || '' %>"
+                    data-nomor-telp="<%= item.nomor_telp || '' %>"
+                    data-order-id="<%= item.order_id || '' %>"
+                    data-order-details-id="<%= item.order_details_id || '' %>"
+                    data-ekspedisi="<%= item.ekspedisi || '' %>"
+                    data-no-resi="<%= item.no_resi || '' %>"
+                    data-tracking-location="<%= item.tracking_location || '' %>">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= rowNumber %></td>
                   <td class="px-6 py-4 whitespace-nowrap">
                     <% if (item.nama_pemesan && item.nama_pemesan.trim() !== '') { %>
@@ -470,9 +735,6 @@
                     <% } %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <%= item.created_at ? new Date(item.created_at).toLocaleDateString('id-ID') : '-' %>
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <% if (item.no_resi) { %>
                       <div class="space-y-2">
                         <div class="space-y-1">
@@ -506,15 +768,81 @@
                     <% } %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button onclick="openDetailModal('<%= item.id %>')" class="text-blue-600 hover:text-blue-900 mr-3" title="Detail">
-                      <i class="fas fa-eye"></i>
-                    </button>
-                    <button onclick="openItemsModal('<%= item.id %>')" class="text-green-600 hover:text-green-900 mr-3" title="Kelengkapan Barang">
-                      <i class="fas fa-list-check"></i>
-                    </button>
-                    <button onclick="deleteItem('<%= item.id %>')" class="text-red-600 hover:text-red-900" title="Hapus">
-                      <i class="fas fa-trash"></i>
-                    </button>
+                    <div class="action-buttons-wrapper">
+                      <button onclick="openDetailModal('<%= item.id %>')" 
+                              class="action-btn action-btn-detail group" 
+                              title="Detail">
+                        <i class="fas fa-eye group-hover:scale-110 transition-transform duration-200"></i>
+                      </button>
+                      <button onclick="openItemsModal('<%= item.id %>')" 
+                              class="action-btn action-btn-items group" 
+                              title="Kelengkapan Barang">
+                        <i class="fas fa-list-check group-hover:scale-110 transition-transform duration-200"></i>
+                      </button>
+                      <button onclick="deleteItem('<%= item.id %>')" 
+                              class="action-btn action-btn-delete group" 
+                              title="Hapus">
+                        <i class="fas fa-trash group-hover:scale-110 transition-transform duration-200"></i>
+                      </button>
+                      
+                      <!-- Template Pesan Menu -->
+                      <div class="relative inline-block">
+                        <button onclick="toggleTemplateMenu(event, '<%= item.id %>')" 
+                                class="action-btn action-btn-template group" 
+                                title="Template Pesan">
+                          <i class="fas fa-ellipsis-v group-hover:scale-110 transition-transform duration-200"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="templateMenu-<%= item.id %>" class="dropdown-menu">
+                          <div class="dropdown-header">
+                            <i class="fas fa-comment-dots mr-2"></i>TEMPLATE PESAN
+                          </div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'konfirmasi_pengambilan')" class="dropdown-item purple">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Konfirmasi Pengambilan</span>
+                          </div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'jika_ambil_dikantor')" class="dropdown-item blue">
+                            <i class="fas fa-building"></i>
+                            <span>Jika Ambil di kantor</span>
+                          </div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'jika_ekspedisi_dikirim')" class="dropdown-item indigo">
+                            <i class="fas fa-truck"></i>
+                            <span>Jika Ekspedisi/Dikirim</span>
+                          </div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'info_ongkir')" class="dropdown-item cyan">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Info Ongkir</span>
+                          </div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'jika_komplain_ongkir')" class="dropdown-item teal">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Jika Komplain Ongkir</span>
+                          </div>
+                          
+                          <div class="dropdown-divider"></div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'follow_up_ongkir')" class="dropdown-item orange">
+                            <i class="fas fa-redo"></i>
+                            <span>Follow-up Ongkir</span>
+                          </div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'barang_dikirim')" class="dropdown-item green">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span>Barang Dikirim</span>
+                          </div>
+                          
+                          <div onclick="copyTemplate(event, '<%= item.id %>', 'konfirmasi_sampai')" class="dropdown-item emerald">
+                            <i class="fas fa-check-double"></i>
+                            <span>Konfirmasi Sampai</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </td>
                 </tr>
               <% }) %>
@@ -675,6 +1003,325 @@
   <%- include('../../partials/scripts') %>
   
   <style>
+    /* Action Buttons Legend Section Styles */
+    .legend-card-item {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .legend-card-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: currentColor;
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .legend-card-item:hover::before {
+      transform: scaleY(1);
+    }
+    
+    /* Animate on scroll */
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .legend-card-item {
+      animation: slideInUp 0.6s ease-out backwards;
+    }
+    
+    .legend-card-item:nth-child(1) { animation-delay: 0.1s; }
+    .legend-card-item:nth-child(2) { animation-delay: 0.2s; }
+    .legend-card-item:nth-child(3) { animation-delay: 0.3s; }
+    .legend-card-item:nth-child(4) { animation-delay: 0.4s; }
+    
+    /* Pointer events none for demo buttons */
+    .pointer-events-none {
+      pointer-events: none;
+      cursor: default;
+    }
+    
+    /* Responsive adjustments for legend */
+    @media (max-width: 640px) {
+      .legend-card-item {
+        padding: 0.75rem !important;
+      }
+      
+      .legend-card-item h4 {
+        font-size: 0.813rem;
+      }
+      
+      .legend-card-item p {
+        font-size: 0.688rem;
+        line-height: 1.3;
+      }
+      
+      .legend-card-item .action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+      }
+      
+      /* Stack legend cards on very small screens */
+      #legendContent .grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      
+      /* Adjust legend header on mobile */
+      #legendContent .px-6 {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+      }
+    }
+    
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .legend-card-item {
+        padding: 0.875rem;
+      }
+    }
+    
+    /* Smooth gradient animation for header */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .bg-gradient-animate {
+      background-size: 200% 200%;
+      animation: gradientShift 5s ease infinite;
+    }
+    
+    /* Legend collapse/expand states */
+    .legend-content-collapsed {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+    
+    .legend-content-expanded {
+      max-height: 800px;
+      opacity: 1;
+    }
+
+    /* Modern Action Buttons Styles */
+    .action-buttons-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+    
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .action-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+    
+    .action-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .action-btn:hover::before {
+      opacity: 1;
+    }
+    
+    /* Detail Button - Blue */
+    .action-btn-detail {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      border-color: #3b82f6;
+    }
+    
+    .action-btn-detail:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border-color: #2563eb;
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    }
+    
+    /* Items Button - Green */
+    .action-btn-items {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border-color: #10b981;
+    }
+    
+    .action-btn-items:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      border-color: #059669;
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    }
+    
+    /* Delete Button - Red */
+    .action-btn-delete {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      border-color: #ef4444;
+    }
+    
+    .action-btn-delete:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      border-color: #dc2626;
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+    }
+    
+    /* Template Button - Purple/Gray */
+    .action-btn-template {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      color: white;
+      border-color: #8b5cf6;
+    }
+    
+    .action-btn-template:hover {
+      background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+      border-color: #7c3aed;
+      box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+    }
+    
+    /* Mobile Responsive - Extra Small Screens */
+    @media (max-width: 480px) {
+      .action-buttons-wrapper {
+        gap: 6px;
+        justify-content: center;
+      }
+      
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+        border-radius: 8px;
+      }
+    }
+    
+    /* Tablet and Small Desktop */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .action-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 13px;
+      }
+    }
+    
+    /* Large Desktop */
+    @media (min-width: 1280px) {
+      .action-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 15px;
+      }
+    }
+    
+    /* Accessibility - Focus States */
+    .action-btn:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    
+    .action-btn-detail:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    }
+    
+    .action-btn-items:focus {
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+    }
+    
+    .action-btn-delete:focus {
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+    }
+    
+    .action-btn-template:focus {
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+    }
+    
+    /* Table Action Cell Responsive */
+    @media (max-width: 640px) {
+      td.px-6.py-4.whitespace-nowrap.text-sm.font-medium {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+      }
+      
+      .action-buttons-wrapper {
+        justify-content: flex-start;
+        gap: 4px;
+      }
+    }
+    
+    /* Ultra-modern tooltips on hover */
+    .action-btn::after {
+      content: attr(title);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 1000;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    
+    .action-btn:hover::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    
+    /* Responsive adjustment for tooltip position on mobile */
+    @media (max-width: 768px) {
+      .action-btn::after {
+        font-size: 10px;
+        padding: 4px 8px;
+      }
+    }
+
     /* Enhanced Statistics Cards Styles */
     .stats-card-hover {
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -902,6 +1549,39 @@
       isStatsVisible = !isStatsVisible;
     }
 
+    // Legend Toggle Functionality
+    let isLegendVisible = true;
+
+    function toggleLegend() {
+      const legendContent = document.getElementById('legendContent');
+      const legendChevron = document.getElementById('legendChevron');
+      const legendToggleText = document.getElementById('legendToggleText');
+      
+      if (isLegendVisible) {
+        // Hide legend
+        legendContent.classList.add('legend-content-collapsed');
+        legendContent.classList.remove('legend-content-expanded');
+        legendChevron.classList.remove('fa-chevron-up');
+        legendChevron.classList.add('fa-chevron-down');
+        legendToggleText.textContent = 'Tampilkan';
+        
+        // Store preference
+        localStorage.setItem('jamaah-legend-visible', 'false');
+      } else {
+        // Show legend
+        legendContent.classList.remove('legend-content-collapsed');
+        legendContent.classList.add('legend-content-expanded');
+        legendChevron.classList.remove('fa-chevron-down');
+        legendChevron.classList.add('fa-chevron-up');
+        legendToggleText.textContent = 'Sembunyikan';
+        
+        // Store preference
+        localStorage.setItem('jamaah-legend-visible', 'true');
+      }
+      
+      isLegendVisible = !isLegendVisible;
+    }
+
     // Enhanced Number Animation with Easing
     function animateNumberEnhanced(elementId, targetNumber, duration = 1500) {
       const element = document.getElementById(elementId);
@@ -953,9 +1633,20 @@
         }, 100);
       }
       
+      // Restore legend visibility preference
+      const savedLegendVisibility = localStorage.getItem('jamaah-legend-visible');
+      if (savedLegendVisibility === 'false') {
+        setTimeout(() => {
+          toggleLegend();
+        }, 100);
+      }
+      
       loadPaketUmrohFilter();
       loadStatistics();
       loadAllChecklistItems();
+      
+      // Apply auto-hide for 'Sudah Diambil' rows if no filters are active
+      applyAutoHideSudahDiambil();
       
       // Add smooth scroll behavior for stats cards
       const observer = new IntersectionObserver((entries) => {
@@ -1019,7 +1710,8 @@
         animateNumberEnhanced('totalJamaah', stats.totalJamaah, 1200);
         setTimeout(() => animateNumberEnhanced('belumDiambil', stats.belumDiambil, 1000), 200);
         setTimeout(() => animateNumberEnhanced('sudahDiambil', stats.sudahDiambil, 1000), 400);
-        setTimeout(() => animateNumberEnhanced('infantJamaah', stats.infantJamaah || 0, 1000), 600);
+        setTimeout(() => animateNumberEnhanced('dalamPengiriman', stats.dalamPengiriman || 0, 1000), 600);
+        setTimeout(() => animateNumberEnhanced('infantJamaah', stats.infantJamaah || 0, 1000), 800);
         setTimeout(() => animateNumberEnhanced('totalInfantCount', stats.infantJamaah || 0, 800), 100);
         
       } catch (error) {
@@ -1028,6 +1720,7 @@
         animateNumberEnhanced('totalJamaah', 0);
         animateNumberEnhanced('belumDiambil', 0);
         animateNumberEnhanced('sudahDiambil', 0);
+        animateNumberEnhanced('dalamPengiriman', 0);
         animateNumberEnhanced('infantJamaah', 0);
         animateNumberEnhanced('totalInfantCount', 0);
       }
@@ -1143,6 +1836,33 @@
     function resetFilters() {
       // Redirect to page without any filter parameters
       window.location.href = window.location.pathname;
+    }
+    
+    // Function to hide 'Sudah Diambil' rows when no filters are active
+    function applyAutoHideSudahDiambil() {
+      // Check if any filter is active
+      const searchTerm = document.getElementById('searchInput').value.trim();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const paketFilter = document.getElementById('filterPaket').value;
+      
+      const hasActiveFilter = searchTerm !== '' || statusFilter !== '' || paketFilter !== '';
+      
+      // Get all table rows
+      const tableRows = document.querySelectorAll('#tableBody tr');
+      
+      tableRows.forEach(row => {
+        const statusCell = row.querySelector('[data-status-pengambilan]');
+        if (statusCell) {
+          const statusValue = statusCell.getAttribute('data-status-pengambilan');
+          
+          // Hide row if status is 'Sudah Diambil' and no filters are active
+          if (statusValue === 'Sudah Diambil' && !hasActiveFilter) {
+            row.style.display = 'none';
+          } else {
+            row.style.display = '';
+          }
+        }
+      });
     }
     
     // Function to load checklist items for all jamaah
@@ -1290,6 +2010,291 @@
         }
       }
     }
+
+    // ============================================
+    // Template Message Menu Functions
+    // ============================================
+    
+    /**
+     * Toggle template message dropdown menu
+     */
+    function toggleTemplateMenu(event, itemId) {
+      event.stopPropagation();
+      
+      const menu = document.getElementById(`templateMenu-${itemId}`);
+      const allMenus = document.querySelectorAll('.dropdown-menu');
+      
+      // Close all other menus
+      allMenus.forEach(m => {
+        if (m.id !== `templateMenu-${itemId}`) {
+          m.classList.remove('show');
+        }
+      });
+      
+      // Toggle current menu
+      menu.classList.toggle('show');
+    }
+
+    /**
+     * Copy template message to clipboard
+     */
+    async function copyTemplate(event, itemId, templateType) {
+      event.stopPropagation();
+      
+      // Special handling for Export PDF
+      if (templateType === 'export_pdf') {
+        handleExportPDF(itemId);
+        closeAllMenus();
+        return;
+      }
+
+      try {
+        // Get row data from table
+        const row = document.querySelector(`tr[data-kelengkapan-id="${itemId}"]`);
+        if (!row) {
+          throw new Error('Data jamaah tidak ditemukan');
+        }
+
+        // Extract data from row attributes
+        const namaJamaah = row.dataset.namaJamaah || '';
+        const namaPemesan = row.dataset.namaPemesan || '';
+        const nomorTelp = row.dataset.nomorTelp || '';
+        const orderDetailsId = row.dataset.orderDetailsId || '';
+        const ekspedisi = row.dataset.ekspedisi || 'Belum ada data ekspedisi';
+        const noResi = row.dataset.noResi || 'Belum ada data nomor resi';
+        const trackingLocation = row.dataset.trackingLocation || 'Belum ada data link tracking';
+
+        // Capitalize first letter of each word for nama_jamaah
+        const namaJamaahFormatted = namaJamaah
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+
+        // Generate template based on type
+        let message = '';
+
+        switch(templateType) {
+          case 'konfirmasi_pengambilan':
+            message = `Assalamu'alaikum, Kak ${namaJamaahFormatted} 👋 Semoga Kakak dalam keadaan sehat dan bahagia 😊.
+
+Terkait pengambilan perlengkapan umroh, mohon konfirmasi nya kak, Kakak ingin ambil langsung di kantor atau dikirim via ekspedisi?`;
+            break;
+
+          case 'jika_ambil_dikantor':
+            message = `Siap Kak, Kira-kira hari dan jam berapa Kakak bisa datang ke kantor untuk ambil perlengkapan?
+
+Lokasi kami: JL. PEMUDA NO. 7, RT.01/RW.04, JATI, PULO GADUNG KOTA JAKARTA TIMUR, DKI JAKARTA 13210 
+📍 https://maps.app.goo.gl/rFyXmqPYMX1887kC9?g_st=iwb
+
+Kakak bisa pilih waktu yang paling nyaman bagi kakak yaa. Tim kami sudah siapkan perlengkapan dan siap menyambut Kakak 😊`;
+            break;
+
+          case 'jika_ekspedisi_dikirim':
+            const encodedNamaPemesan = encodeURIComponent(namaPemesan);
+            const encodedNamaJamaah = encodeURIComponent(namaJamaahFormatted);
+            const encodedNomorTelp = encodeURIComponent(nomorTelp);
+            
+            message = `Untuk mempercepat proses pengiriman paket, mohon dibantu isikan form pengiriman ini yaa kak
+
+https://app.rahmahtravel.id/purchasing/public-docs/form?nama_pemesan=${encodedNamaPemesan}&nama_penerima=${encodedNamaJamaah}&nomor_telp=${encodedNomorTelp}&alamat_lengkap=&order_details_id=${orderDetailsId}&no_resi=
+
+Nanti setelah data masuk, langsung kami bantu hitungkan ongkir terbaiknya ya 😊🙏`;
+            break;
+
+          case 'info_ongkir':
+            // Fetch ongkir data from API
+            try {
+              const ongkirResponse = await fetch(`/jamaah/kelengkapan/${itemId}/ongkir`);
+              const ongkirData = await ongkirResponse.json();
+              
+              const totalOngkir = ongkirData.nominal ? `Rp ${parseInt(ongkirData.nominal).toLocaleString('id-ID')}` : 'Rp [JUMLAH ONGKIR]';
+              const namaEkspedisi = ongkirData.ekspedisi || '[NAMA EKSPEDISI]';
+              const alamatTujuan = ongkirData.alamat_lengkap || '[ALAMAT PENGIRIMAN]';
+              
+              message = `Assalamualaikum Kak ${namaJamaahFormatted} 😊
+
+Terima kasih sudah mengisi form pengiriman. Setelah kami cek ke beberapa ekspedisi, berikut adalah estimasi ongkir terbaik untuk pengiriman perlengkapan umroh Kakak:
+
+📦 Total Ongkir: ${totalOngkir}
+🚛 Ekspedisi: ${namaEkspedisi}
+📍 Tujuan: ${alamatTujuan}
+
+Mohon konfirmasi jika sudah siap untuk proses pembayaran ya Kak 🙏
+
+💳 Untuk pembayaran, Kakak dapat transfer ke:
+Bank BCA 7180538504
+a/n PT Rahmah Grup Internasional`;
+            } catch (fetchError) {
+              console.error('Error fetching ongkir data:', fetchError);
+              // Fallback message if fetch fails
+              message = `Assalamualaikum Kak ${namaJamaahFormatted} 😊
+
+Terima kasih sudah mengisi form pengiriman. Setelah kami cek ke beberapa ekspedisi, berikut adalah estimasi ongkir terbaik untuk pengiriman perlengkapan umroh Kakak:
+
+📦 Total Ongkir: Rp [JUMLAH ONGKIR]
+🚛 Ekspedisi: [NAMA EKSPEDISI]
+📍 Tujuan: [ALAMAT PENGIRIMAN]
+
+Mohon konfirmasi jika sudah siap untuk proses pembayaran ya Kak 🙏
+
+💳 Untuk pembayaran, Kakak dapat transfer ke:
+Bank BCA 7180538504
+a/n PT Rahmah Grup Internasional`;
+            }
+            break;
+
+          case 'jika_komplain_ongkir':
+            message = `Sebetulnya, aku juga sudah survey dan bandingkan ongkir ke beberapa ekspedisi seperti J&T Cargo, JNE Cargo, dan Indah Cargo. Setelah kami cek dan bantu negosiasikan, memang NCS yang bisa memberikan harga terbaik untuk pengiriman koper Kakak. 😊`;
+            break;
+
+          case 'follow_up_ongkir':
+            // Fetch ongkir data from API
+            try {
+              const ongkirResponse = await fetch(`/jamaah/kelengkapan/${itemId}/ongkir`);
+              const ongkirData = await ongkirResponse.json();
+              
+              const totalOngkir = ongkirData.nominal ? `Rp ${parseInt(ongkirData.nominal).toLocaleString('id-ID')}` : 'Rp [JUMLAH ONGKIR]';
+              
+              message = `Assalamualaikum Kak ${namaJamaahFormatted} 😊, izin follow-up ya 🙏
+
+Kemarin sudah kami infokan total ongkirnya ${totalOngkir} untuk [JUMLAH KOPER] koper.
+Kalau sudah siap transfer, langsung kami bantu proses pengiriman hari ini. Kami siap bantu kalau ada pertanyaan ya Kak 🙌
+
+💳 Untuk pembayaran, Kakak dapat transfer ke:
+Bank BCA 7180538504
+a/n PT Rahmah Grup Internasional`;
+            } catch (fetchError) {
+              console.error('Error fetching ongkir data:', fetchError);
+              // Fallback message if fetch fails
+              message = `Assalamualaikum Kak ${namaJamaahFormatted} 😊, izin follow-up ya 🙏
+
+Kemarin sudah kami infokan total ongkirnya Rp [JUMLAH ONGKIR] untuk [JUMLAH KOPER] koper.
+Kalau sudah siap transfer, langsung kami bantu proses pengiriman hari ini. Kami siap bantu kalau ada pertanyaan ya Kak 🙌
+
+💳 Untuk pembayaran, Kakak dapat transfer ke:
+Bank BCA 7180538504
+a/n PT Rahmah Grup Internasional`;
+            }
+            break;
+
+          case 'barang_dikirim':
+            message = `Assalamualaikum Kak ${namaJamaahFormatted} 😊
+
+Alhamdulillah, paket Kakak sudah kami kirim hari ini via ${ekspedisi} 🙏
+
+Berikut detail pengirimannya:
+📦 No Resi: ${noResi}
+🚛 Kakak bisa lacak di: ${trackingLocation}
+
+Mohon dicek berkala ya Kak. Kalau ada kendala atau pertanyaan, jangan ragu untuk menghubungi kami kembali 😊`;
+            break;
+
+          case 'konfirmasi_sampai':
+            // Fetch items data from API
+            try {
+              const itemsResponse = await fetch(`/jamaah/kelengkapan/${itemId}/items`);
+              const itemsData = await itemsResponse.json();
+              
+              // Filter only selected items and format the list
+              const selectedItems = itemsData.filter(item => item.is_selected === 1);
+              
+              let itemsList = '';
+              if (selectedItems.length > 0) {
+                itemsList = selectedItems.map((item, index) => {
+                  return `${index + 1}. ${item.nama_barang || 'Item tidak diketahui'}`;
+                }).join('\n');
+              } else {
+                itemsList = '(Tidak ada item yang dipilih)';
+              }
+              
+              message = `Assalamualaikum Kak ${namaJamaahFormatted} 😊
+
+Aku ingin memastikan kalau paket Kakak dengan resi ${noResi} sudah sampai dengan baik dan aman. Apakah sudah sampai dengan selamat? Mohon konfirmasinya ya Kak 🙏
+
+Berikut ini checklist perlengkapan yang dikirim:
+${itemsList}
+
+Mohon dicek kembali kelengkapannya ya Kak. Jika ada yang kurang atau kendala lainnya, silakan langsung hubungi kami.`;
+            } catch (fetchError) {
+              console.error('Error fetching items:', fetchError);
+              // Fallback message if fetch fails
+              message = `Assalamualaikum Kak ${namaJamaahFormatted} 😊
+
+Aku ingin memastikan kalau paket Kakak dengan resi ${noResi} sudah sampai dengan baik dan aman. Apakah sudah sampai dengan selamat? Mohon konfirmasinya ya Kak 🙏
+
+Berikut ini checklist perlengkapan yang dikirim:
+(Gagal memuat daftar kelengkapan)
+
+Mohon dicek kembali kelengkapannya ya Kak. Jika ada yang kurang atau kendala lainnya, silakan langsung hubungi kami.`;
+            }
+            break;
+
+          default:
+            message = 'Template tidak ditemukan';
+        }
+
+        // Copy to clipboard
+        await navigator.clipboard.writeText(message);
+        
+        // Show success notification
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: 'Template berhasil disalin ke clipboard',
+          timer: 1500,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+        
+        // Close menu
+        closeAllMenus();
+
+      } catch (error) {
+        console.error('Error copying template:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'Gagal menyalin template ke clipboard'
+        });
+      }
+    }
+
+    /**
+     * Handle Export PDF action
+     */
+    function handleExportPDF(itemId) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Export PDF',
+        text: 'Fitur export PDF akan segera ditambahkan',
+        confirmButtonText: 'OK'
+      });
+    }
+
+    /**
+     * Close all dropdown menus
+     */
+    function closeAllMenus() {
+      const allMenus = document.querySelectorAll('.dropdown-menu');
+      allMenus.forEach(menu => {
+        menu.classList.remove('show');
+      });
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('.relative.inline-block')) {
+        closeAllMenus();
+      }
+    });
+
+    // Close menus on escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeAllMenus();
+      }
+    });
   </script>
 </body>
 </html>

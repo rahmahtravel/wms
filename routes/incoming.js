@@ -43,7 +43,8 @@ router.get('/', async (req, res) => {
 // Get incoming data for edit
 router.get('/:id/data', async (req, res) => {
   try {
-    const [incoming] = await db.query('SELECT * FROM purchasing_incoming WHERE id = ?', [req.params.id]);
+    // Use correct primary key column name: id_masuk
+    const [incoming] = await db.query('SELECT * FROM purchasing_incoming WHERE id_masuk = ?', [req.params.id]);
     if (incoming.length === 0) {
       return res.status(404).json({ error: 'Data tidak ditemukan' });
     }
@@ -61,23 +62,26 @@ router.post('/create', async (req, res) => {
     await connection.beginTransaction();
     
     const { 
-      supplier_id, id_barang, quantity, harga_satuan, 
+      supplier_id, id_barang, quantity, 
       warehouse_id, rack_id, bin_id, 
-      tanggal_masuk, no_invoice, tanggal_kadaluarsa, catatan 
+      tanggal_masuk, no_invoice
     } = req.body;
 
-    const total_harga = parseFloat(quantity) * parseFloat(harga_satuan);
+    // Get supplier name for the supplier field
+    const [supplierData] = await connection.query(
+      'SELECT name FROM purchasing_suppliers WHERE id = ?', 
+      [supplier_id]
+    );
+    const supplierName = supplierData.length > 0 ? supplierData[0].name : '';
     
-    // Insert incoming record
+    // Insert incoming record (using correct column names from table structure)
     const [incomingResult] = await connection.query(`
       INSERT INTO purchasing_incoming 
-      (supplier_id, id_barang, quantity, harga_satuan, total_harga, 
-       warehouse_id, rack_id, bin_id, tanggal_masuk, no_invoice, 
-       tanggal_kadaluarsa, catatan, status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', NOW())
-    `, [supplier_id, id_barang, quantity, harga_satuan, total_harga,
-        warehouse_id, rack_id, bin_id, tanggal_masuk, no_invoice,
-        tanggal_kadaluarsa, catatan]);
+      (supplier_id, id_barang, jumlah, tanggal_masuk, supplier, no_invoice, 
+       warehouse_id, rack_id, bin_id, user_id, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `, [supplier_id, id_barang, quantity, tanggal_masuk, supplierName, no_invoice,
+        warehouse_id, rack_id, bin_id, req.user?.id || null]);
 
     const incomingId = incomingResult.insertId;
 
@@ -90,7 +94,7 @@ router.post('/create', async (req, res) => {
       quantity: quantity,
       referenceType: 'incoming',
       referenceId: incomingId,
-      notes: catatan || `Barang masuk dari ${no_invoice}`
+      notes: `Barang masuk dari ${no_invoice || 'supplier'}`
     });
 
     await connection.commit();
@@ -114,23 +118,28 @@ router.post('/create', async (req, res) => {
 router.post('/update/:id', async (req, res) => {
   try {
     const { 
-      supplier_id, id_barang, quantity, harga_satuan,
+      supplier_id, id_barang, quantity,
       warehouse_id, rack_id, bin_id,
-      tanggal_masuk, no_invoice, tanggal_kadaluarsa, catatan
+      tanggal_masuk, no_invoice
     } = req.body;
 
-    const total_harga = parseFloat(quantity) * parseFloat(harga_satuan);
+    // Get supplier name for the supplier field
+    const [supplierData] = await db.query(
+      'SELECT name FROM purchasing_suppliers WHERE id = ?', 
+      [supplier_id]
+    );
+    const supplierName = supplierData.length > 0 ? supplierData[0].name : '';
 
+    // Update using correct column names (jumlah instead of quantity, id_masuk instead of id)
     await db.query(`
       UPDATE purchasing_incoming 
-      SET supplier_id = ?, id_barang = ?, quantity = ?, harga_satuan = ?, total_harga = ?,
+      SET supplier_id = ?, id_barang = ?, jumlah = ?,
           warehouse_id = ?, rack_id = ?, bin_id = ?,
-          tanggal_masuk = ?, no_invoice = ?, tanggal_kadaluarsa = ?, catatan = ?,
-          updated_at = NOW()
-      WHERE id = ?
-    `, [supplier_id, id_barang, quantity, harga_satuan, total_harga,
-        warehouse_id, rack_id, bin_id, tanggal_masuk, no_invoice,
-        tanggal_kadaluarsa, catatan, req.params.id]);
+          tanggal_masuk = ?, supplier = ?, no_invoice = ?
+      WHERE id_masuk = ?
+    `, [supplier_id, id_barang, quantity,
+        warehouse_id, rack_id, bin_id, tanggal_masuk, supplierName, no_invoice,
+        req.params.id]);
 
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
                    (req.headers.accept && req.headers.accept.includes('application/json'));
@@ -147,7 +156,8 @@ router.post('/update/:id', async (req, res) => {
 // Delete incoming
 router.post('/delete/:id', async (req, res) => {
   try {
-    await db.query('DELETE FROM purchasing_incoming WHERE id = ?', [req.params.id]);
+    // Use correct primary key column name: id_masuk
+    await db.query('DELETE FROM purchasing_incoming WHERE id_masuk = ?', [req.params.id]);
     
     const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest' || 
                    (req.headers.accept && req.headers.accept.includes('application/json'));

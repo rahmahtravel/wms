@@ -240,14 +240,28 @@
 
     <!-- Search and Filter -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="flex flex-col md:flex-row gap-4">
-        <div class="flex-1">
+      <div class="flex flex-col justify-start md:flex-row gap-4">
+        <div class="">
           <div class="relative">
-            <input type="text" id="searchInput" placeholder="Cari kode barang, nama barang, kategori..." class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <input type="text" id="searchInput" placeholder="Cari kode barang, nama barang, kategori..." class="max-w-4xl pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
             <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
           </div>
         </div>
-        <button onclick="location.reload()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+        <div class="">
+          <select id="filterCategory" class="max-w-4xl px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="">Semua Kategori</option>
+          </select>
+        </div>
+        <div class="">
+          <select id="sortOrder" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <option value="ASC">Terkecil - Terbesar (Lama - Baru)</option>
+            <option value="DESC" selected>Terbesar - Terkecil (Baru - Lama)</option>
+          </select>
+        </div>
+        <button onclick="resetFilters()" class="px-4 py-2 bg-gradient-to-r from-orange-500 to-yellow-500 text-white font-semibold rounded-lg hover:from-orange-600 hover:to-yellow-600 transition-all shadow-md hover:shadow-lg" title="Reset semua filter dan sorting">
+          <i class="fas fa-undo mr-2"></i>Reset
+        </button>
+        <button onclick="location.reload()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-indigo-600 transition-all shadow-md hover:shadow-lg" title="Refresh halaman">
           <i class="fas fa-sync-alt mr-2"></i>Refresh
         </button>
       </div>
@@ -267,10 +281,6 @@
                 <h3 class="text-sm font-semibold text-gray-700">Total Barang</h3>
                 <p class="text-2xl font-bold text-primary"><%= barang.length %></p>
               </div>
-            </div>
-            <div class="hidden md:flex items-center gap-2 text-sm text-gray-600">
-              <i class="fas fa-info-circle text-primary"></i>
-              <span>Data dari tabel <code class="bg-white px-2 py-1 rounded text-xs font-mono">purchasing_barang</code></span>
             </div>
           </div>
         </div>
@@ -320,12 +330,6 @@
                   <div class="flex items-center justify-center gap-2">
                     <i class="fas fa-balance-scale"></i>
                     <span>Satuan</span>
-                  </div>
-                </th>
-                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
-                  <div class="flex items-center justify-center gap-2">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Status</span>
                   </div>
                 </th>
                 <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
@@ -396,26 +400,6 @@
                       <%= item.satuan %>
                     </span>
                   </td>
-                  <td class="px-4 py-4 text-center">
-                    <div class="flex flex-col gap-1 items-center">
-                      <% if (item.is_required == 1) { %>
-                        <span class="badge badge-danger text-xs">
-                          <i class="fas fa-star mr-1"></i>Wajib
-                        </span>
-                      <% } %>
-                      <% if (item.is_dynamic == 1) { %>
-                        <span class="badge badge-info text-xs">
-                          <i class="fas fa-sync-alt mr-1"></i>Dinamis
-                        </span>
-                      <% } %>
-                      <% if (item.size_type && item.size_type !== 'none') { %>
-                        <span class="badge badge-warning text-xs">
-                          <i class="fas fa-ruler mr-1"></i>
-                          <%= item.size_type === 'clothing' ? 'Pakaian' : item.size_type === 'age_group' ? 'Usia' : item.size_type %>
-                        </span>
-                      <% } %>
-                    </div>
-                  </td>
                   <td class="px-4 py-4 whitespace-nowrap text-center">
                     <div class="inline-flex items-center gap-2">
                       <button onclick="viewDetail('<%= item.id_barang %>')" 
@@ -426,14 +410,14 @@
                           Detail
                         </span>
                       </button>
-                      <a href="/barang/edit/<%= item.id_barang %>" 
-                         class="group/btn relative p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
-                         title="Edit Barang">
+                      <button onclick="openEditModal('<%= item.id_barang %>')" 
+                              class="group/btn relative p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                              title="Edit Barang">
                         <i class="fas fa-edit"></i>
                         <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
                           Edit
                         </span>
-                      </a>
+                      </button>
                       <button onclick="deleteBarang('<%= item.id_barang %>')" 
                               class="group/btn relative p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
                               title="Hapus Barang">
@@ -469,10 +453,10 @@
                           class="p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md">
                     <i class="fas fa-eye text-sm"></i>
                   </button>
-                  <a href="/barang/edit/<%= item.id_barang %>" 
-                     class="p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md inline-flex items-center justify-center">
+                  <button onclick="openEditModal('<%= item.id_barang %>')" 
+                          class="p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md">
                     <i class="fas fa-edit text-sm"></i>
-                  </a>
+                  </button>
                   <button onclick="deleteBarang('<%= item.id_barang %>')" 
                           class="p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-md">
                     <i class="fas fa-trash text-sm"></i>
@@ -666,21 +650,367 @@
         .catch(err => swalError('Gagal memuat detail barang'));
     }
 
-    // Search functionality (filter desktop table rows and mobile cards)
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-      const search = e.target.value.toLowerCase();
+    // Load categories for filter on page load
+    async function loadCategoriesFilter() {
+      try {
+        const response = await fetch('/barang/form-data');
+        const data = await response.json();
+        
+        console.log('Categories loaded:', data.categories);
+        
+        const filterCategory = document.getElementById('filterCategory');
+        filterCategory.innerHTML = '<option value="">Semua Kategori</option>';
+        
+        data.categories.forEach(category => {
+          const option = document.createElement('option');
+          option.value = category.name.toLowerCase();
+          option.textContent = category.name;
+          filterCategory.appendChild(option);
+        });
+        
+        console.log('Category filter populated with', data.categories.length, 'categories');
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    }
+
+    // Combined filter function
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const categoryFilter = document.getElementById('filterCategory').value.toLowerCase();
       
       // Filter desktop table rows
       document.querySelectorAll('.barang-row').forEach(row => {
         const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(search) ? '' : 'none';
+        const matchesSearch = searchTerm === '' || text.includes(searchTerm);
+        const matchesCategory = categoryFilter === '' || text.includes(categoryFilter);
+        
+        row.style.display = (matchesSearch && matchesCategory) ? '' : 'none';
       });
       
       // Filter mobile cards
       document.querySelectorAll('.mobile-card').forEach(card => {
         const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(search) ? '' : 'none';
+        const matchesSearch = searchTerm === '' || text.includes(searchTerm);
+        const matchesCategory = categoryFilter === '' || text.includes(categoryFilter);
+        
+        card.style.display = (matchesSearch && matchesCategory) ? '' : 'none';
       });
+      
+      // Update visible count
+      updateVisibleCount();
+    }
+
+    // Update visible items count
+    function updateVisibleCount() {
+      const visibleRows = Array.from(document.querySelectorAll('.barang-row')).filter(row => row.style.display !== 'none');
+      const visibleCards = Array.from(document.querySelectorAll('.mobile-card')).filter(card => card.style.display !== 'none');
+      const totalVisible = visibleRows.length || visibleCards.length;
+      
+      // You can display this count somewhere if needed
+      console.log(`Menampilkan ${totalVisible} barang`);
+    }
+
+    // Apply sorting via AJAX (always by created_at)
+    async function applySorting() {
+      const sortOrderSelect = document.getElementById('sortOrder');
+      
+      if (!sortOrderSelect) {
+        console.error('Sort order element not found!');
+        return;
+      }
+      
+      const sortOrder = sortOrderSelect.value;
+      
+      console.log('=== Applying Sort ===');
+      console.log('Sort Order:', sortOrder);
+      console.log('Fetching URL:', `/barang?sortBy=created_at&sortOrder=${sortOrder}`);
+      
+      try {
+        // Show loading indicator
+        Swal.fire({
+          title: 'Memuat...',
+          html: `<p>Mengurutkan data berdasarkan tanggal dibuat (${sortOrderSelect.options[sortOrderSelect.selectedIndex].text})</p>`,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+        
+        const response = await fetch(`/barang?sortBy=created_at&sortOrder=${sortOrder}`, {
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        console.log('Response status:', response.status);
+        
+        const result = await response.json();
+        console.log('Total items received:', result.barang ? result.barang.length : 0);
+        
+        if (result.success && result.barang) {
+          // Update the table with new sorted data
+          updateTableWithData(result.barang);
+          
+          Swal.close();
+          
+          // Show success toast
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true
+          });
+          
+          Toast.fire({
+            icon: 'success',
+            title: `✅ Data diurutkan: ${result.barang.length} item`
+          });
+          
+          console.log('=== Sort Applied Successfully ===');
+        } else {
+          throw new Error('Invalid response format');
+        }
+      } catch (error) {
+        console.error('=== Error Applying Sort ===');
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal mengurutkan data: ' + error.message
+        });
+      }
+    }
+    
+    // Update table content with new data
+    function updateTableWithData(barang) {
+      // Update desktop table
+      const tbody = document.querySelector('table tbody');
+      if (tbody) {
+        tbody.innerHTML = barang.map((item, index) => `
+          <tr class="barang-row hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200 group">
+            <td class="px-4 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 text-white text-sm font-bold shadow-md">
+                ${index + 1}
+              </span>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <div class="flex items-center gap-2">
+                <i class="fas fa-barcode text-primary"></i>
+                <span class="font-mono text-sm font-semibold text-gray-900">${item.kode_barang}</span>
+              </div>
+            </td>
+            <td class="px-4 py-4">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-200">
+                  <i class="fas fa-box text-white text-lg"></i>
+                </div>
+                <div>
+                  <div class="text-sm font-bold text-gray-900">${item.nama_barang}</div>
+                  <div class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                    <i class="fas fa-fingerprint"></i>
+                    <span>ID: ${item.id_barang}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-4">
+              <span class="badge badge-info">
+                <i class="fas fa-tag mr-1"></i>
+                ${item.category_name || 'Tidak Ada'}
+              </span>
+            </td>
+            <td class="px-4 py-4">
+              <span class="badge badge-warning">
+                <i class="fas fa-layer-group mr-1"></i>
+                ${item.nama_jenis || 'Tidak Ada'}
+              </span>
+            </td>
+            <td class="px-4 py-4 text-center">
+              <div class="space-y-1">
+                <div class="text-lg font-bold ${item.stock_akhir <= item.stock_minimal ? 'text-red-600' : 'text-green-600'}">
+                  ${item.stock_akhir}
+                </div>
+                <div class="text-xs text-gray-500">
+                  Min: ${item.stock_minimal}
+                </div>
+                ${item.stock_akhir <= item.stock_minimal ? '<div class="text-xs text-red-600 font-semibold"><i class="fas fa-exclamation-triangle"></i> Low Stock</div>' : ''}
+              </div>
+            </td>
+            <td class="px-4 py-4 text-center">
+              <span class="badge badge-info uppercase">
+                ${item.satuan}
+              </span>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-center">
+              <div class="inline-flex items-center gap-2">
+                <button onclick="viewDetail('${item.id_barang}')" 
+                        class="group/btn relative p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                        title="Lihat Detail">
+                  <i class="fas fa-eye"></i>
+                  <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                    Detail
+                  </span>
+                </button>
+                <button onclick="openEditModal('${item.id_barang}')" 
+                        class="group/btn relative p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                        title="Edit Barang">
+                  <i class="fas fa-edit"></i>
+                  <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                    Edit
+                  </span>
+                </button>
+                <button onclick="deleteBarang('${item.id_barang}')" 
+                        class="group/btn relative p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-110"
+                        title="Hapus Barang">
+                  <i class="fas fa-trash"></i>
+                  <span class="absolute hidden group-hover/btn:block -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                    Hapus
+                  </span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `).join('');
+      }
+      
+      // Update mobile cards
+      const mobileContainer = document.querySelector('.lg\\:hidden.divide-y');
+      if (mobileContainer) {
+        mobileContainer.innerHTML = barang.map((item, index) => `
+          <div class="mobile-card p-5 hover:bg-gradient-to-r hover:from-orange-50 hover:to-yellow-50 transition-all duration-200">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 text-white text-sm font-bold shadow-md">
+                  ${index + 1}
+                </span>
+                <div class="w-12 h-12 bg-gradient-to-br from-orange-400 to-yellow-400 rounded-xl flex items-center justify-center shadow-lg">
+                  <i class="fas fa-box text-white text-lg"></i>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="viewDetail('${item.id_barang}')" 
+                        class="p-2.5 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md">
+                  <i class="fas fa-eye text-sm"></i>
+                </button>
+                <button onclick="openEditModal('${item.id_barang}')" 
+                        class="p-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md">
+                  <i class="fas fa-edit text-sm"></i>
+                </button>
+                <button onclick="deleteBarang('${item.id_barang}')" 
+                        class="p-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-md">
+                  <i class="fas fa-trash text-sm"></i>
+                </button>
+              </div>
+            </div>
+            <div class="mb-4">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="badge badge-info text-xs">
+                  <i class="fas fa-barcode mr-1"></i>${item.kode_barang}
+                </span>
+                <span class="badge badge-info text-xs uppercase">
+                  ${item.satuan}
+                </span>
+              </div>
+              <h3 class="text-lg font-bold text-gray-900 mb-2">${item.nama_barang}</h3>
+              <p class="text-xs text-gray-500 flex items-center gap-1 mb-3">
+                <i class="fas fa-fingerprint"></i>
+                <span>ID: ${item.id_barang}</span>
+              </p>
+              <div class="flex flex-wrap gap-2 text-xs mb-3">
+                <span class="badge badge-info">
+                  <i class="fas fa-tag mr-1"></i>${item.category_name || 'Tidak Ada'}
+                </span>
+                <span class="badge badge-warning">
+                  <i class="fas fa-layer-group mr-1"></i>${item.nama_jenis || 'Tidak Ada'}
+                </span>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <div class="${item.stock_akhir <= item.stock_minimal ? 'bg-red-50' : 'bg-green-50'} rounded-lg p-3">
+                <div class="flex items-center gap-1 ${item.stock_akhir <= item.stock_minimal ? 'text-red-600' : 'text-green-600'} mb-1">
+                  <i class="fas fa-cubes"></i>
+                  <span class="font-semibold text-xs">Stock Akhir</span>
+                </div>
+                <div class="text-2xl font-bold ${item.stock_akhir <= item.stock_minimal ? 'text-red-600' : 'text-green-600'}">
+                  ${item.stock_akhir}
+                </div>
+                ${item.stock_akhir <= item.stock_minimal ? '<div class="text-xs text-red-600 font-semibold mt-1"><i class="fas fa-exclamation-triangle"></i> Low Stock</div>' : ''}
+              </div>
+              <div class="bg-blue-50 rounded-lg p-3">
+                <div class="flex items-center gap-1 text-blue-600 mb-1">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <span class="font-semibold text-xs">Stock Minimal</span>
+                </div>
+                <div class="text-2xl font-bold text-blue-600">
+                  ${item.stock_minimal}
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              ${item.is_required == 1 ? '<span class="badge badge-danger text-xs"><i class="fas fa-star mr-1"></i>Wajib</span>' : ''}
+              ${item.is_dynamic == 1 ? '<span class="badge badge-info text-xs"><i class="fas fa-sync-alt mr-1"></i>Dinamis</span>' : ''}
+              ${item.size_type && item.size_type !== 'none' ? '<span class="badge badge-warning text-xs"><i class="fas fa-ruler mr-1"></i>' + (item.size_type === 'clothing' ? 'Pakaian' : item.size_type === 'age_group' ? 'Usia' : item.size_type) + '</span>' : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+      
+      // Update total count
+      const totalElement = document.querySelector('.bg-gradient-to-r.from-orange-50 p');
+      if (totalElement) {
+        totalElement.textContent = barang.length;
+      }
+      
+      // Reapply current filters
+      applyFilters();
+    }
+
+    // Reset all filters
+    function resetFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterCategory').value = '';
+      document.getElementById('sortOrder').value = 'DESC';
+      location.reload();
+    }
+
+    // Load categories and setup event listeners on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCategoriesFilter();
+      
+      // Setup search and filter event listeners after DOM is ready
+      const searchInput = document.getElementById('searchInput');
+      const filterCategory = document.getElementById('filterCategory');
+      const sortOrder = document.getElementById('sortOrder');
+      
+      if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+      }
+      
+      if (filterCategory) {
+        filterCategory.addEventListener('change', applyFilters);
+      }
+      
+      if (sortOrder) {
+        sortOrder.addEventListener('change', applySorting);
+      }
+
+      // Setup form submit event listener after DOM is ready
+      const createForm = document.getElementById('createForm');
+      if (createForm) {
+        createForm.addEventListener('submit', handleFormSubmit);
+      }
+
+      // Setup edit form submit event listener
+      const editForm = document.getElementById('editForm');
+      if (editForm) {
+        editForm.addEventListener('submit', handleEditFormSubmit);
+      }
+
+      // Setup ESC key handler
+      document.addEventListener('keydown', handleEscapeKey);
     });
 
     // Create Modal Functions
@@ -731,8 +1061,162 @@
       document.body.style.overflow = 'auto';
     }
 
+    // Edit Modal Functions
+    async function openEditModal(id) {
+      try {
+        // Fetch barang data
+        const response = await fetch(`/barang/${id}`);
+        const data = await response.json();
+        
+        // Load categories and jenis barang if not loaded
+        if (categoriesData.length === 0 || jenisBarangData.length === 0) {
+          const formDataResponse = await fetch('/barang/form-data');
+          const formData = await formDataResponse.json();
+          categoriesData = formData.categories;
+          jenisBarangData = formData.jenisBarang;
+        }
+        
+        // Populate dropdowns
+        const editCategorySelect = document.getElementById('edit_category_id');
+        const editJenisSelect = document.getElementById('edit_id_jenis_barang');
+        
+        editCategorySelect.innerHTML = '<option value="">Pilih Kategori</option>';
+        categoriesData.forEach(cat => {
+          const selected = cat.id == data.category_id ? 'selected' : '';
+          editCategorySelect.innerHTML += `<option value="${cat.id}" ${selected}>${cat.name}</option>`;
+        });
+
+        editJenisSelect.innerHTML = '<option value="">Pilih Jenis Barang</option>';
+        jenisBarangData.forEach(jenis => {
+          const selected = jenis.id_jenis_barang == data.id_jenis_barang ? 'selected' : '';
+          editJenisSelect.innerHTML += `<option value="${jenis.id_jenis_barang}" ${selected}>${jenis.nama_jenis}</option>`;
+        });
+        
+        // Populate form fields
+        document.getElementById('edit_id_barang').value = data.id_barang;
+        document.getElementById('edit_kode_barang').value = data.kode_barang;
+        document.getElementById('edit_nama_barang').value = data.nama_barang;
+        document.getElementById('edit_satuan').value = data.satuan;
+        document.getElementById('edit_stock_minimal').value = data.stock_minimal;
+        document.getElementById('edit_size_type').value = data.size_type || 'none';
+        document.getElementById('edit_is_required').checked = data.is_required == 1;
+        document.getElementById('edit_is_dynamic').checked = data.is_dynamic == 1;
+        
+        // Show modal
+        document.getElementById('editModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      } catch (error) {
+        console.error('Error loading barang data:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Gagal memuat data barang',
+          background: '#1e293b',
+          color: '#fff'
+        });
+      }
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+      document.getElementById('editForm').reset();
+      document.body.style.overflow = 'auto';
+    }
+
+    // Handle edit form submission
+    async function handleEditFormSubmit(e) {
+      e.preventDefault();
+      
+      const id_barang = document.getElementById('edit_id_barang').value;
+      const category_id = document.getElementById('edit_category_id').value;
+      const id_jenis_barang = document.getElementById('edit_id_jenis_barang').value;
+      const kode_barang = document.getElementById('edit_kode_barang').value.trim();
+      const nama_barang = document.getElementById('edit_nama_barang').value.trim();
+      const satuan = document.getElementById('edit_satuan').value;
+      const stock_minimal = document.getElementById('edit_stock_minimal').value;
+      const size_type = document.getElementById('edit_size_type').value;
+      const is_required = document.getElementById('edit_is_required').checked;
+      const is_dynamic = document.getElementById('edit_is_dynamic').checked;
+
+      // Validasi
+      if (!category_id || !id_jenis_barang || !kode_barang || !nama_barang || !satuan) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Peringatan',
+          text: 'Mohon lengkapi semua field yang wajib diisi (bertanda *)',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      const formData = {
+        category_id: parseInt(category_id) || null,
+        id_jenis_barang: parseInt(id_jenis_barang) || null,
+        kode_barang: kode_barang,
+        nama_barang: nama_barang,
+        satuan: satuan,
+        stock_minimal: parseInt(stock_minimal) || 10,
+        is_required: is_required ? 1 : 0,
+        is_dynamic: is_dynamic ? 1 : 0,
+        size_type: size_type || 'none'
+      };
+
+      // Show loading
+      Swal.fire({
+        title: 'Menyimpan...',
+        text: 'Mohon tunggu sebentar',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      try {
+        const response = await fetch(`/barang/${id_barang}`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Data barang berhasil diupdate',
+            background: '#1e293b',
+            color: '#fff',
+            confirmButtonColor: '#f59e0b',
+            timer: 2000,
+            timerProgressBar: true
+          });
+          
+          location.reload();
+        } else {
+          throw new Error(result.error || 'Gagal mengupdate data');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'Terjadi kesalahan saat menyimpan data',
+          background: '#1e293b',
+          color: '#fff',
+          confirmButtonColor: '#f59e0b'
+        });
+      }
+    }
+
     // Handle form submission
-    document.getElementById('createForm').addEventListener('submit', async (e) => {
+    async function handleFormSubmit(e) {
       e.preventDefault();
       
       console.log('=== Form Submit Started ===');
@@ -892,18 +1376,147 @@
           confirmButtonColor: '#f59e0b'
         });
       }
-    });
+    }
 
-    // Close modal on ESC key
-    document.addEventListener('keydown', (e) => {
+    // Handle ESC key to close modal
+    function handleEscapeKey(e) {
       if (e.key === 'Escape') {
-        const modal = document.getElementById('createModal');
-        if (!modal.classList.contains('hidden')) {
+        const createModal = document.getElementById('createModal');
+        const editModal = document.getElementById('editModal');
+        
+        if (createModal && !createModal.classList.contains('hidden')) {
           closeCreateModal();
         }
+        
+        if (editModal && !editModal.classList.contains('hidden')) {
+          closeEditModal();
+        }
       }
-    });
+    }
   </script>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="modal-content relative rounded-3xl p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-fadeInUp">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold gradient-text">Edit Barang</h2>
+        <button onclick="closeEditModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <form id="editForm" class="space-y-4">
+        <input type="hidden" id="edit_id_barang" name="id_barang">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Kategori -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Kategori <span class="text-red-400">*</span>
+            </label>
+            <select id="edit_category_id" name="category_id" required class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="">Pilih Kategori</option>
+            </select>
+          </div>
+
+          <!-- Jenis Barang -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Jenis Barang <span class="text-red-400">*</span>
+            </label>
+            <select id="edit_id_jenis_barang" name="id_jenis_barang" required class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="">Pilih Jenis Barang</option>
+            </select>
+          </div>
+
+          <!-- Kode Barang -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Kode Barang <span class="text-red-400">*</span>
+            </label>
+            <input type="text" id="edit_kode_barang" name="kode_barang" required maxlength="20" class="form-input w-full px-4 py-2 rounded-xl text-white" placeholder="Contoh: BRG001">
+            <p class="text-xs text-gray-400 mt-1">Max 20 karakter</p>
+          </div>
+
+          <!-- Nama Barang -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Nama Barang <span class="text-red-400">*</span>
+            </label>
+            <input type="text" id="edit_nama_barang" name="nama_barang" required maxlength="255" class="form-input w-full px-4 py-2 rounded-xl text-white" placeholder="Nama barang">
+            <p class="text-xs text-gray-400 mt-1">Max 255 karakter</p>
+          </div>
+
+          <!-- Satuan -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Satuan <span class="text-red-400">*</span>
+            </label>
+            <select id="edit_satuan" name="satuan" required class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="">Pilih Satuan</option>
+              <option value="pcs">Pcs (Pieces)</option>
+              <option value="set">Set</option>
+              <option value="pack">Pack (Paket)</option>
+            </select>
+          </div>
+
+          <!-- Stock Minimal -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Stock Minimal <span class="text-red-400">*</span>
+            </label>
+            <input type="number" id="edit_stock_minimal" name="stock_minimal" value="10" min="0" required class="form-input w-full px-4 py-2 rounded-xl text-white" placeholder="10">
+            <p class="text-xs text-gray-400 mt-1">Minimum stok untuk alert</p>
+          </div>
+
+          <!-- Size Type -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">
+              Tipe Ukuran
+            </label>
+            <select id="edit_size_type" name="size_type" class="form-select w-full px-4 py-2 rounded-xl text-white">
+              <option value="none">Tidak Ada</option>
+              <option value="clothing">Pakaian (S, M, L, XL)</option>
+              <option value="age_group">Kelompok Umur</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Checkboxes -->
+        <div class="bg-slate-700/30 rounded-xl p-4 mt-4">
+          <p class="text-sm font-medium text-gray-300 mb-3">
+            <i class="fas fa-cog mr-2"></i>Pengaturan Tambahan
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-start">
+              <input type="checkbox" id="edit_is_required" name="is_required" value="1" class="w-5 h-5 text-amber-400 bg-slate-700 border-slate-600 rounded focus:ring-2 focus:ring-amber-400 mt-0.5">
+              <label for="edit_is_required" class="ml-3">
+                <span class="text-sm font-medium text-gray-300 block">Wajib / Required</span>
+                <span class="text-xs text-gray-400">Item ini wajib ada untuk jamaah</span>
+              </label>
+            </div>
+            <div class="flex items-start">
+              <input type="checkbox" id="edit_is_dynamic" name="is_dynamic" value="1" class="w-5 h-5 text-amber-400 bg-slate-700 border-slate-600 rounded focus:ring-2 focus:ring-amber-400 mt-0.5">
+              <label for="edit_is_dynamic" class="ml-3">
+                <span class="text-sm font-medium text-gray-300 block">Dinamis / Dynamic</span>
+                <span class="text-xs text-gray-400">Stok dapat berubah dinamis</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex gap-3 pt-6">
+          <button type="button" onclick="closeEditModal()" class="flex-1 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-xl transition-all">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold rounded-xl transition-all shadow-lg">
+            <i class="fas fa-save mr-2"></i>Update Data
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Create Modal -->
   <div id="createModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 modal-backdrop">

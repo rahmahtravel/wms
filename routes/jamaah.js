@@ -174,6 +174,12 @@ router.get('/kelengkapan', async (req, res) => {
     let whereConditions = [];
     let queryParams = [];
     
+    // Always exclude cancelled orders
+    whereConditions.push("(o.order_type IS NULL OR o.order_type != 'cancel')");
+    
+    // Always exclude deleted paket_umroh
+    whereConditions.push("(p.id IS NULL OR p.deleted_at IS NULL)");
+    
     if (searchTerm) {
       whereConditions.push('(COALESCE(od.nama_jamaah, ppd.nama_penerima, jk.kepala_keluarga_id) LIKE ?)');
       queryParams.push(`%${searchTerm}%`);
@@ -228,6 +234,7 @@ router.get('/kelengkapan', async (req, res) => {
         -- Shipping information
         jk.ekspedisi,
         jk.no_resi,
+        jk.tracking_location,
         jk.tracking_notes,
         DATE_FORMAT(jk.tanggal_pengiriman, '%d/%m/%Y %H:%i') as tanggal_pengiriman_formatted,
         CASE
@@ -442,7 +449,7 @@ router.get('/kelengkapan/:id/status', async (req, res) => {
         COALESCE(od.nama_jamaah, ppd.nama_penerima, jk.kepala_keluarga_id) as nama_jamaah, 
         COALESCE(od.no_hp, ppd.nomor_telp) as nomor_telp,
         COALESCE(od.alamat, ppd.alamat_lengkap) as alamat,
-        jk.ekspedisi, jk.no_resi, jk.tracking_notes,
+        jk.ekspedisi, jk.no_resi, jk.tracking_location, jk.tracking_notes,
         DATE_FORMAT(jk.tanggal_pengiriman, '%Y-%m-%d %H:%i:%s') as tanggal_pengiriman
       FROM jamaah_kelengkapan jk
       LEFT JOIN order_details od ON jk.order_details_id = od.id
@@ -462,48 +469,38 @@ router.get('/kelengkapan/:id/status', async (req, res) => {
 });
 
 // Update shipping data
-router.put('/kelengkapan/:id/shipping', async (req, res) => {
+// Get ongkir data for templates
+router.get('/kelengkapan/:id/ongkir', async (req, res) => {
   try {
-    const { ekspedisi, no_resi, tracking_notes, status_pengambilan } = req.body;
+    const [ongkirData] = await db.query(`
+      SELECT 
+        jk.ekspedisi,
+        ro.nominal,
+        ppd.alamat_lengkap,
+        COALESCE(od.nama_jamaah, ppd.nama_penerima, jk.kepala_keluarga_id) as nama_jamaah
+      FROM jamaah_kelengkapan jk
+      LEFT JOIN rekap_ongkir ro ON jk.id = ro.kelengkapan_id
+      LEFT JOIN order_details od ON jk.order_details_id = od.id
+      LEFT JOIN purchasing_public_docs ppd ON jk.order_details_id = ppd.order_details_id
+      WHERE jk.id = ?
+      ORDER BY ro.created_at DESC
+      LIMIT 1
+    `, [req.params.id]);
     
-    // Validate required fields
-    if (!ekspedisi || !no_resi) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Ekspedisi dan nomor resi wajib diisi' 
-      });
+    if (ongkirData.length === 0) {
+      return res.status(404).json({ error: 'Data ongkir tidak ditemukan' });
     }
     
-    // Update shipping data
-    await db.query(`
-      UPDATE jamaah_kelengkapan 
-      SET ekspedisi = ?, 
-          no_resi = ?, 
-          tracking_notes = ?,
-          status_pengambilan = ?,
-          tanggal_pengiriman = CURRENT_TIMESTAMP,
-          updated_at = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `, [ekspedisi, no_resi, tracking_notes, status_pengambilan || 'Di Kirim', req.params.id]);
-    
-    res.json({
-      success: true,
-      message: 'Data pengiriman berhasil disimpan'
-    });
-    
+    res.json(ongkirData[0]);
   } catch (error) {
-    console.error('Error updating shipping data:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: error.message 
-    });
+    res.status(500).json({ error: error.message });
   }
 });
 
 // Update shipping information
 router.put('/kelengkapan/:id/shipping', async (req, res) => {
   try {
-    const { ekspedisi, no_resi, tracking_notes, status_pengambilan } = req.body;
+    const { ekspedisi, no_resi, tracking_location, tracking_notes, status_pengambilan } = req.body;
     
     // Validate required fields
     if (!ekspedisi || !no_resi) {
@@ -518,12 +515,13 @@ router.put('/kelengkapan/:id/shipping', async (req, res) => {
       UPDATE jamaah_kelengkapan 
       SET ekspedisi = ?, 
           no_resi = ?, 
+          tracking_location = ?,
           tracking_notes = ?,
           status_pengambilan = ?,
           tanggal_pengiriman = NOW(),
           updated_at = NOW()
       WHERE id = ?
-    `, [ekspedisi, no_resi, tracking_notes, status_pengambilan || 'Di Kirim', req.params.id]);
+    `, [ekspedisi, no_resi, tracking_location, tracking_notes, status_pengambilan || 'Di Kirim', req.params.id]);
     
     if (result.affectedRows === 0) {
       return res.status(404).json({
@@ -568,7 +566,247 @@ router.post('/kelengkapan/:id/items', async (req, res) => {
           SET status_pengambilan = ?, tanggal_pengambilan = ?, updated_at = NOW()
           WHERE id = ?
         `, [status_pengambilan, tanggal_pengambilan, kelengkapanId]);
+        
+        // Update request_perlengkapan based on status_pengambilan change
+        if (status_pengambilan === 'Sudah Diambil') {
+          console.log(`[STATUS UPDATE] status_pengambilan changed to "Sudah Diambil" for kelengkapan ID: ${kelengkapanId}`);
+          
+          // Get order_details_id from jamaah_kelengkapan to find related request_perlengkapan
+          const [kelengkapanData] = await db.query(`
+            SELECT order_details_id, kepala_keluarga_id 
+            FROM jamaah_kelengkapan 
+            WHERE id = ?
+          `, [kelengkapanId]);
+          
+          if (kelengkapanData.length > 0) {
+            const orderDetailsId = kelengkapanData[0].order_details_id;
+            const kepalaKeluargaId = kelengkapanData[0].kepala_keluarga_id;
+            
+            console.log(`[STATUS UPDATE] Found order_details_id: ${orderDetailsId} for kelengkapan ID: ${kelengkapanId}`);
+            
+            // Get the public_docs_id from purchasing_public_docs table using order_details_id
+            const [publicDocsData] = await db.query(`
+              SELECT ppd.id as public_docs_id
+              FROM purchasing_public_docs ppd 
+              WHERE ppd.order_details_id = ?
+            `, [orderDetailsId]);
+            
+            let publicDocsId;
+            
+            if (publicDocsData.length === 0) {
+              console.log(`[STATUS UPDATE] No purchasing_public_docs found for order_details_id: ${orderDetailsId}, creating new record`);
+              
+              // Get jamaah data from order_details to create purchasing_public_docs
+              const [orderData] = await db.query(`
+                SELECT nama_jamaah, no_hp, alamat 
+                FROM order_details 
+                WHERE id = ?
+              `, [orderDetailsId]);
+              
+              if (orderData.length > 0) {
+                // Create new purchasing_public_docs record
+                const insertPublicDocs = await db.query(`
+                  INSERT INTO purchasing_public_docs (
+                    order_details_id,
+                    nama_penerima,
+                    nomor_telp,
+                    alamat_lengkap,
+                    created_at,
+                    updated_at
+                  ) VALUES (?, ?, ?, ?, NOW(), NOW())
+                `, [
+                  orderDetailsId,
+                  orderData[0].nama_jamaah || 'Jamaah',
+                  orderData[0].no_hp || '',
+                  orderData[0].alamat || ''
+                ]);
+                
+                publicDocsId = insertPublicDocs.insertId;
+                console.log(`[STATUS UPDATE] Created new purchasing_public_docs ID: ${publicDocsId} for order_details_id: ${orderDetailsId}`);
+              } else {
+                console.log(`[STATUS UPDATE] No order_details data found for ID: ${orderDetailsId}`);
+                return;
+              }
+            } else {
+              publicDocsId = publicDocsData[0].public_docs_id;
+              console.log(`[STATUS UPDATE] Found existing public_docs_id: ${publicDocsId} for order_details_id: ${orderDetailsId}`);
+            }
+            
+            // Check if there's an existing request_perlengkapan record
+            const [existingRequest] = await db.query(`
+              SELECT id, status 
+              FROM request_perlengkapan 
+              WHERE public_docs_id = ?
+            `, [publicDocsId]);
+            
+            if (existingRequest.length > 0) {
+              // Update existing request_perlengkapan to "selesai"
+              const requestId = existingRequest[0].id;
+              const currentStatus = existingRequest[0].status;
+              
+              console.log(`[STATUS UPDATE] Found existing request_perlengkapan ID: ${requestId}, current status: ${currentStatus}`);
+              
+              await db.query(`
+                UPDATE request_perlengkapan 
+                SET status = ?, 
+                    finished_by = ?, 
+                    finished_at = NOW(),
+                    updated_at = NOW()
+                WHERE id = ?
+              `, ['selesai', req.user ? req.user.id : null, requestId]);
+              
+              console.log(`[STATUS UPDATE] Updated request_perlengkapan ID: ${requestId} status from "${currentStatus}" to "selesai"`);
+            } else {
+              // Create new request_perlengkapan record with "selesai" status
+              console.log(`[STATUS UPDATE] No existing request_perlengkapan found for public_docs_id: ${publicDocsId}, creating new record`);
+              
+              const insertResult = await db.query(`
+                INSERT INTO request_perlengkapan (
+                  public_docs_id, 
+                  status, 
+                  finished_by, 
+                  finished_at, 
+                  requested_at, 
+                  created_at, 
+                  updated_at
+                ) VALUES (?, ?, ?, NOW(), NOW(), NOW(), NOW())
+              `, [publicDocsId, 'selesai', req.user ? req.user.id : null]);
+              
+              console.log(`[STATUS UPDATE] Created new request_perlengkapan ID: ${insertResult.insertId} with status "selesai"`);
+            }
+          } else {
+            console.warn(`[STATUS UPDATE] No jamaah_kelengkapan data found for ID: ${kelengkapanId}`);
+          }
+        } else if (previousStatus === 'Sudah Diambil' && status_pengambilan !== 'Sudah Diambil') {
+          // If changing from "Sudah Diambil" to another status, revert request_perlengkapan status
+          console.log(`[STATUS UPDATE] status_pengambilan changed from "Sudah Diambil" to "${status_pengambilan}" for kelengkapan ID: ${kelengkapanId}`);
+          
+          // Get order_details_id from jamaah_kelengkapan to find related request_perlengkapan
+          const [kelengkapanData] = await db.query(`
+            SELECT order_details_id 
+            FROM jamaah_kelengkapan 
+            WHERE id = ?
+          `, [kelengkapanId]);
+          
+          if (kelengkapanData.length > 0) {
+            const orderDetailsId = kelengkapanData[0].order_details_id;
+            
+            console.log(`[STATUS UPDATE] Found order_details_id: ${orderDetailsId} for kelengkapan ID: ${kelengkapanId}`);
+            
+            // Get the public_docs_id from purchasing_public_docs table using order_details_id
+            const [publicDocsData] = await db.query(`
+              SELECT ppd.id as public_docs_id
+              FROM purchasing_public_docs ppd 
+              WHERE ppd.order_details_id = ?
+            `, [orderDetailsId]);
+            
+            if (publicDocsData.length > 0) {
+              const publicDocsId = publicDocsData[0].public_docs_id;
+              console.log(`[STATUS UPDATE] Found public_docs_id: ${publicDocsId} for order_details_id: ${orderDetailsId}`);
+              
+              // Check if there's an existing request_perlengkapan record
+              const [existingRequest] = await db.query(`
+                SELECT id, status 
+                FROM request_perlengkapan 
+                WHERE public_docs_id = ?
+              `, [publicDocsId]);
+            
+            if (existingRequest.length > 0) {
+              // Update request_perlengkapan back to "confirmed" status
+              const requestId = existingRequest[0].id;
+              const currentStatus = existingRequest[0].status;
+              
+              console.log(`[STATUS UPDATE] Found existing request_perlengkapan ID: ${requestId}, current status: ${currentStatus}`);
+              
+              await db.query(`
+                UPDATE request_perlengkapan 
+                SET status = ?, 
+                    confirmed_by = ?, 
+                    confirmed_at = NOW(),
+                    finished_by = NULL,
+                    finished_at = NULL,
+                    updated_at = NOW()
+                WHERE id = ?
+              `, ['confirmed', req.user ? req.user.id : null, requestId]);
+              
+              console.log(`[STATUS UPDATE] Updated request_perlengkapan ID: ${requestId} status from "${currentStatus}" to "confirmed" (reverted from selesai)`);
+              }
+            } else {
+              console.warn(`[STATUS UPDATE] No public_docs_id found for order_details_id: ${orderDetailsId}`);
+            }
+          } else {
+            console.warn(`[STATUS UPDATE] No jamaah_kelengkapan data found for ID: ${kelengkapanId}`);
+          }
+        }
       }
+      
+      // === STOCK MANAGEMENT: Get previous selections to calculate stock changes ===
+      const [previousSelections] = await db.query(
+        'SELECT barang_id FROM jamaah_kelengkapan_items WHERE kelengkapan_id = ? AND is_selected = 1',
+        [kelengkapanId]
+      );
+      
+      const previousItemIds = new Set(previousSelections.map(item => item.barang_id));
+      const newItemIds = new Set(selectedItems || []);
+      
+      // Items that were selected but now unselected (restore stock)
+      const unselectedItems = [...previousItemIds].filter(id => !newItemIds.has(id));
+      
+      // Items that are newly selected (reduce stock)
+      const newlySelectedItems = [...newItemIds].filter(id => !previousItemIds.has(id));
+      
+      console.log('=== STOCK UPDATE LOG ===');
+      console.log('Kelengkapan ID:', kelengkapanId);
+      console.log('Previous items:', Array.from(previousItemIds));
+      console.log('New items:', Array.from(newItemIds));
+      console.log('Unselected items (restore stock):', unselectedItems);
+      console.log('Newly selected items (reduce stock):', newlySelectedItems);
+      
+      // Restore stock for unselected items (add back to stock)
+      if (unselectedItems.length > 0) {
+        for (const barangId of unselectedItems) {
+          await db.query(`
+            UPDATE purchasing_barang 
+            SET stock_akhir = stock_akhir + 1, 
+                updated_at = NOW()
+            WHERE id_barang = ?
+          `, [barangId]);
+          
+          console.log(`[STOCK RESTORED] Barang ID ${barangId}: stock_akhir +1`);
+        }
+      }
+      
+      // Reduce stock for newly selected items
+      if (newlySelectedItems.length > 0) {
+        for (const barangId of newlySelectedItems) {
+          // Check current stock before reducing
+          const [stockCheck] = await db.query(
+            'SELECT stock_akhir, nama_barang FROM purchasing_barang WHERE id_barang = ?',
+            [barangId]
+          );
+          
+          if (stockCheck.length > 0) {
+            const currentStock = stockCheck[0].stock_akhir;
+            const namaBarang = stockCheck[0].nama_barang;
+            
+            if (currentStock > 0) {
+              await db.query(`
+                UPDATE purchasing_barang 
+                SET stock_akhir = stock_akhir - 1, 
+                    updated_at = NOW()
+                WHERE id_barang = ?
+              `, [barangId]);
+              
+              console.log(`[STOCK REDUCED] Barang ID ${barangId} (${namaBarang}): stock_akhir -1 (was ${currentStock}, now ${currentStock - 1})`);
+            } else {
+              console.warn(`[STOCK WARNING] Barang ID ${barangId} (${namaBarang}): stock_akhir is already 0, cannot reduce further`);
+            }
+          }
+        }
+      }
+      
+      console.log('=== END STOCK UPDATE LOG ===');
+      // === END STOCK MANAGEMENT ===
       
       // Delete existing items for this kelengkapan
       await db.query('DELETE FROM jamaah_kelengkapan_items WHERE kelengkapan_id = ?', [kelengkapanId]);
@@ -620,10 +858,45 @@ router.post('/kelengkapan/:id/items', async (req, res) => {
         }
       }
       
-      res.json({ success: true, message: 'Items dan status berhasil disimpan' });
+      // Prepare response message with stock update info and status change info
+      let message = 'Items dan status berhasil disimpan';
+      if (unselectedItems.length > 0 || newlySelectedItems.length > 0) {
+        message += ` (Stock diupdate: +${unselectedItems.length} item dikembalikan, -${newlySelectedItems.length} item diambil)`;
+      }
+      
+      // Add info about request_perlengkapan status change
+      let requestStatusUpdate = null;
+      if (status_pengambilan === 'Sudah Diambil' && previousStatus !== 'Sudah Diambil') {
+        requestStatusUpdate = {
+          action: 'completed',
+          from: previousStatus || 'N/A',
+          to: 'Sudah Diambil',
+          requestStatus: 'selesai'
+        };
+        message += ' | Request perlengkapan otomatis diselesaikan';
+      } else if (previousStatus === 'Sudah Diambil' && status_pengambilan !== 'Sudah Diambil') {
+        requestStatusUpdate = {
+          action: 'reverted',
+          from: 'Sudah Diambil',
+          to: status_pengambilan,
+          requestStatus: 'confirmed'
+        };
+        message += ' | Request perlengkapan dikembalikan ke status confirmed';
+      }
+      
+      res.json({ 
+        success: true, 
+        message: message,
+        stockUpdates: {
+          restored: unselectedItems.length,
+          reduced: newlySelectedItems.length
+        },
+        requestStatusUpdate: requestStatusUpdate
+      });
     } catch (innerError) {
       // Rollback on error
       await db.query('ROLLBACK');
+      console.error('[ERROR] Transaction rolled back:', innerError);
       throw innerError;
     }
   } catch (error) {
@@ -635,14 +908,140 @@ router.post('/kelengkapan/:id/items', async (req, res) => {
 router.get('/request', async (req, res) => {
   try {
     const [requests] = await db.query(`
-      SELECT rp.*, ppd.nama_penerima, ppd.nomor_telp
-      FROM request_perlengkapan rp
-      LEFT JOIN purchasing_public_docs ppd ON rp.public_docs_id = ppd.id
-      ORDER BY rp.requested_at DESC
+      SELECT ppd.id as ppd_id,
+        ppd.nama_penerima, 
+        ppd.nomor_telp,
+        ppd.alamat_lengkap,
+        ppd.created_at as ppd_created_at,
+        ppd.updated_at as ppd_updated_at,
+        od.nama_jamaah,
+        od.no_hp,
+        od.title,
+        od.clothing_size,
+        od.id as order_details_id,
+        o.paket_id,
+        o.id as order_id,
+        p.nama_paket,
+        p.tanggal_keberangkatan,
+        jk.status_pengambilan,
+        rp.id as request_id,
+        rp.status,
+        rp.requested_at,
+        rp.confirmed_at,
+        rp.finished_at,
+        rp.public_docs_id
+      FROM purchasing_public_docs ppd
+      LEFT JOIN order_details od ON ppd.order_details_id = od.id
+      LEFT JOIN orders o ON od.order_id = o.id
+      LEFT JOIN paket_umroh p ON o.paket_id = p.id
+      LEFT JOIN jamaah_kelengkapan jk ON od.id = jk.order_details_id
+      LEFT JOIN request_perlengkapan rp ON ppd.id = rp.public_docs_id
+      WHERE (p.id IS NULL OR p.deleted_at IS NULL)
+      ORDER BY ppd.id DESC
     `);
-    res.render('jamaah/request/index', { title: 'Request Perlengkapan', requests, body: '' });
+    
+    // Transform data to ensure consistency with frontend expectations
+    const transformedRequests = requests.map(item => ({
+      id: item.request_id || item.ppd_id, // Use request_id if exists, otherwise ppd_id
+      nama_penerima: item.nama_penerima,
+      nomor_telp: item.nomor_telp,
+      alamat_lengkap: item.alamat_lengkap,
+      nama_jamaah: item.nama_jamaah,
+      no_hp: item.no_hp,
+      title: item.title,
+      clothing_size: item.clothing_size,
+      nama_paket: item.nama_paket,
+      tanggal_keberangkatan: item.tanggal_keberangkatan,
+      status_pengambilan: item.status_pengambilan,
+      status: item.status || 'pending', // Default to pending if no request exists
+      requested_at: item.requested_at || item.ppd_created_at,
+      confirmed_at: item.confirmed_at,
+      finished_at: item.finished_at,
+      public_docs_id: item.ppd_id,
+      order_details_id: item.order_details_id,
+      order_id: item.order_id,
+      paket_id: item.paket_id
+    }));
+    
+    res.render('jamaah/request/index', { 
+      title: 'Request Perlengkapan', 
+      requests: transformedRequests, 
+      body: '' 
+    });
   } catch (error) {
+    console.error('Error fetching requests:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Update request perlengkapan status
+router.put('/request/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const requestId = req.params.id;
+    
+    // Validate status enum
+    const validStatuses = ['pending', 'confirmed', 'selesai'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Status tidak valid. Pilihan: pending, confirmed, selesai' 
+      });
+    }
+    
+    // Check if this is a request_id or ppd_id
+    // First try to find existing request_perlengkapan record
+    const [existingRequest] = await db.query(
+      'SELECT id, public_docs_id FROM request_perlengkapan WHERE id = ? OR public_docs_id = ?',
+      [requestId, requestId]
+    );
+    
+    let actualRequestId = requestId;
+    
+    if (existingRequest.length === 0) {
+      // This is likely a ppd_id, create new request_perlengkapan record
+      const [result] = await db.query(
+        `INSERT INTO request_perlengkapan 
+         (public_docs_id, status, requested_at, created_at, updated_at) 
+         VALUES (?, ?, NOW(), NOW(), NOW())`,
+        [requestId, status]
+      );
+      actualRequestId = result.insertId;
+    } else {
+      actualRequestId = existingRequest[0].id;
+      // Update the existing record
+      await db.query(
+        `UPDATE request_perlengkapan 
+         SET status = ?, 
+             updated_at = NOW()
+         WHERE id = ?`, 
+        [status, actualRequestId]
+      );
+    }
+    
+    // Set additional timestamps based on status
+    if (status === 'confirmed') {
+      await db.query(
+        `UPDATE request_perlengkapan 
+         SET confirmed_by = ?, 
+             confirmed_at = NOW() 
+         WHERE id = ?`, 
+        [req.user ? req.user.id : null, actualRequestId]
+      );
+    } else if (status === 'selesai') {
+      await db.query(
+        `UPDATE request_perlengkapan 
+         SET finished_by = ?, 
+             finished_at = NOW() 
+         WHERE id = ?`, 
+        [req.user ? req.user.id : null, actualRequestId]
+      );
+    }
+    
+    res.json({ success: true, message: 'Status berhasil diperbarui' });
+  } catch (error) {
+    console.error('Error updating request status:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -669,6 +1068,7 @@ router.get('/pengiriman', async (req, res) => {
       LEFT JOIN paket_umroh p ON o.paket_id = p.id
       LEFT JOIN purchasing_public_docs ppd ON jk.order_details_id = ppd.order_details_id
       WHERE jk.status_pengiriman IS NOT NULL
+        AND (p.id IS NULL OR p.deleted_at IS NULL)
       ORDER BY jk.tanggal_pengiriman DESC
     `);
     res.render('jamaah/pengiriman/index', { title: 'Status Pengiriman', pengiriman, body: '' });
@@ -748,10 +1148,24 @@ router.get('/paket-umroh-list', async (req, res) => {
         p.nama_paket,
         p.tanggal_keberangkatan,
         p.batch,
-        MONTHNAME(p.tanggal_keberangkatan) as bulan,
+        CASE MONTH(p.tanggal_keberangkatan)
+          WHEN 1 THEN 'Januari'
+          WHEN 2 THEN 'Februari'
+          WHEN 3 THEN 'Maret'
+          WHEN 4 THEN 'April'
+          WHEN 5 THEN 'Mei'
+          WHEN 6 THEN 'Juni'
+          WHEN 7 THEN 'Juli'
+          WHEN 8 THEN 'Agustus'
+          WHEN 9 THEN 'September'
+          WHEN 10 THEN 'Oktober'
+          WHEN 11 THEN 'November'
+          WHEN 12 THEN 'Desember'
+        END as bulan,
         YEAR(p.tanggal_keberangkatan) as tahun
       FROM paket_umroh p
-      WHERE p.tanggal_keberangkatan IS NOT NULL
+      WHERE p.tanggal_keberangkatan IS NOT NULL 
+        AND p.deleted_at IS NULL
       ORDER BY p.tanggal_keberangkatan ASC, p.batch ASC
     `);
     
@@ -763,6 +1177,12 @@ router.get('/paket-umroh-list', async (req, res) => {
         grouped[monthKey] = [];
       }
       grouped[monthKey].push(paket);
+    });
+    
+    console.log('Paket umroh list loaded:', {
+      totalPakets: paketList.length,
+      groupedKeys: Object.keys(grouped),
+      grouped: grouped
     });
     
     res.json(grouped);
@@ -782,6 +1202,12 @@ router.get('/kelengkapan-stats', async (req, res) => {
     // Build WHERE clause for filters (same as main query)
     let whereConditions = [];
     let queryParams = [];
+    
+    // Always exclude cancelled orders
+    whereConditions.push("(o.order_type IS NULL OR o.order_type != 'cancel')");
+    
+    // Always exclude deleted paket_umroh
+    whereConditions.push("(p.id IS NULL OR p.deleted_at IS NULL)");
     
     if (searchTerm) {
       whereConditions.push('(COALESCE(od.nama_jamaah, ppd.nama_penerima, jk.kepala_keluarga_id) LIKE ?)');
@@ -851,7 +1277,21 @@ router.get('/kelengkapan-stats', async (req, res) => {
       AND (rt.tipe_kamar IS NULL OR rt.tipe_kamar NOT LIKE ?)
     `, sudahDiambilParams);
 
-    // 4. Count Infant jamaah separately
+    // 4. Dalam Pengiriman (Di Kirim) from jamaah_kelengkapan (excluding Infant room types)
+    let dalamPengirimanParams = [...queryParams, 'Di Kirim', '%Infant%'];
+    const [dalamPengirimanResult] = await db.query(`
+      SELECT COUNT(*) as total
+      FROM jamaah_kelengkapan jk
+      LEFT JOIN order_details od ON jk.order_details_id = od.id
+      LEFT JOIN orders o ON od.order_id = o.id
+      LEFT JOIN paket_umroh p ON o.paket_id = p.id
+      LEFT JOIN purchasing_public_docs ppd ON jk.order_details_id = ppd.order_details_id
+      LEFT JOIN room_types rt ON od.room_type_id = rt.id
+      ${whereClause.length > 0 ? whereClause + ' AND' : 'WHERE'} jk.status_pengambilan = ?
+      AND (rt.tipe_kamar IS NULL OR rt.tipe_kamar NOT LIKE ?)
+    `, dalamPengirimanParams);
+
+    // 5. Count Infant jamaah separately
     let infantJamaahWhere = whereClause;
     let infantJamaahParams = [...queryParams];
     
@@ -878,6 +1318,7 @@ router.get('/kelengkapan-stats', async (req, res) => {
       totalJamaah: totalJamaahResult[0]?.total || 0,
       belumDiambil: belumDiambilResult[0]?.total || 0,
       sudahDiambil: sudahDiambilResult[0]?.total || 0,
+      dalamPengiriman: dalamPengirimanResult[0]?.total || 0,
       infantJamaah: infantJamaahResult[0]?.total || 0
     };
 

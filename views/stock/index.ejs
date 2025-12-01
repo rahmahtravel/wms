@@ -189,14 +189,27 @@
 
     <!-- Filter Section -->
     <div class="bg-white rounded-xl shadow-sm p-4 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <input type="text" id="searchInput" placeholder="🔍 Cari kode atau nama barang..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-        <select id="filterLocation" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-          <option value="">Semua Lokasi Gudang</option>
-        </select>
-        <select id="filterBranch" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-          <option value="">Semua Cabang</option>
-        </select>
+      <div class="flex items-end gap-4">
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <input type="text" id="searchInput" placeholder="🔍 Cari kode atau nama barang..." class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          <select id="filterLocation" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            <option value="">Semua Lokasi Gudang</option>
+          </select>
+          <select id="filterRack" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            <option value="">Semua Rak</option>
+          </select>
+          <select id="filterBin" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            <option value="">Semua Bin</option>
+          </select>
+          <select id="filterBranch" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+            <option value="">Semua Cabang</option>
+          </select>
+        </div>
+        <button onclick="resetFilters()" 
+                class="px-6 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition font-medium shadow-md hover:shadow-lg flex items-center gap-2 whitespace-nowrap">
+          <i class="fas fa-redo-alt"></i>
+          <span class="hidden md:inline">Reset Filter</span>
+        </button>
       </div>
     </div>
 
@@ -232,6 +245,8 @@
               <% stock.forEach(item => { %>
                 <tr class="hover:bg-gray-50 transition" 
                     data-location="<%= item.location_name || '' %>"
+                    data-rack="<%= item.rack_name || '' %>"
+                    data-bin="<%= item.bin_name || '' %>"
                     data-branch="<%= item.branch_name || '' %>">
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-mono font-bold text-gray-900"><%= item.kode_barang %></div>
@@ -475,12 +490,18 @@
     function populateFilters() {
       const rows = document.querySelectorAll('#stockTable tbody tr[data-location]');
       const locations = new Set();
+      const racks = new Set();
+      const bins = new Set();
       const branches = new Set();
 
       rows.forEach(row => {
         const location = row.dataset.location;
+        const rack = row.dataset.rack;
+        const bin = row.dataset.bin;
         const branch = row.dataset.branch;
         if (location) locations.add(location);
+        if (rack) racks.add(rack);
+        if (bin) bins.add(bin);
         if (branch) branches.add(branch);
       });
 
@@ -491,6 +512,24 @@
         option.value = location;
         option.textContent = location;
         locationFilter.appendChild(option);
+      });
+
+      // Populate rack filter
+      const rackFilter = document.getElementById('filterRack');
+      racks.forEach(rack => {
+        const option = document.createElement('option');
+        option.value = rack;
+        option.textContent = rack;
+        rackFilter.appendChild(option);
+      });
+
+      // Populate bin filter
+      const binFilter = document.getElementById('filterBin');
+      bins.forEach(bin => {
+        const option = document.createElement('option');
+        option.value = bin;
+        option.textContent = bin;
+        binFilter.appendChild(option);
       });
 
       // Populate branch filter
@@ -507,6 +546,8 @@
     function filterTable() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       const locationFilter = document.getElementById('filterLocation').value;
+      const rackFilter = document.getElementById('filterRack').value;
+      const binFilter = document.getElementById('filterBin').value;
       const branchFilter = document.getElementById('filterBranch').value;
       const rows = document.querySelectorAll('#stockTable tbody tr[data-location]');
       
@@ -515,13 +556,17 @@
       rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         const location = row.dataset.location;
+        const rack = row.dataset.rack;
+        const bin = row.dataset.bin;
         const branch = row.dataset.branch;
         
         const matchesSearch = text.includes(searchTerm);
         const matchesLocation = !locationFilter || location === locationFilter;
+        const matchesRack = !rackFilter || rack === rackFilter;
+        const matchesBin = !binFilter || bin === binFilter;
         const matchesBranch = !branchFilter || branch === branchFilter;
         
-        if (matchesSearch && matchesLocation && matchesBranch) {
+        if (matchesSearch && matchesLocation && matchesRack && matchesBin && matchesBranch) {
           row.style.display = '';
           visibleCount++;
         } else {
@@ -539,9 +584,35 @@
       updateStatistics();
     }
 
+    // Reset all filters
+    function resetFilters() {
+      // Reset all filter values
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterLocation').value = '';
+      document.getElementById('filterRack').value = '';
+      document.getElementById('filterBin').value = '';
+      document.getElementById('filterBranch').value = '';
+      
+      // Reapply filter (will show all rows)
+      filterTable();
+      
+      // Show notification
+      Swal.fire({
+        icon: 'success',
+        title: 'Filter Direset',
+        text: 'Semua filter telah dikembalikan ke kondisi awal',
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+    }
+
     // Event listeners
     document.getElementById('searchInput').addEventListener('input', filterTable);
     document.getElementById('filterLocation').addEventListener('change', filterTable);
+    document.getElementById('filterRack').addEventListener('change', filterTable);
+    document.getElementById('filterBin').addEventListener('change', filterTable);
     document.getElementById('filterBranch').addEventListener('change', filterTable);
 
     // Initialize on page load

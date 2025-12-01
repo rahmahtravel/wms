@@ -4,16 +4,63 @@ const db = require('../config/database');
 
 router.get('/', async (req, res) => {
   try {
+    // Get sorting parameters from query
+    const sortBy = req.query.sortBy || 'created_at';
+    const sortOrder = req.query.sortOrder || 'DESC';
+    
+    console.log('=== GET /barang ===');
+    console.log('Sort By:', sortBy);
+    console.log('Sort Order:', sortOrder);
+    console.log('Is AJAX:', req.xhr || req.headers.accept?.indexOf('json') > -1);
+    
+    // Whitelist valid columns for sorting to prevent SQL injection
+    const validColumns = {
+      'id_barang': 'pb.id_barang',
+      'kode_barang': 'pb.kode_barang',
+      'nama_barang': 'pb.nama_barang',
+      'category_name': 'pc.name',
+      'nama_jenis': 'jb.nama_jenis',
+      'stock_akhir': 'pb.stock_akhir',
+      'stock_minimal': 'pb.stock_minimal',
+      'satuan': 'pb.satuan',
+      'created_at': 'pb.created_at',
+      'updated_at': 'pb.updated_at'
+    };
+    
+    // Validate sortBy and sortOrder
+    const orderByColumn = validColumns[sortBy] || 'pb.created_at';
+    const orderDirection = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    
+    console.log('Order by:', orderByColumn, orderDirection);
+    
     const [barang] = await db.query(`
       SELECT pb.*, pc.name as category_name, jb.nama_jenis
       FROM purchasing_barang pb
       LEFT JOIN purchasing_categories pc ON pb.category_id = pc.id
       LEFT JOIN jenis_barang jb ON pb.id_jenis_barang = jb.id
-      ORDER BY pb.created_at DESC
+      ORDER BY ${orderByColumn} ${orderDirection}
     `);
-    res.render('barang/index', { title: 'Data Barang', barang, body: '' });
+    
+    console.log('Total barang found:', barang.length);
+    
+    // Check if it's an AJAX request
+    if (req.xhr || req.headers.accept?.indexOf('json') > -1) {
+      console.log('Returning JSON response');
+      return res.json({ success: true, barang, count: barang.length });
+    }
+    
+    console.log('Rendering EJS template');
+    res.render('barang/index', { 
+      title: 'Data Barang', 
+      barang, 
+      body: '',
+      sortBy,
+      sortOrder 
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('=== ERROR in GET /barang ===');
+    console.error(error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
