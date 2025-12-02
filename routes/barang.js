@@ -34,10 +34,16 @@ router.get('/', async (req, res) => {
     console.log('Order by:', orderByColumn, orderDirection);
     
     const [barang] = await db.query(`
-      SELECT pb.*, pc.name as category_name, jb.nama_jenis
+      SELECT pb.*, pc.name as category_name, jb.nama_jenis,
+             wl.nama_lokasi as warehouse_name, wl.kode_lokasi as warehouse_code, wl.tipe_lokasi as warehouse_type,
+             wr.nama_rak as rack_name, wr.kode_rak as rack_code,
+             wb.nama_bin as bin_name, wb.kode_bin as bin_code
       FROM purchasing_barang pb
       LEFT JOIN purchasing_categories pc ON pb.category_id = pc.id
       LEFT JOIN jenis_barang jb ON pb.id_jenis_barang = jb.id
+      LEFT JOIN warehouse_locations wl ON pb.warehouse_id = wl.id
+      LEFT JOIN warehouse_racks wr ON pb.rack_id = wr.id
+      LEFT JOIN warehouse_bins wb ON pb.bin_id = wb.id
       ORDER BY ${orderByColumn} ${orderDirection}
     `);
     
@@ -89,7 +95,10 @@ router.post('/', async (req, res) => {
       stock_minimal, 
       is_required, 
       is_dynamic, 
-      size_type 
+      size_type,
+      warehouse_id,
+      rack_id,
+      bin_id
     } = req.body;
 
     // Validasi data required
@@ -122,6 +131,11 @@ router.post('/', async (req, res) => {
     const parsedIsRequired = (is_required === 1 || is_required === '1' || is_required === true) ? 1 : 0;
     const parsedIsDynamic = (is_dynamic === 1 || is_dynamic === '1' || is_dynamic === true) ? 1 : 0;
 
+    // Parse warehouse fields
+    const parsedWarehouseId = warehouse_id ? parseInt(warehouse_id) : null;
+    const parsedRackId = rack_id ? parseInt(rack_id) : null;
+    const parsedBinId = bin_id ? parseInt(bin_id) : null;
+
     const values = [
       parsedCategoryId,                       // category_id (INT, nullable)
       parsedJenisBarangId,                    // id_jenis_barang (INT, nullable)
@@ -130,6 +144,9 @@ router.post('/', async (req, res) => {
       satuan,                                 // satuan (ENUM, required)
       parsedStockMinimal,                     // stock_minimal (INT, default 10)
       0,                                      // stock_akhir (INT, default 0)
+      parsedWarehouseId,                      // warehouse_id (INT, nullable)
+      parsedRackId,                           // rack_id (INT, nullable)
+      parsedBinId,                            // bin_id (INT, nullable)
       parsedIsRequired,                       // is_required (TINYINT, default 0)
       parsedIsDynamic,                        // is_dynamic (TINYINT, default 0)
       finalSizeType                           // size_type (ENUM, default 'none')
@@ -150,8 +167,9 @@ router.post('/', async (req, res) => {
     // Execute INSERT query
     const sql = `INSERT INTO purchasing_barang 
                  (category_id, id_jenis_barang, kode_barang, nama_barang, satuan, 
-                  stock_minimal, stock_akhir, is_required, is_dynamic, size_type) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+                  stock_minimal, stock_akhir, warehouse_id, rack_id, bin_id, 
+                  is_required, is_dynamic, size_type) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     console.log('=== Executing SQL ===');
     console.log('SQL:', sql);
@@ -217,10 +235,10 @@ router.get('/edit/:id', async (req, res) => {
 
 router.post('/update/:id', async (req, res) => {
   try {
-    const { category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, is_required, is_dynamic, size_type } = req.body;
+    const { category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, warehouse_id, rack_id, bin_id, is_required, is_dynamic, size_type } = req.body;
     await db.query(
-      'UPDATE purchasing_barang SET category_id = ?, id_jenis_barang = ?, kode_barang = ?, nama_barang = ?, satuan = ?, stock_minimal = ?, is_required = ?, is_dynamic = ?, size_type = ? WHERE id_barang = ?',
-      [category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, is_required || 0, is_dynamic || 0, size_type, req.params.id]
+      'UPDATE purchasing_barang SET category_id = ?, id_jenis_barang = ?, kode_barang = ?, nama_barang = ?, satuan = ?, stock_minimal = ?, warehouse_id = ?, rack_id = ?, bin_id = ?, is_required = ?, is_dynamic = ?, size_type = ? WHERE id_barang = ?',
+      [category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, warehouse_id || null, rack_id || null, bin_id || null, is_required || 0, is_dynamic || 0, size_type, req.params.id]
     );
     res.redirect('/barang');
   } catch (error) {
@@ -243,10 +261,16 @@ router.post('/delete/:id', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const [barang] = await db.query(`
-      SELECT pb.*, pc.name as category_name, jb.nama_jenis
+      SELECT pb.*, pc.name as category_name, jb.nama_jenis,
+             wl.nama_lokasi as warehouse_name, wl.kode_lokasi as warehouse_code, wl.tipe_lokasi as warehouse_type,
+             wr.nama_rak as rack_name, wr.kode_rak as rack_code,
+             wb.nama_bin as bin_name, wb.kode_bin as bin_code
       FROM purchasing_barang pb
       LEFT JOIN purchasing_categories pc ON pb.category_id = pc.id
       LEFT JOIN jenis_barang jb ON pb.id_jenis_barang = jb.id
+      LEFT JOIN warehouse_locations wl ON pb.warehouse_id = wl.id AND wl.deleted_at IS NULL
+      LEFT JOIN warehouse_racks wr ON pb.rack_id = wr.id AND wr.deleted_at IS NULL
+      LEFT JOIN warehouse_bins wb ON pb.bin_id = wb.id AND wb.deleted_at IS NULL
       WHERE pb.id_barang = ?
     `, [req.params.id]);
     res.json(barang[0] || {});
@@ -257,10 +281,10 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
-    const { category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, is_required, is_dynamic, size_type } = req.body;
+    const { category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, warehouse_id, rack_id, bin_id, is_required, is_dynamic, size_type } = req.body;
     await db.query(
-      'UPDATE purchasing_barang SET category_id = ?, id_jenis_barang = ?, kode_barang = ?, nama_barang = ?, satuan = ?, stock_minimal = ?, is_required = ?, is_dynamic = ?, size_type = ? WHERE id_barang = ?',
-      [category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, is_required || 0, is_dynamic || 0, size_type, req.params.id]
+      'UPDATE purchasing_barang SET category_id = ?, id_jenis_barang = ?, kode_barang = ?, nama_barang = ?, satuan = ?, stock_minimal = ?, warehouse_id = ?, rack_id = ?, bin_id = ?, is_required = ?, is_dynamic = ?, size_type = ? WHERE id_barang = ?',
+      [category_id, id_jenis_barang, kode_barang, nama_barang, satuan, stock_minimal, warehouse_id || null, rack_id || null, bin_id || null, is_required || 0, is_dynamic || 0, size_type, req.params.id]
     );
     res.json({ success: true });
   } catch (error) {
@@ -274,6 +298,139 @@ router.delete('/:id', async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// API endpoint untuk mengambil data warehouse locations
+router.get('/api/warehouses', async (req, res) => {
+  try {
+    console.log('Loading warehouses...');
+    
+    const [warehouses] = await db.query(`
+      SELECT id, kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic
+      FROM warehouse_locations 
+      ORDER BY nama_lokasi ASC
+    `);
+    
+    console.log(`Found ${warehouses.length} warehouses:`, warehouses);
+    
+    res.json({ success: true, warehouses });
+  } catch (error) {
+    console.error('Error loading warehouses:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// API endpoint untuk mengambil racks berdasarkan warehouse_id
+router.get('/api/racks/:warehouseId', async (req, res) => {
+  try {
+    console.log('Loading racks for warehouse ID:', req.params.warehouseId);
+    
+    const [racks] = await db.query(`
+      SELECT id, kode_rak, nama_rak, deskripsi
+      FROM warehouse_racks 
+      WHERE warehouse_id = ?
+      ORDER BY nama_rak ASC
+    `, [req.params.warehouseId]);
+    
+    console.log(`Found ${racks.length} racks for warehouse ${req.params.warehouseId}:`, racks);
+    
+    res.json({ success: true, racks });
+  } catch (error) {
+    console.error('Error loading racks for warehouse', req.params.warehouseId, ':', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// API endpoint untuk mengambil bins berdasarkan rack_id
+router.get('/api/bins/:rackId', async (req, res) => {
+  try {
+    const [bins] = await db.query(`
+      SELECT id, kode_bin, nama_bin, 
+             CONCAT('Level: ', level_posisi, ', Column: ', kolom_posisi) as deskripsi
+      FROM warehouse_bins 
+      WHERE rack_id = ?
+      ORDER BY nama_bin ASC
+    `, [req.params.rackId]);
+    res.json({ success: true, bins });
+  } catch (error) {
+    console.error('Error loading bins:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// API endpoint untuk update warehouse location pada barang
+router.post('/api/update-warehouse/:id', async (req, res) => {
+  try {
+    const { warehouse_id, rack_id, bin_id } = req.body;
+    const barangId = req.params.id;
+    
+    // Validasi input
+    const parsedWarehouseId = warehouse_id ? parseInt(warehouse_id) : null;
+    const parsedRackId = rack_id ? parseInt(rack_id) : null;
+    const parsedBinId = bin_id ? parseInt(bin_id) : null;
+    
+    // Validasi bahwa warehouse_id valid jika diisi
+    if (parsedWarehouseId) {
+      const [warehouse] = await db.query(
+        'SELECT id FROM warehouse_locations WHERE id = ?',
+        [parsedWarehouseId]
+      );
+      if (warehouse.length === 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Warehouse ID tidak valid atau tidak ditemukan' 
+        });
+      }
+    }
+    
+    // Validasi bahwa rack_id valid jika diisi
+    if (parsedRackId) {
+      const [rack] = await db.query(
+        'SELECT id FROM warehouse_racks WHERE id = ? AND warehouse_id = ?',
+        [parsedRackId, parsedWarehouseId]
+      );
+      if (rack.length === 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Rack ID tidak valid atau tidak sesuai dengan warehouse' 
+        });
+      }
+    }
+    
+    // Validasi bahwa bin_id valid jika diisi
+    if (parsedBinId) {
+      const [bin] = await db.query(
+        'SELECT id FROM warehouse_bins WHERE id = ? AND rack_id = ?',
+        [parsedBinId, parsedRackId]
+      );
+      if (bin.length === 0) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Bin ID tidak valid atau tidak sesuai dengan rack' 
+        });
+      }
+    }
+    
+    // Update warehouse location pada barang
+    await db.query(`
+      UPDATE purchasing_barang 
+      SET warehouse_id = ?, rack_id = ?, bin_id = ?, updated_at = NOW()
+      WHERE id_barang = ?
+    `, [parsedWarehouseId, parsedRackId, parsedBinId, barangId]);
+    
+    res.json({ 
+      success: true, 
+      message: 'Lokasi warehouse berhasil diupdate',
+      data: {
+        warehouse_id: parsedWarehouseId,
+        rack_id: parsedRackId,
+        bin_id: parsedBinId
+      }
+    });
+  } catch (error) {
+    console.error('Error updating warehouse location:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

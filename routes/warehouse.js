@@ -77,7 +77,7 @@ router.get('/locations/create', async (req, res) => {
 router.post('/locations', async (req, res) => {
   try {
     const { kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id } = req.body;
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'INSERT INTO warehouse_locations (kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
       [kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id, userId]
@@ -103,7 +103,7 @@ router.get('/locations/edit/:id', async (req, res) => {
 router.post('/locations/update/:id', async (req, res) => {
   try {
     const { kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id } = req.body;
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'UPDATE warehouse_locations SET kode_lokasi = ?, nama_lokasi = ?, tipe_lokasi = ?, alamat = ?, telepon = ?, pic = ?, branch_id = ?, updated_by = ? WHERE id = ?',
       [kode_lokasi, nama_lokasi, tipe_lokasi, alamat, telepon, pic, branch_id, userId, req.params.id]
@@ -118,7 +118,7 @@ router.post('/locations/update/:id', async (req, res) => {
 
 router.post('/locations/delete/:id', async (req, res) => {
   try {
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'UPDATE warehouse_locations SET deleted_at = NOW(), deleted_by = ? WHERE id = ?',
       [userId, req.params.id]
@@ -206,7 +206,7 @@ router.get('/racks/create', async (req, res) => {
 router.post('/racks', async (req, res) => {
   try {
     const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg } = req.body;
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'INSERT INTO warehouse_racks (warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg, created_by) VALUES (?, ?, ?, ?, ?, ?)',
       [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null, userId]
@@ -233,7 +233,7 @@ router.get('/racks/edit/:id', async (req, res) => {
 router.post('/racks/update/:id', async (req, res) => {
   try {
     const { warehouse_id, kode_rak, nama_rak, deskripsi, kapasitas_berat_kg } = req.body;
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'UPDATE warehouse_racks SET warehouse_id = ?, kode_rak = ?, nama_rak = ?, deskripsi = ?, kapasitas_berat_kg = ?, updated_by = ? WHERE id = ?',
       [warehouse_id, kode_rak, nama_rak, deskripsi || null, kapasitas_berat_kg || null, userId, req.params.id]
@@ -249,7 +249,7 @@ router.post('/racks/update/:id', async (req, res) => {
 
 router.post('/racks/delete/:id', async (req, res) => {
   try {
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'UPDATE warehouse_racks SET deleted_at = NOW(), deleted_by = ? WHERE id = ?',
       [userId, req.params.id]
@@ -350,7 +350,7 @@ router.get('/bins/create', async (req, res) => {
 router.post('/bins', async (req, res) => {
   try {
     const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item } = req.body;
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'INSERT INTO warehouse_bins (rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item, created_by) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null, userId]
@@ -380,7 +380,7 @@ router.get('/bins/edit/:id', async (req, res) => {
 router.post('/bins/update/:id', async (req, res) => {
   try {
     const { rack_id, kode_bin, nama_bin, level_posisi, kolom_posisi, kapasitas_item } = req.body;
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'UPDATE warehouse_bins SET rack_id = ?, kode_bin = ?, nama_bin = ?, level_posisi = ?, kolom_posisi = ?, kapasitas_item = ?, updated_by = ? WHERE id = ?',
       [rack_id, kode_bin, nama_bin, level_posisi || null, kolom_posisi || null, kapasitas_item || null, userId, req.params.id]
@@ -395,7 +395,7 @@ router.post('/bins/update/:id', async (req, res) => {
 
 router.post('/bins/delete/:id', async (req, res) => {
   try {
-    const userId = req.session.user ? req.session.user.id : null;
+    const userId = req.user ? req.user.id : null;
     await db.query(
       'UPDATE warehouse_bins SET deleted_at = NOW(), deleted_by = ? WHERE id = ?',
       [userId, req.params.id]

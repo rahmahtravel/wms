@@ -134,6 +134,43 @@
     .badge-warning { background-color: #fef3c7; color: #92400e; }
     .badge-info { background-color: #dbeafe; color: #1e40af; }
     .badge-danger { background-color: #fee2e2; color: #991b1b; }
+    
+    /* Small Badge Styles */
+    .badge-primary-sm { background-color: #dbeafe; color: #1e40af; padding: 0.125rem 0.5rem; font-size: 0.625rem; }
+    .badge-info-sm { background-color: #e0e7ff; color: #3730a3; padding: 0.125rem 0.5rem; font-size: 0.625rem; }
+    .badge-success-sm { background-color: #d1fae5; color: #065f46; padding: 0.125rem 0.5rem; font-size: 0.625rem; }
+    .badge-purple-sm { background-color: #f3e8ff; color: #6b21a8; padding: 0.125rem 0.5rem; font-size: 0.625rem; }
+
+    /* Small Badge Styles */
+    .badge-primary-sm, .badge-info-sm, .badge-success-sm, .badge-purple-sm {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.625rem;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    .badge-primary-sm {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-info-sm {
+      background-color: #e0f2fe;
+      color: #0c4a6e;
+    }
+
+    .badge-success-sm {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-purple-sm {
+      background-color: #faf5ff;
+      color: #7c3aed;
+    }
 
     /* Modal Styles */
     .modal-backdrop {
@@ -155,6 +192,7 @@
       background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(245, 158, 11, 0.3));
       -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
       mask-composite: exclude;
       pointer-events: none;
     }
@@ -334,6 +372,24 @@
                 </th>
                 <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
                   <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Warehouse</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-boxes"></i>
+                    <span>Rack</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
+                    <i class="fas fa-box-open"></i>
+                    <span>Bin</span>
+                  </div>
+                </th>
+                <th class="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider">
+                  <div class="flex items-center justify-center gap-2">
                     <i class="fas fa-cog"></i>
                     <span>Aksi</span>
                   </div>
@@ -399,6 +455,93 @@
                     <span class="badge badge-info uppercase">
                       <%= item.satuan %>
                     </span>
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <div class="warehouse-cell" data-barang-id="<%= item.id_barang %>">
+                      <% if (item.warehouse_id) { %>
+                        <% var rackId = item.rack_id || ''; %>
+                        <% var binId = item.bin_id || ''; %>
+                        <div class="inline-flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg group/edit cursor-pointer hover:bg-blue-100 transition-all" onclick="editWarehouseLocation('<%= item.id_barang %>', '<%= item.warehouse_id %>', '<%= rackId %>', '<%= binId %>')">
+                          <div class="flex flex-col items-start">
+                            <div class="flex items-center gap-2">
+                              <i class="fas fa-warehouse text-blue-600"></i>
+                              <span class="text-sm font-medium text-blue-900"><%= item.warehouse_name %></span>
+                              <i class="fas fa-edit text-xs text-blue-400 opacity-0 group-hover/edit:opacity-100 transition-opacity"></i>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-blue-600 mt-1">
+                              <span class="badge badge-primary-sm">
+                                <i class="fas fa-tag mr-1"></i><%= item.warehouse_code || 'N/A' %>
+                              </span>
+                              <% if (item.warehouse_type) { %>
+                              <span class="badge badge-info-sm">
+                                <i class="fas fa-building mr-1"></i><%= item.warehouse_type %>
+                              </span>
+                              <% } %>
+                            </div>
+                          </div>
+                        </div>
+                      <% } else { %>
+                        <button onclick="editWarehouseLocation('<%= item.id_barang %>', '', '', '')" class="text-xs text-gray-400 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-blue-50">
+                          <i class="fas fa-plus-circle mr-1"></i>Set Location
+                        </button>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <div class="rack-cell">
+                      <% if (item.rack_id) { %>
+                        <% var warehouseId = item.warehouse_id || ''; %>
+                        <% var binId = item.bin_id || ''; %>
+                        <div class="inline-flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg group/edit cursor-pointer hover:bg-green-100 transition-all" onclick="editWarehouseLocation('<%= item.id_barang %>', '<%= warehouseId %>', '<%= item.rack_id %>', '<%= binId %>')">
+                          <div class="flex flex-col items-start">
+                            <div class="flex items-center gap-2">
+                              <i class="fas fa-boxes text-green-600"></i>
+                              <span class="text-sm font-medium text-green-900"><%= item.rack_name %></span>
+                              <i class="fas fa-edit text-xs text-green-400 opacity-0 group-hover/edit:opacity-100 transition-opacity"></i>
+                            </div>
+                            <% if (item.rack_code) { %>
+                            <span class="badge badge-success-sm text-xs mt-1">
+                              <i class="fas fa-tag mr-1"></i><%= item.rack_code %>
+                            </span>
+                            <% } %>
+                          </div>
+                        </div>
+                      <% } else { %>
+                        <% var warehouseIdAlt = item.warehouse_id || ''; %>
+                        <% var binIdAlt = item.bin_id || ''; %>
+                        <button onclick="openSetRackModal('<%= item.id_barang %>', '<%= warehouseIdAlt %>', '<%= binIdAlt %>')" class="text-xs text-gray-400 hover:text-green-600 transition-colors px-3 py-2 rounded-lg hover:bg-green-50">
+                          <i class="fas fa-plus-circle mr-1"></i>Set Rack
+                        </button>
+                      <% } %>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 text-center">
+                    <div class="bin-cell">
+                      <% if (item.bin_id) { %>
+                        <% var warehouseIdBin = item.warehouse_id || ''; %>
+                        <% var rackIdBin = item.rack_id || ''; %>
+                        <div class="inline-flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-lg group/edit cursor-pointer hover:bg-purple-100 transition-all" onclick="editWarehouseLocation('<%= item.id_barang %>', '<%= warehouseIdBin %>', '<%= rackIdBin %>', '<%= item.bin_id %>')">
+                          <div class="flex flex-col items-start">
+                            <div class="flex items-center gap-2">
+                              <i class="fas fa-box-open text-purple-600"></i>
+                              <span class="text-sm font-medium text-purple-900"><%= item.bin_name %></span>
+                              <i class="fas fa-edit text-xs text-purple-400 opacity-0 group-hover/edit:opacity-100 transition-opacity"></i>
+                            </div>
+                            <% if (item.bin_code) { %>
+                            <span class="badge badge-purple-sm text-xs mt-1">
+                              <i class="fas fa-tag mr-1"></i><%= item.bin_code %>
+                            </span>
+                            <% } %>
+                          </div>
+                        </div>
+                      <% } else { %>
+                        <% var warehouseIdBinAlt = item.warehouse_id || ''; %>
+                        <% var rackIdBinAlt = item.rack_id || ''; %>
+                        <button onclick="openSetBinModal('<%= item.id_barang %>', '<%= warehouseIdBinAlt %>', '<%= rackIdBinAlt %>')" class="text-xs text-gray-400 hover:text-purple-600 transition-colors px-3 py-2 rounded-lg hover:bg-purple-50">
+                          <i class="fas fa-plus-circle mr-1"></i>Set Bin
+                        </button>
+                      <% } %>
+                    </div>
                   </td>
                   <td class="px-4 py-4 whitespace-nowrap text-center">
                     <div class="inline-flex items-center gap-2">
@@ -844,6 +987,83 @@
                 ${item.satuan}
               </span>
             </td>
+            <td class="px-4 py-4 text-center">
+              <div class="warehouse-cell" data-barang-id="${item.id_barang}">
+                ${item.warehouse_id ? `
+                  <div class="inline-flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg group/edit cursor-pointer hover:bg-blue-100 transition-all" onclick="editWarehouseLocation('${item.id_barang}', '${item.warehouse_id}', '${item.rack_id || ''}', '${item.bin_id || ''}')">
+                    <div class="flex flex-col items-start">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-warehouse text-blue-600"></i>
+                        <span class="text-sm font-medium text-blue-900">${item.warehouse_name}</span>
+                        <i class="fas fa-edit text-xs text-blue-400 opacity-0 group-hover/edit:opacity-100 transition-opacity"></i>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs text-blue-600 mt-1">
+                        <span class="badge badge-primary-sm">
+                          <i class="fas fa-tag mr-1"></i>${item.warehouse_code || 'N/A'}
+                        </span>
+                        ${item.warehouse_type ? `
+                        <span class="badge badge-info-sm">
+                          <i class="fas fa-building mr-1"></i>${item.warehouse_type}
+                        </span>
+                        ` : ''}
+                      </div>
+                    </div>
+                  </div>
+                ` : `
+                  <button onclick="editWarehouseLocation('${item.id_barang}', '', '', '')" class="text-xs text-gray-400 hover:text-blue-600 transition-colors px-3 py-2 rounded-lg hover:bg-blue-50">
+                    <i class="fas fa-plus-circle mr-1"></i>Set Location
+                  </button>
+                `}
+              </div>
+            </td>
+            <td class="px-4 py-4 text-center">
+              <div class="rack-cell">
+                ${item.rack_id ? `
+                  <div class="inline-flex items-center gap-2 bg-green-50 px-3 py-2 rounded-lg group/edit cursor-pointer hover:bg-green-100 transition-all" onclick="editWarehouseLocation('${item.id_barang}', '${item.warehouse_id || ''}', '${item.rack_id}', '${item.bin_id || ''}')">
+                    <div class="flex flex-col items-start">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-boxes text-green-600"></i>
+                        <span class="text-sm font-medium text-green-900">${item.rack_name}</span>
+                        <i class="fas fa-edit text-xs text-green-400 opacity-0 group-hover/edit:opacity-100 transition-opacity"></i>
+                      </div>
+                      ${item.rack_code ? `
+                      <span class="badge badge-success-sm text-xs mt-1">
+                        <i class="fas fa-tag mr-1"></i>${item.rack_code}
+                      </span>
+                      ` : ''}
+                    </div>
+                  </div>
+                ` : `
+                  <button onclick="openSetRackModal('${item.id_barang}', '${item.warehouse_id || ''}', '${item.bin_id || ''}')" class="text-xs text-gray-400 hover:text-green-600 transition-colors px-3 py-2 rounded-lg hover:bg-green-50">
+                    <i class="fas fa-plus-circle mr-1"></i>Set Rack
+                  </button>
+                `}
+              </div>
+            </td>
+            <td class="px-4 py-4 text-center">
+              <div class="bin-cell">
+                ${item.bin_id ? `
+                  <div class="inline-flex items-center gap-2 bg-purple-50 px-3 py-2 rounded-lg group/edit cursor-pointer hover:bg-purple-100 transition-all" onclick="editWarehouseLocation('${item.id_barang}', '${item.warehouse_id || ''}', '${item.rack_id || ''}', '${item.bin_id}')">
+                    <div class="flex flex-col items-start">
+                      <div class="flex items-center gap-2">
+                        <i class="fas fa-box-open text-purple-600"></i>
+                        <span class="text-sm font-medium text-purple-900">${item.bin_name}</span>
+                        <i class="fas fa-edit text-xs text-purple-400 opacity-0 group-hover/edit:opacity-100 transition-opacity"></i>
+                      </div>
+                      ${item.bin_code ? `
+                      <span class="badge badge-purple-sm text-xs mt-1">
+                        <i class="fas fa-tag mr-1"></i>${item.bin_code}
+                      </span>
+                      ` : ''}
+                    </div>
+                  </div>
+                ` : `
+                  <button onclick="openSetBinModal('${item.id_barang}', '${item.warehouse_id || ''}', '${item.rack_id || ''}')" class="text-xs text-gray-400 hover:text-purple-600 transition-colors px-3 py-2 rounded-lg hover:bg-purple-50">
+                    <i class="fas fa-plus-circle mr-1"></i>Set Bin
+                  </button>
+                `}
+              </div>
+            </td>
             <td class="px-4 py-4 whitespace-nowrap text-center">
               <div class="inline-flex items-center gap-2">
                 <button onclick="viewDetail('${item.id_barang}')" 
@@ -1048,7 +1268,7 @@
 
       jenisSelect.innerHTML = '<option value="">Pilih Jenis Barang</option>';
       jenisBarangData.forEach(jenis => {
-        jenisSelect.innerHTML += `<option value="${jenis.id_jenis_barang}">${jenis.nama_jenis}</option>`;
+        jenisSelect.innerHTML += `<option value="${jenis.id}">${jenis.nama_jenis}</option>`;
       });
 
       document.getElementById('createModal').classList.remove('hidden');
@@ -1088,8 +1308,8 @@
 
         editJenisSelect.innerHTML = '<option value="">Pilih Jenis Barang</option>';
         jenisBarangData.forEach(jenis => {
-          const selected = jenis.id_jenis_barang == data.id_jenis_barang ? 'selected' : '';
-          editJenisSelect.innerHTML += `<option value="${jenis.id_jenis_barang}" ${selected}>${jenis.nama_jenis}</option>`;
+          const selected = jenis.id == data.id_jenis_barang ? 'selected' : '';
+          editJenisSelect.innerHTML += `<option value="${jenis.id}" ${selected}>${jenis.nama_jenis}</option>`;
         });
         
         // Populate form fields
@@ -1393,6 +1613,583 @@
         }
       }
     }
+
+    // ============= WAREHOUSE LOCATION MANAGEMENT FUNCTIONS =============
+    // Warehouse location management functions
+    let allWarehouses = [];
+    
+    async function loadWarehouses() {
+      try {
+        const response = await fetch('/barang/api/warehouses');
+        const data = await response.json();
+        if (data.success) {
+          allWarehouses = data.warehouses;
+          const select = document.getElementById('wh_warehouse_id');
+          select.innerHTML = '<option value="">Pilih Warehouse</option>';
+          data.warehouses.forEach(wh => {
+            select.innerHTML += `<option value="${wh.id}">${wh.nama_lokasi} (${wh.kode_lokasi})</option>`;
+          });
+        }
+      } catch (error) {
+        console.error('Error loading warehouses:', error);
+      }
+    }
+
+    async function loadRacks(warehouseId) {
+      console.log('loadRacks called with warehouseId:', warehouseId);
+      const rackContainer = document.getElementById('rackContainer');
+      const binContainer = document.getElementById('binContainer');
+      const rackSelect = document.getElementById('wh_rack_id');
+      const binSelect = document.getElementById('wh_bin_id');
+      
+      if (!warehouseId) {
+        rackContainer.classList.add('hidden');
+        binContainer.classList.add('hidden');
+        rackSelect.innerHTML = '<option value="">Pilih Rack</option>';
+        binSelect.innerHTML = '<option value="">Pilih Bin</option>';
+        return;
+      }
+
+      try {
+        // Show loading state
+        rackSelect.innerHTML = '<option value="">Memuat racks...</option>';
+        
+        console.log('Fetching racks from URL:', `/barang/api/racks/${warehouseId}`);
+        
+        const response = await fetch(`/barang/api/racks/${warehouseId}`);
+        console.log('Racks API response status:', response.status);
+        console.log('Racks API response ok:', response.ok);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('Racks data received:', data);
+        
+        if (data.success) {
+          rackSelect.innerHTML = '<option value="">Pilih Rack (Opsional)</option>';
+          
+          if (data.racks && data.racks.length > 0) {
+            data.racks.forEach(rack => {
+              console.log('Adding rack option:', rack);
+              rackSelect.innerHTML += `<option value="${rack.id}">${rack.nama_rak} (${rack.kode_rak})</option>`;
+            });
+          } else {
+            rackSelect.innerHTML += '<option value="" disabled>Tidak ada rack tersedia</option>';
+          }
+          
+          rackContainer.classList.remove('hidden');
+          binContainer.classList.add('hidden');
+          binSelect.innerHTML = '<option value="">Pilih Bin</option>';
+        } else {
+          console.error('API returned success=false:', data);
+          rackSelect.innerHTML = '<option value="">Error: ' + (data.error || 'Unknown error') + '</option>';
+        }
+      } catch (error) {
+        console.error('Error loading racks:', error);
+        rackSelect.innerHTML = '<option value="">Error loading racks: ' + error.message + '</option>';
+      }
+    }
+
+    async function loadBins(rackId) {
+      const binContainer = document.getElementById('binContainer');
+      const binSelect = document.getElementById('wh_bin_id');
+      
+      if (!rackId) {
+        binContainer.classList.add('hidden');
+        binSelect.innerHTML = '<option value="">Pilih Bin</option>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/barang/api/bins/${rackId}`);
+        const data = await response.json();
+        if (data.success) {
+          binSelect.innerHTML = '<option value="">Pilih Bin (Opsional)</option>';
+          data.bins.forEach(bin => {
+            binSelect.innerHTML += `<option value="${bin.id}">${bin.nama_bin} (${bin.kode_bin})</option>`;
+          });
+          binContainer.classList.remove('hidden');
+        }
+      } catch (error) {
+        console.error('Error loading bins:', error);
+      }
+    }
+
+    async function editWarehouseLocation(barangId, warehouseId, rackId, binId) {
+      console.log('editWarehouseLocation called:', { barangId, warehouseId, rackId, binId });
+      document.getElementById('wh_barang_id').value = barangId;
+      
+      // Reset modal untuk general edit - semua field bisa diedit
+      const warehouseSelect = document.getElementById('wh_warehouse_id');
+      warehouseSelect.disabled = false;
+      warehouseSelect.style.backgroundColor = '';
+      warehouseSelect.style.cursor = '';
+      
+      // Update modal title untuk general edit
+      const modalTitle = document.querySelector('#warehouseLocationModal h2');
+      modalTitle.innerHTML = '<i class="fas fa-warehouse mr-2"></i>Set Lokasi Warehouse';
+      
+      await loadWarehouses();
+      
+      if (warehouseId) {
+        document.getElementById('wh_warehouse_id').value = warehouseId;
+        await loadRacks(warehouseId);
+        
+        if (rackId) {
+          document.getElementById('wh_rack_id').value = rackId;
+          await loadBins(rackId);
+          
+          if (binId) {
+            document.getElementById('wh_bin_id').value = binId;
+          }
+        }
+      }
+      
+      document.getElementById('warehouseLocationModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Fungsi khusus untuk Set Rack - fokus pada pemilihan rack
+    async function openSetRackModal(barangId, warehouseId, binId) {
+      console.log('openSetRackModal called:', { barangId, warehouseId, binId });
+      
+      // Set form data
+      document.getElementById('wh_barang_id').value = barangId;
+      
+      // Load warehouses
+      await loadWarehouses();
+      
+      // Update modal title untuk Set Rack
+      const modalTitle = document.querySelector('#warehouseLocationModal h2');
+      modalTitle.innerHTML = '<i class="fas fa-boxes mr-2"></i>Set Rack Location';
+      
+      // Reset modal state - sembunyikan semua container dulu
+      const rackContainer = document.getElementById('rackContainer');
+      const binContainer = document.getElementById('binContainer');
+      
+      rackContainer.classList.add('hidden');
+      binContainer.classList.add('hidden');
+      
+      // Jika warehouse belum dipilih, tampilkan peringatan dan minta pilih warehouse dulu
+      if (!warehouseId) {
+        // Buka modal dulu
+        document.getElementById('warehouseLocationModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        // Tampilkan pesan peringatan dengan fokus ke warehouse
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top',
+          showConfirmButton: false,
+          timer: 5000,
+          timerProgressBar: true,
+          background: '#f59e0b',
+          color: '#fff',
+          iconColor: '#fff'
+        });
+        
+        Toast.fire({
+          icon: 'warning',
+          title: '⚠️ Pilih Warehouse dahulu untuk menentukan Rack!'
+        });
+        
+        // Fokus dan highlight warehouse dropdown
+        setTimeout(() => {
+          const warehouseSelect = document.getElementById('wh_warehouse_id');
+          if (warehouseSelect) {
+            warehouseSelect.focus();
+            warehouseSelect.style.border = '3px solid #f59e0b';
+            warehouseSelect.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.1)';
+            
+            // Setup event listener untuk auto-load rack setelah warehouse dipilih
+            const handleWarehouseChange = async function() {
+              if (this.value) {
+                // Load racks untuk warehouse yang dipilih
+                await loadRacks(this.value);
+                
+                // Show rack container
+                rackContainer.classList.remove('hidden');
+                
+                // Fokus dan highlight ke rack setelah warehouse dipilih
+                setTimeout(() => {
+                  const rackSelect = document.getElementById('wh_rack_id');
+                  if (rackSelect && rackContainer) {
+                    rackSelect.focus();
+                    rackContainer.style.border = '3px solid #10b981';
+                    rackContainer.style.borderRadius = '12px';
+                    rackContainer.style.padding = '12px';
+                    rackContainer.style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+                    
+                    const successToast = Swal.mixin({
+                      toast: true,
+                      position: 'top',
+                      showConfirmButton: false,
+                      timer: 3000,
+                      background: '#10b981',
+                      color: '#fff'
+                    });
+                    
+                    successToast.fire({
+                      icon: 'success',
+                      title: '✅ Sekarang pilih Rack yang diinginkan!'
+                    });
+                    
+                    // Reset warehouse styling
+                    warehouseSelect.style.border = '';
+                    warehouseSelect.style.boxShadow = '';
+                    
+                    // Reset rack styling after 4 seconds
+                    setTimeout(() => {
+                      rackContainer.style.border = '';
+                      rackContainer.style.padding = '';
+                      rackContainer.style.backgroundColor = '';
+                    }, 4000);
+                  }
+                }, 300);
+              }
+              // Remove event listener setelah digunakan
+              warehouseSelect.removeEventListener('change', handleWarehouseChange);
+            };
+            
+            warehouseSelect.addEventListener('change', handleWarehouseChange);
+          }
+        }, 300);
+        
+        return; // Stop di sini karena warehouse belum dipilih
+      }
+      
+      // Jika warehouse sudah ada, set warehouse dan langsung load rack
+      const warehouseSelect = document.getElementById('wh_warehouse_id');
+      warehouseSelect.value = warehouseId;
+      
+      // Make warehouse field read-only since we're focusing on rack selection
+      warehouseSelect.disabled = true;
+      warehouseSelect.style.backgroundColor = '#f3f4f6';
+      warehouseSelect.style.cursor = 'not-allowed';
+      
+      // Load racks untuk warehouse yang sudah dipilih
+      await loadRacks(warehouseId);
+      
+      // Show rack container langsung karena warehouse sudah ada
+      rackContainer.classList.remove('hidden');
+      
+      // Pastikan bin container tetap tersembunyi untuk Set Rack (fokus hanya pada rack)
+      binContainer.classList.add('hidden');
+      
+      // Set bin jika ada, tapi jangan tampilkan bin container untuk Set Rack
+      if (binId) {
+        document.getElementById('wh_bin_id').value = binId;
+      }
+      
+      // Buka modal
+      document.getElementById('warehouseLocationModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      // Focus dan highlight dropdown rack karena warehouse sudah ada
+      setTimeout(() => {
+        const rackSelect = document.getElementById('wh_rack_id');
+        if (rackSelect && rackContainer) {
+          rackSelect.focus();
+          rackContainer.style.border = '3px solid #10b981';
+          rackContainer.style.borderRadius = '12px';
+          rackContainer.style.padding = '12px';
+          rackContainer.style.backgroundColor = 'rgba(16, 185, 129, 0.05)';
+          
+          // Reset styling setelah 4 detik
+          setTimeout(() => {
+            rackContainer.style.border = '';
+            rackContainer.style.padding = '';
+            rackContainer.style.backgroundColor = '';
+          }, 4000);
+        }
+      }, 300);
+      
+      // Show toast info untuk rack selection
+      const RackToast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        background: '#10b981',
+        color: '#fff'
+      });
+      
+      RackToast.fire({
+        icon: 'success',
+        title: '🏷️ Pilih Rack untuk barang ini!'
+      });
+    }
+
+    // Fungsi khusus untuk Set Bin - fokus pada pemilihan bin
+    async function openSetBinModal(barangId, warehouseId, rackId) {
+      console.log('openSetBinModal called:', { barangId, warehouseId, rackId });
+      
+      // Set form data
+      document.getElementById('wh_barang_id').value = barangId;
+      
+      // Load warehouses
+      await loadWarehouses();
+      
+      // Update modal title untuk Set Bin
+      const modalTitle = document.querySelector('#warehouseLocationModal h2');
+      modalTitle.innerHTML = '<i class="fas fa-box-open mr-2"></i>Set Lokasi Bin';
+      
+      // Validasi warehouse dan rack
+      if (!warehouseId) {
+        // Buka modal dulu
+        document.getElementById('warehouseLocationModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top',
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          background: '#f59e0b',
+          color: '#fff'
+        });
+        
+        Toast.fire({
+          icon: 'info',
+          title: '⚠️ Pilih Warehouse dan Rack dulu untuk Set Bin!'
+        });
+        
+        // Fokus ke warehouse
+        setTimeout(() => {
+          const warehouseSelect = document.getElementById('wh_warehouse_id');
+          if (warehouseSelect) {
+            warehouseSelect.focus();
+            warehouseSelect.style.border = '3px solid #f59e0b';
+            warehouseSelect.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.1)';
+          }
+        }, 300);
+        
+        return;
+      }
+      
+      if (!rackId) {
+        // Set warehouse yang sudah ada
+        document.getElementById('wh_warehouse_id').value = warehouseId;
+        await loadRacks(warehouseId);
+        
+        // Buka modal
+        document.getElementById('warehouseLocationModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top',
+          showConfirmButton: false,
+          timer: 4000,
+          timerProgressBar: true,
+          background: '#f59e0b',
+          color: '#fff'
+        });
+        
+        Toast.fire({
+          icon: 'info',
+          title: '⚠️ Pilih Rack dulu untuk Set Bin!'
+        });
+        
+        // Fokus dan highlight rack
+        setTimeout(() => {
+          const rackSelect = document.getElementById('wh_rack_id');
+          const rackContainer = document.getElementById('rackContainer');
+          if (rackSelect && rackContainer) {
+            rackSelect.focus();
+            rackContainer.style.border = '3px solid #f59e0b';
+            rackContainer.style.borderRadius = '12px';
+            rackContainer.style.padding = '12px';
+            rackContainer.style.backgroundColor = 'rgba(245, 158, 11, 0.05)';
+            
+            // Auto-load bin setelah rack dipilih
+            const handleRackChange = async function() {
+              if (this.value) {
+                await loadBins(this.value);
+                setTimeout(() => {
+                  const binSelect = document.getElementById('wh_bin_id');
+                  const binContainer = document.getElementById('binContainer');
+                  if (binSelect && binContainer) {
+                    binSelect.focus();
+                    binContainer.style.border = '3px solid #8b5cf6';
+                    binContainer.style.borderRadius = '12px';
+                    binContainer.style.padding = '12px';
+                    binContainer.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
+                    
+                    const successToast = Swal.mixin({
+                      toast: true,
+                      position: 'top',
+                      showConfirmButton: false,
+                      timer: 3000,
+                      background: '#8b5cf6',
+                      color: '#fff'
+                    });
+                    
+                    successToast.fire({
+                      icon: 'success',
+                      title: '✅ Sekarang pilih Bin yang diinginkan!'
+                    });
+                    
+                    setTimeout(() => {
+                      binContainer.style.border = '';
+                      binContainer.style.padding = '';
+                      binContainer.style.backgroundColor = '';
+                    }, 4000);
+                  }
+                }, 300);
+                
+                // Reset rack styling
+                rackContainer.style.border = '';
+                rackContainer.style.padding = '';
+                rackContainer.style.backgroundColor = '';
+              }
+              // Remove event listener setelah digunakan
+              rackSelect.removeEventListener('change', handleRackChange);
+            };
+            
+            rackSelect.addEventListener('change', handleRackChange);
+          }
+        }, 300);
+        
+        return;
+      }
+      
+      // Jika warehouse dan rack sudah ada, load semuanya dan fokus ke bin
+      document.getElementById('wh_warehouse_id').value = warehouseId;
+      await loadRacks(warehouseId);
+      document.getElementById('wh_rack_id').value = rackId;
+      await loadBins(rackId);
+      
+      // Buka modal
+      document.getElementById('warehouseLocationModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      
+      // Focus dan highlight dropdown bin
+      setTimeout(() => {
+        const binSelect = document.getElementById('wh_bin_id');
+        const binContainer = document.getElementById('binContainer');
+        if (binSelect && binContainer) {
+          binSelect.focus();
+          binContainer.style.border = '3px solid #8b5cf6';
+          binContainer.style.borderRadius = '12px';
+          binContainer.style.padding = '12px';
+          binContainer.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
+          
+          setTimeout(() => {
+            binContainer.style.border = '';
+            binContainer.style.padding = '';
+            binContainer.style.backgroundColor = '';
+          }, 4000);
+        }
+      }, 300);
+      
+      // Show toast info untuk bin
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        background: '#8b5cf6',
+        color: '#fff'
+      });
+      
+      BinToast.fire({
+        icon: 'success',
+        title: '📦 Pilih Bin untuk barang ini!'
+      });
+    }
+
+    function closeWarehouseLocationModal() {
+      document.getElementById('warehouseLocationModal').classList.add('hidden');
+      document.getElementById('warehouseLocationForm').reset();
+      document.getElementById('rackContainer').classList.add('hidden');
+      document.getElementById('binContainer').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      
+      // Reset warehouse field styling and enable it
+      const warehouseSelect = document.getElementById('wh_warehouse_id');
+      if (warehouseSelect) {
+        warehouseSelect.disabled = false;
+        warehouseSelect.style.backgroundColor = '';
+        warehouseSelect.style.cursor = '';
+      }
+      
+      // Reset any highlights
+      const rackContainer = document.getElementById('rackContainer');
+      if (rackContainer) {
+        rackContainer.style.border = '';
+        rackContainer.style.padding = '';
+        rackContainer.style.backgroundColor = '';
+      }
+      
+      const binContainer = document.getElementById('binContainer');
+      if (binContainer) {
+        binContainer.style.border = '';
+        binContainer.style.padding = '';
+        binContainer.style.backgroundColor = '';
+      }
+    }
+
+    // Setup warehouse location form handler when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle warehouse location form submit
+      const warehouseForm = document.getElementById('warehouseLocationForm');
+      if (warehouseForm) {
+        warehouseForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          
+          const barangId = document.getElementById('wh_barang_id').value;
+          const warehouseId = document.getElementById('wh_warehouse_id').value;
+          const rackId = document.getElementById('wh_rack_id').value;
+          const binId = document.getElementById('wh_bin_id').value;
+
+          try {
+            const response = await fetch(`/barang/api/update-warehouse/${barangId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                warehouse_id: warehouseId || null,
+                rack_id: rackId || null,
+                bin_id: binId || null
+              })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Lokasi warehouse berhasil diupdate!',
+                timer: 2000,
+                showConfirmButton: false
+              });
+              closeWarehouseLocationModal();
+              location.reload();
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: 'Gagal update lokasi: ' + (data.error || 'Unknown error')
+              });
+            }
+          } catch (error) {
+            console.error('Error updating warehouse location:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error!',
+              text: 'Terjadi kesalahan saat update lokasi'
+            });
+          }
+        });
+      }
+    });
+    // ============= END WAREHOUSE LOCATION MANAGEMENT =============
   </script>
 
   <!-- Edit Modal -->
@@ -1638,5 +2435,66 @@
       </form>
     </div>
   </div>
-</body>
-</html>
+
+  <!-- Warehouse Location Modal -->
+  <div id="warehouseLocationModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 modal-backdrop">
+    <div class="modal-content relative rounded-3xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fadeInUp">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold gradient-text">
+          <i class="fas fa-warehouse mr-2"></i>Set Lokasi Warehouse
+        </h2>
+        <button onclick="closeWarehouseLocationModal()" class="text-gray-400 hover:text-white transition-colors">
+          <i class="fas fa-times text-2xl"></i>
+        </button>
+      </div>
+
+      <form id="warehouseLocationForm" class="space-y-4">
+        <input type="hidden" id="wh_barang_id" name="barang_id">
+        
+        <!-- Warehouse -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            <i class="fas fa-warehouse mr-2"></i>Warehouse Location
+          </label>
+          <select id="wh_warehouse_id" name="warehouse_id" class="form-select w-full px-4 py-2 rounded-xl text-white" onchange="loadRacks(this.value)">
+            <option value="">Pilih Warehouse</option>
+          </select>
+          <p class="text-xs text-gray-400 mt-1">Pilih lokasi warehouse terlebih dahulu</p>
+        </div>
+
+        <!-- Rack -->
+        <div id="rackContainer" class="hidden">
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            <i class="fas fa-boxes mr-2"></i>Rack (Rak)
+          </label>
+          <select id="wh_rack_id" name="rack_id" class="form-select w-full px-4 py-2 rounded-xl text-white" onchange="loadBins(this.value)">
+            <option value="">Pilih Rack</option>
+          </select>
+          <p class="text-xs text-gray-400 mt-1">Pilih rak penyimpanan (opsional)</p>
+        </div>
+
+        <!-- Bin -->
+        <div id="binContainer" class="hidden">
+          <label class="block text-sm font-medium text-gray-300 mb-2">
+            <i class="fas fa-box-open mr-2"></i>Bin (Slot)
+          </label>
+          <select id="wh_bin_id" name="bin_id" class="form-select w-full px-4 py-2 rounded-xl text-white">
+            <option value="">Pilih Bin</option>
+          </select>
+          <p class="text-xs text-gray-400 mt-1">Pilih slot spesifik dalam rak (opsional)</p>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex gap-3 pt-4">
+          <button type="button" onclick="closeWarehouseLocationModal()" class="flex-1 px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-xl transition-all">
+            <i class="fas fa-times mr-2"></i>Batal
+          </button>
+          <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl transition-all shadow-lg">
+            <i class="fas fa-save mr-2"></i>Simpan Lokasi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
