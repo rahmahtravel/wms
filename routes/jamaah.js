@@ -215,12 +215,7 @@ router.get('/kelengkapan', async (req, res) => {
       SELECT jk.*, 
         od.id as order_detail_id,
         od.order_id,
-        -- Display nama_pemesan only for the first occurrence of each order_id
-        CASE 
-          WHEN ROW_NUMBER() OVER (PARTITION BY od.order_id ORDER BY jk.id ASC) = 1 
-          THEN o.nama_pemesan 
-          ELSE NULL 
-        END as nama_pemesan,
+        o.nama_pemesan,
         COALESCE(od.nama_jamaah, ppd.nama_penerima, jk.kepala_keluarga_id) as nama_jamaah, 
         COALESCE(od.no_hp, ppd.nomor_telp) as nomor_telp,
         -- Prefer paket_umroh tanggal_keberangkatan via orders -> order_details, fallback to kelengkapan dates
@@ -248,7 +243,7 @@ router.get('/kelengkapan', async (req, res) => {
       LEFT JOIN paket_umroh p ON o.paket_id = p.id
       LEFT JOIN purchasing_public_docs ppd ON jk.order_details_id = ppd.order_details_id
       ${whereClause}
-      ORDER BY od.id DESC, jk.created_at DESC
+      ORDER BY od.order_id DESC, jk.id ASC
       LIMIT ? OFFSET ?
     `, [...queryParams, limit, offset]);
     

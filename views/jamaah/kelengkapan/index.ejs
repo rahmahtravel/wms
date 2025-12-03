@@ -174,6 +174,36 @@
       background: #f3f4f6;
       margin: 0.25rem 0;
     }
+
+    /* Pemesan Grouping Styles */
+    .pemesan-group-cell {
+      background: linear-gradient(to right, #f0f4ff 0%, #ffffff 100%);
+      border-right: 3px solid #6366f1;
+      position: relative;
+    }
+
+    .pemesan-group-cell::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+    }
+
+    tbody tr:hover .pemesan-group-cell {
+      background: linear-gradient(to right, #e0e7ff 0%, #f9fafb 100%);
+    }
+
+    /* Add subtle separator between order groups */
+    tbody tr[data-is-first-in-order="true"] {
+      border-top: 2px solid #e5e7eb;
+    }
+
+    tbody tr[data-is-first-in-order="true"]:first-child {
+      border-top: none;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
@@ -547,10 +577,34 @@
           </thead>
           <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
             <% if (kelengkapan && kelengkapan.length > 0) { %>
+              <% 
+                // Group jamaah by order_id to calculate rowspan and find nama_pemesan
+                const groupedByOrder = {};
+                const orderPemesanMap = {}; // Store the actual nama_pemesan for each order
+                
+                kelengkapan.forEach((item) => {
+                  if (!groupedByOrder[item.order_id]) {
+                    groupedByOrder[item.order_id] = [];
+                  }
+                  groupedByOrder[item.order_id].push(item);
+                  
+                  // Store nama_pemesan if it exists (from the first row where backend set it)
+                  if (item.nama_pemesan && item.nama_pemesan.trim() !== '' && item.nama_pemesan !== '-' && !orderPemesanMap[item.order_id]) {
+                    orderPemesanMap[item.order_id] = item.nama_pemesan.trim();
+                  }
+                });
+              %>
+              
               <% kelengkapan.forEach((item, index) => { %>
                 <% const rowNumber = ((pagination.currentPage - 1) * pagination.limit) + index + 1; %>
+                <% 
+                  // Check if this is the first jamaah for this order_id
+                  const isFirstInOrder = groupedByOrder[item.order_id] && groupedByOrder[item.order_id][0].id === item.id;
+                  const orderRowspan = groupedByOrder[item.order_id] ? groupedByOrder[item.order_id].length : 1;
+                %>
                 <tr class="hover:bg-gray-50 transition" 
                     data-kelengkapan-id="<%= item.id %>"
+                    data-is-first-in-order="<%= isFirstInOrder ? 'true' : 'false' %>"
                     data-tanggal-keberangkatan="<%= item.tanggal_keberangkatan ? new Date(item.tanggal_keberangkatan).toISOString() : '' %>" 
                     data-created-at="<%= item.created_at ? new Date(item.created_at).toISOString() : '' %>" 
                     data-batch="<%= item.paket_batch ? item.paket_batch : '' %>" 
@@ -565,38 +619,66 @@
                     data-no-resi="<%= item.no_resi || '' %>"
                     data-tracking-location="<%= item.tracking_location || '' %>">
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= rowNumber %></td>
-                  <td class="px-6 py-4 whitespace-nowrap">
-                    <% if (item.nama_pemesan && item.nama_pemesan.trim() !== '') { %>
-                      <!-- Display nama_pemesan only when it exists -->
+                  
+                  <!-- Nama Pemesan Column with rowspan -->
+                  <% if (isFirstInOrder) { %>
+                    <% 
+                      // Get nama_pemesan from the orderPemesanMap (collected from backend data)
+                      let displayPemesan = orderPemesanMap[item.order_id] || null;
+                      
+                      // If still not found, fallback to first jamaah's name in the group
+                      if (!displayPemesan && groupedByOrder[item.order_id] && groupedByOrder[item.order_id][0]) {
+                        const firstItem = groupedByOrder[item.order_id][0];
+                        if (firstItem.nama_jamaah && firstItem.nama_jamaah.trim() !== '') {
+                          displayPemesan = firstItem.nama_jamaah.trim();
+                        }
+                      }
+                      
+                      // Final fallback
+                      if (!displayPemesan) {
+                        displayPemesan = 'Pemesan';
+                      }
+                      
+                      // Ensure we have at least one character for the initial
+                      const pemesanInitial = (displayPemesan && displayPemesan.length > 0) 
+                        ? displayPemesan.charAt(0).toUpperCase() 
+                        : 'P';
+                    %>
+                    <td class="px-6 py-4 whitespace-nowrap align-middle border-r-2 border-gray-200 bg-gradient-to-r from-indigo-50 to-white" rowspan="<%= orderRowspan %>">
                       <div class="flex items-center">
-                        <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-semibold text-sm">
-                          <%= item.nama_pemesan.charAt(0).toUpperCase() %>
+                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-base shadow-md flex-shrink-0">
+                          <%= pemesanInitial %>
                         </div>
                         <div class="ml-3">
-                          <div class="text-sm font-medium text-gray-900"><%= item.nama_pemesan %></div>
+                          <div class="text-sm font-bold text-gray-900"><%= displayPemesan %></div>
                           <% if (item.order_id) { %>
                             <div class="text-xs text-gray-500 mt-1">
                               <i class="fas fa-hashtag mr-1"></i>Order: <%= item.order_id %>
                             </div>
                           <% } %>
+                          <% if (orderRowspan > 1) { %>
+                            <div class="text-xs font-medium text-indigo-600 mt-2 flex items-center">
+                              <i class="fas fa-users mr-1"></i>
+                              <%= orderRowspan %> Jamaah
+                            </div>
+                          <% } %>
                         </div>
                       </div>
-                    <% } else { %>
-                      <!-- Empty cell for duplicate order_id entries - just show order_id -->
-                      <% if (item.order_id) { %>
-                        <div class="text-xs text-gray-400 text-center">
-                          <i class="fas fa-hashtag mr-1"></i>Order: <%= item.order_id %>
-                        </div>
-                      <% } %>
-                    <% } %>
-                  </td>
+                    </td>
+                  <% } %>
+                  <!-- End Nama Pemesan Column -->
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
+                      <% 
+                        // Ensure nama_jamaah has a valid initial
+                        const namaJamaah = item.nama_jamaah && item.nama_jamaah.trim() !== '' ? item.nama_jamaah.trim() : 'Jamaah';
+                        const jamaahInitial = namaJamaah.charAt(0).toUpperCase();
+                      %>
                       <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-semibold">
-                        <%= item.nama_jamaah ? item.nama_jamaah.charAt(0).toUpperCase() : 'J' %>
+                        <%= jamaahInitial %>
                       </div>
                       <div class="ml-3">
-                        <div class="text-sm font-medium text-gray-900"><%= item.nama_jamaah || '-' %></div>
+                        <div class="text-sm font-medium text-gray-900"><%= namaJamaah %></div>
                         <% if (item.nomor_telp) { %>
                           <div class="text-xs text-gray-500 mt-1">
                             <i class="fas fa-phone mr-1"></i><%= item.nomor_telp %>
