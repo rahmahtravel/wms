@@ -60,6 +60,8 @@ const generateToken = (user) => {
       branch_id: user.branch_id || null,
       branch_name: user.branch_name || null,
       jabatan: user.jabatan || null,
+      // include lastLogin when available so views can display it
+      lastLogin: user.lastLogin || user.last_login || null,
       isSuperAdmin: user.isSuperAdmin
     },
     JWT_SECRET,

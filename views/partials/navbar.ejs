@@ -65,6 +65,7 @@
     padding: 6px 12px;
     border-radius: 12px;
     transition: all 0.3s ease;
+    position: relative;
   }
 
   .logo-image-wrapper {
@@ -98,6 +99,197 @@
     font-weight: 500;
     letter-spacing: 0.5px;
   }
+
+  /* Topbar Search (Icon-only button and dropdown) */
+  .topbar-search-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: transparent; /* no background per request */
+    border: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-left: 8px;
+    padding: 0;
+  }
+  .topbar-search-btn:hover { transform: translateY(-2px); }
+
+  /* Inline desktop search input (hidden on mobile) */
+  .topbar-search-inline-input {
+    display: none; /* shown on desktop via media query */
+    width: 260px;
+    max-width: 40vw;
+    padding: 8px 12px 8px 36px;
+    border-radius: 10px;
+    border: 1px solid #e6e9ee;
+    font-size: 14px;
+    outline: none;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    transition: box-shadow 0.15s ease, transform 0.12s ease;
+  }
+  .topbar-search-inline-input:focus { box-shadow: 0 6px 18px rgba(251,146,60,0.08); border-color: #fb923c; }
+
+  /* inline icon inside desktop input */
+  /* inline icon inside desktop input */
+  .inline-search-wrapper { display: inline-block; position: relative; z-index: 10002; }
+  .inline-search-icon {
+    pointer-events: auto;
+    cursor: pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+    z-index: 10003;
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    /* gradient fill matching app theme with fallback */
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: #fb923c; /* fallback for non-supporting browsers */
+  }
+  .inline-search-icon:hover { transform: translateY(-50%) scale(1.03); opacity: 0.95; }
+  .inline-search-wrapper.active .inline-search-icon {
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: #fb923c;
+    transform: translateY(-50%) scale(1.0);
+  }
+  .topbar-search-inline-input { padding-left: 38px; }
+
+  .topbar-search-dropdown {
+    position: absolute;
+    top: 56px; /* below the navbar */
+    left: 16px;
+    min-width: 320px;
+    max-width: 420px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    padding: 8px;
+    z-index: 99999;
+    display: none;
+  }
+
+  /* When opened from desktop inline input, disable animation/transform for instant show */
+  .topbar-search-dropdown.no-anim {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .topbar-search-input {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    border-radius: 10px;
+    border: 1px solid #e6e9ee;
+    font-size: 14px;
+    outline: none;
+  }
+
+  /* dropdown inner icon (mobile visible, desktop hidden) */
+  .topbar-search-dropdown-icon {
+    position: absolute;
+    left: 10px;
+    top: 12px;
+    color: #9ca3af;
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .topbar-search-input:focus { box-shadow: 0 0 0 4px rgba(251,146,60,0.08); border-color: #fb923c; }
+
+  .topbar-search-results { margin-top: 8px; max-height: 260px; overflow-y:auto; }
+  .topbar-search-result-item { display:flex; gap:10px; align-items:center; padding:8px; border-radius:8px; text-decoration:none; color:#374151; }
+  .topbar-search-result-item:hover { background:#fff7ed; color:#ea580c; }
+  .topbar-search-result-item i { width:20px; text-align:center; color:#64748b; }
+
+  /* Gradient icon fill so it looks like the profile color */
+  .topbar-search-icon {
+    display: inline-block;
+    font-size: 16px;
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    transition: transform 0.15s ease;
+  }
+  .topbar-search-btn:hover .topbar-search-icon { transform: scale(1.05); }
+
+  /* small wrapper spacing when search is placed next to logo */
+  .topbar-search-wrapper { margin-left: 8px; }
+  @media (max-width: 768px) {
+    .topbar-search-wrapper { margin-left: 0; margin-right: 6px; }
+    /* hide the desktop inline search wrapper on small screens to avoid duplicate icons */
+    .inline-search-wrapper { display: none !important; }
+  }
+
+  /* Adjust dropdown position near search button */
+  @media (min-width: 768px) {
+    .topbar-search-dropdown { left: auto; right: 0; transform: translateX(0); }
+
+    /* Desktop: avoid being clipped by parent containers by anchoring to the viewport.
+       Keep mobile floating behavior intact (mobile-floating class overrides with !important). */
+    .topbar-search-dropdown {
+      position: fixed; /* position relative to viewport so it won't be cut off */
+      top: calc(var(--topbar-height, 56px) + 8px);
+      right: 16px; /* small offset from viewport right edge */
+      left: auto;
+      min-width: 320px;
+      max-width: 420px;
+      z-index: 100000; /* sit above other overlays */
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      border-radius: 12px;
+    }
+  }
+
+  /* On desktop, hide the dropdown's internal input (we use the inline input instead) */
+  @media (min-width: 769px) {
+    .topbar-search-dropdown .topbar-search-input { display: none; }
+  }
+
+  /* Desktop: show inline input and hide icon-only button */
+  @media (min-width: 769px) {
+    .topbar-search-btn { display: none; }
+    .topbar-search-inline-input { display: block; }
+    /* hide the dropdown's internal icon on desktop to avoid overlap */
+    .topbar-search-dropdown .topbar-search-dropdown-icon { display: none; }
+  }
+
+  /* Mobile floating styles */
+  .topbar-search-dropdown.mobile-floating {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: var(--topbar-height, 56px) !important;
+    bottom: auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    border-radius: 0 0 12px 12px !important;
+    padding: 8px 12px !important;
+    z-index: 999999 !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+    display: none;
+    touch-action: none; /* enable pointer dragging */
+  }
+
+  .topbar-search-handle {
+    width: 36px;
+    height: 6px;
+    background: #e6e9ee;
+    margin: 6px auto 8px auto;
+    border-radius: 6px;
+  }
+  .topbar-search-handle { display:none; }
+  .topbar-search-dropdown.mobile-floating .topbar-search-handle { display:block; }
 
   /* Notification Button */
   .notification-btn {
@@ -175,11 +367,25 @@
     flex-shrink: 0;
   }
 
+  .user-initial {
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1;
+    user-select: none;
+    text-transform: uppercase;
+  }
+
   .user-info {
-    display: flex;
+    display: none;
     flex-direction: column;
     text-align: left;
     line-height: 1.3;
+  }
+
+  /* Show inline user text on medium and larger screens */
+  @media (min-width: 768px) {
+    .user-info { display: flex; }
   }
 
   .user-name {
@@ -196,11 +402,35 @@
     opacity: 0.85;
   }
 
-  .chevron-icon {
-    transition: transform 0.25s ease;
-    color: #ea580c;
-    margin-left: 2px;
+  /* Center realtime clock (desktop only) */
+  .topbar-clock {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: none; /* hidden on small screens */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.0);
+    /* gradient-filled text to match app orange branding, with fallback */
+    background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+    font-size: 14px;
+    pointer-events: none; /* non-interactive */
   }
+
+  @media (min-width: 1024px) {
+    .topbar-clock { display: flex; }
+  }
+
+  /* chevron icon removed — UI simplified */
   /* Dropdown Menu - Enhanced Clickability */
   .dropdown-menu {
     position: absolute;
@@ -225,6 +455,27 @@
     visibility: visible;
     transform: translateY(0) scale(1);
     pointer-events: all;
+  }
+
+  /* Ensure profile dropdown doesn't go off-screen on small devices
+     Make it fixed under the navbar and full-width (with max width) */
+  @media (max-width: 640px) {
+    .modern-navbar { --topbar-height: 56px; }
+    .dropdown-menu {
+      position: fixed !important;
+      top: var(--topbar-height, 56px) !important;
+      right: 10px !important;
+      left: auto !important;
+      width: calc(100% - 20px) !important;
+      max-width: 360px !important;
+      margin-top: 0 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15) !important;
+      transform: translateY(0) scale(1) !important;
+    }
+    .dropdown-menu.show {
+      transform: translateY(0) scale(1) !important;
+    }
   }
 
   .dropdown-header {
@@ -765,25 +1016,56 @@
           </div>
         </div>
       </div>
+      <!-- Center Clock (desktop) -->
+      <div class="topbar-clock" id="topbarClock" aria-hidden="true">
+        <span id="topbarClockTime">--:--:--</span>
+      </div>
       
+
       <!-- Right Section -->
       <div class="flex items-center space-x-3">
         
-        <!-- User Menu -->
-        <div class="relative" style="z-index: 10001;">
-          <button type="button" id="userMenuBtn" class="user-menu-btn focus:outline-none" aria-haspopup="true" aria-expanded="false" data-custom-dropdown="true">
-            <div class="user-info hidden md:flex">
-              <span class="user-name text-end"><%= user ? user.name : 'Guest' %></span>
-              <% if (user) { %>
-                <span class="user-role">
-                  <%= user.isSuperAdmin ? 'Super Admin' : user.role_name %>
-                </span>
-              <% } %>
+          <!-- Search & User Menu (moved search to the right, next to user menu) -->
+          
+          <div class="relative flex items-center" style="z-index: 10001; gap: 8px;">
+            <!-- hide textual user info in topbar; we show initial in avatar instead -->
+            <div class="user-info hidden">
+              <!-- Intentionally hidden: name removed from topbar per UX request -->
             </div>
+
+            <!-- Topbar Search Icon moved next to profile button -->
+            <div id="topbarSearchWrapper" class="topbar-search-wrapper relative flex items-center" style="z-index:10002;">
+              <button id="topbarSearchBtn" class="topbar-search-btn" aria-haspopup="true" aria-expanded="false" title="Cari Menu">
+                <i class="fas fa-magnifying-glass topbar-search-icon" aria-hidden="true"></i>
+              </button>
+
+              <!-- Inline input for desktop (hidden on mobile) with icon -->
+              <div class="inline-search-wrapper">
+                <i id="topbarSearchInlineIcon" class="fas fa-magnifying-glass inline-search-icon" aria-hidden="true"></i>
+                <input id="topbarSearchInlineInput" type="text" class="topbar-search-inline-input" placeholder="Ketik nama menu..." aria-label="Cari menu (desktop)" />
+              </div>
+
+              <div id="topbarSearchDropdown" class="topbar-search-dropdown" role="dialog" aria-hidden="true">
+                <div id="topbarSearchHandle" class="topbar-search-handle" aria-hidden="true"></div>
+                <div class="topbar-search-input-wrapper" style="position: relative;">
+                  <i class="fas fa-search topbar-search-dropdown-icon" aria-hidden="true"></i>
+                  <input id="topbarSearchInput" type="text" class="topbar-search-input" placeholder="Ketik nama menu..." aria-label="Cari menu" />
+                </div>
+                <div id="topbarSearchResults" class="topbar-search-results"></div>
+              </div>
+            </div>
+
+            <button type="button" id="userMenuBtn" class="user-menu-btn focus:outline-none" aria-haspopup="true" aria-expanded="false" data-custom-dropdown="true">
+            <div class="user-info" aria-hidden="false">
+              <div class="user-name"><%= user ? user.name : 'Guest' %></div>
+              <div class="user-role"><%= user ? (user.isSuperAdmin ? 'Super Admin' : (user.role || 'User')) : '' %></div>
+            </div>
+
              <div class="user-avatar">
-              <i class="fas fa-user text-white text-sm"></i>
+              <span class="user-initial"><%= user ? (user.isSuperAdmin ? 'S' : (user.name ? user.name.charAt(0).toUpperCase() : 'G')) : 'G' %></span>
             </div>
-          </button>
+
+            </button>
           
           <!-- Dropdown Menu -->
           <div id="userMenu" class="dropdown-menu">
@@ -857,6 +1139,59 @@
     // Ensure initial closed state
     userMenu.classList.remove('show');
     
+    // Positioning helper: clamp dropdown within viewport on desktop, mobile keeps fixed full-width behaviour
+    function positionUserMenu() {
+      try {
+        const isMobile = window.innerWidth <= 640;
+        // ensure dropdown is visible to measure
+        userMenu.style.display = 'block';
+
+        if (isMobile) {
+          // mobile: fixed under navbar using CSS rules; align to right small offset
+          userMenu.style.position = 'fixed';
+          const nav = document.querySelector('.modern-navbar');
+          const navH = nav ? nav.getBoundingClientRect().height : 56;
+          userMenu.style.top = (navH + 8) + 'px';
+          userMenu.style.right = '10px';
+          userMenu.style.left = 'auto';
+        } else {
+          // desktop: position fixed relative to viewport and clamp within edges
+          userMenu.style.position = 'fixed';
+          userMenu.style.right = 'auto';
+
+          const btnRect = userMenuBtn.getBoundingClientRect();
+          const ddRect = userMenu.getBoundingClientRect();
+          const ddW = ddRect.width || userMenu.offsetWidth || 250;
+          const ddH = ddRect.height || userMenu.offsetHeight || 200;
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+
+          // prefer aligning dropdown right edge with button right edge
+          let left = Math.round(btnRect.right - ddW);
+          // clamp left between 8 and vw - ddW - 8
+          left = Math.max(8, Math.min(left, vw - ddW - 8));
+
+          // compute top below the button; if would overflow bottom, move it upward
+          let top = Math.round(btnRect.bottom + 8);
+          if (top + ddH + 8 > vh) {
+            // try placing above button
+            const altTop = Math.round(btnRect.top - ddH - 8);
+            if (altTop > 8) top = altTop;
+            else top = Math.max(8, vh - ddH - 8);
+          }
+
+          userMenu.style.left = left + 'px';
+          userMenu.style.top = top + 'px';
+        }
+      } catch (err) {
+        // fallback: let CSS handle it
+        userMenu.style.left = '';
+        userMenu.style.top = '';
+        userMenu.style.position = '';
+        userMenu.style.right = '';
+      }
+    }
+
     // Reliable toggle: respond to pointerdown (fast on touch/mouse) and click as fallback
     function toggleMenu(e) {
       // stop propagation so document click handler doesn't immediately close it
@@ -865,9 +1200,16 @@
       if (isShowing) {
         userMenu.classList.remove('show');
         userMenuBtn.setAttribute('aria-expanded','false');
+        // reset inline positioning to let CSS take over
+        userMenu.style.left = '';
+        userMenu.style.top = '';
+        userMenu.style.position = 'absolute';
+        userMenu.style.right = '0';
       } else {
         userMenu.classList.add('show');
         userMenuBtn.setAttribute('aria-expanded','true');
+        // compute position and clamp within viewport
+        positionUserMenu();
       }
     }
 
@@ -879,6 +1221,11 @@
       if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
         userMenu.classList.remove('show');
         userMenuBtn.setAttribute('aria-expanded','false');
+        // reset inline positioning
+        userMenu.style.left = '';
+        userMenu.style.top = '';
+        userMenu.style.position = 'absolute';
+        userMenu.style.right = '0';
       }
     });
     
@@ -894,7 +1241,17 @@
     menuItems.forEach(function(item) {
       item.addEventListener('click', function() {
         userMenu.classList.remove('show');
+        userMenuBtn.setAttribute('aria-expanded','false');
+        userMenu.style.left = '';
+        userMenu.style.top = '';
+        userMenu.style.position = 'absolute';
+        userMenu.style.right = '0';
       });
+    });
+
+    // Reposition on resize if open
+    window.addEventListener('resize', function() {
+      if (userMenu.classList.contains('show')) positionUserMenu();
     });
   }
   
@@ -956,4 +1313,403 @@
     initLogoutModal();
   }
 })();
+</script>
+
+<script>
+// Topbar Search Functionality (icon-only search near the logo)
+function initTopbarSearch() {
+  const searchBtn = document.getElementById('topbarSearchBtn');
+  const dropdown = document.getElementById('topbarSearchDropdown');
+  const input = document.getElementById('topbarSearchInput');
+  const inlineInput = document.getElementById('topbarSearchInlineInput');
+  const inlineIcon = document.getElementById('topbarSearchInlineIcon');
+  const results = document.getElementById('topbarSearchResults');
+  
+  if (!searchBtn || !dropdown || !input || !results) return;
+
+  const menuItems = [
+    { name: 'Dashboard', url: '/', icon: 'fas fa-home' },
+    { name: 'Cabang', url: '/branches', icon: 'fas fa-building' },
+    { name: 'Kategori', url: '/categories', icon: 'fas fa-tags' },
+    { name: 'Jenis Barang', url: '/jenis-barang', icon: 'fas fa-box' },
+    { name: 'Supplier', url: '/suppliers', icon: 'fas fa-truck' },
+    { name: 'Data Barang', url: '/barang', icon: 'fas fa-cube' },
+    { name: 'Lokasi Gudang', url: '/warehouse/locations', icon: 'fas fa-warehouse' },
+    { name: 'Rak', url: '/warehouse/racks', icon: 'fas fa-layer-group' },
+    { name: 'Bin', url: '/warehouse/bins', icon: 'fas fa-inbox' },
+    { name: 'Stok Barang', url: '/stock', icon: 'fas fa-cubes' },
+    { name: 'Barang Masuk', url: '/incoming', icon: 'fas fa-arrow-down' },
+    { name: 'Barang Keluar', url: '/outgoing', icon: 'fas fa-arrow-up' },
+    { name: 'Transfer Barang', url: '/transfer', icon: 'fas fa-exchange-alt' },
+    { name: 'Stock Opname', url: '/opname', icon: 'fas fa-clipboard-check' },
+    { name: 'Kelengkapan Jamaah', url: '/jamaah/kelengkapan', icon: 'fas fa-user-check' },
+    { name: 'Request Perlengkapan', url: '/jamaah/request', icon: 'fas fa-envelope-open-text' },
+    { name: 'Pengiriman', url: '/jamaah/pengiriman', icon: 'fas fa-shipping-fast' },
+    { name: 'Rekap Ongkir', url: '/jamaah/rekap-ongkir', icon: 'fas fa-money-bill-wave' },
+    { name: 'Histori Pergerakan', url: '/stock/movements', icon: 'fas fa-history' }
+  ];
+
+  // Return default suggestions: Dashboard (fixed) + 2 random distinct items
+  function getDefaultSuggestions() {
+    if (!menuItems || menuItems.length === 0) return [];
+    const dashboard = menuItems.find(i => i.name && i.name.toLowerCase() === 'dashboard') || menuItems[0];
+    // candidates excluding dashboard
+    const candidates = menuItems.filter(i => i !== dashboard);
+    // shuffle candidates
+    for (let i = candidates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+    }
+    // pick first two (or fewer if not available)
+    const picks = candidates.slice(0, 2);
+    return [dashboard].concat(picks);
+  }
+
+  let open = false;
+  let mobileFloating = false;
+  const posKey = 'topbarSearchPosition';
+
+  // Allow moving the search wrapper between right topbar and left logo area
+  const searchWrapper = document.getElementById('topbarSearchWrapper');
+  const originalParent = searchWrapper ? searchWrapper.parentElement : null;
+  const originalNextSibling = searchWrapper ? searchWrapper.nextSibling : null;
+  const logoContainer = document.querySelector('.logo-container');
+
+  function placeSearchWrapper() {
+    if (!searchWrapper || !originalParent || !logoContainer) return;
+    const isDesktop = window.innerWidth > 768;
+    if (isDesktop) {
+      // move into the logo container so icon appears next to site title
+      if (searchWrapper.parentElement !== logoContainer) {
+        logoContainer.appendChild(searchWrapper);
+      }
+    } else {
+      // move back to original parent (right side)
+      if (searchWrapper.parentElement !== originalParent) {
+        if (originalNextSibling) originalParent.insertBefore(searchWrapper, originalNextSibling);
+        else originalParent.appendChild(searchWrapper);
+      }
+    }
+  }
+  // place initially and update on resize
+  placeSearchWrapper();
+  window.addEventListener('resize', placeSearchWrapper);
+
+  function openDropdown() {
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+      // Mobile: fixed dropdown under navbar (full-width)
+      dropdown.classList.add('mobile-floating');
+      mobileFloating = true;
+      try {
+        const nav = document.querySelector('.modern-navbar');
+        const navH = nav ? nav.getBoundingClientRect().height : 56;
+        dropdown.style.setProperty('--topbar-height', navH + 'px');
+        dropdown.style.top = navH + 'px';
+      } catch (e) {
+        dropdown.style.top = '56px';
+      }
+      dropdown.style.left = '0';
+      dropdown.style.right = '0';
+      dropdown.style.width = '100%';
+      dropdown.style.maxWidth = 'none';
+      dropdown.style.display = 'block';
+      dropdown.setAttribute('aria-hidden', 'false');
+      searchBtn.setAttribute('aria-expanded', 'true');
+      try { input.focus(); } catch (e) {}
+      // mark inline wrapper active so icon stays colored (desktop will ignore)
+      try { if (inlineIcon && inlineIcon.parentElement) inlineIcon.parentElement.classList.add('active'); } catch(e) {}
+      // ensure animations enabled for mobile floating
+      try { dropdown.classList.remove('no-anim'); } catch(e) {}
+      // Render default suggestions for empty input
+      if (!input.value || input.value.trim() === '') renderResults(getDefaultSuggestions(), true);
+      // Ensure input visible when keyboard opens
+      setTimeout(function() { try { input.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch(e) {} }, 300);
+    } else {
+      // Desktop: anchor under button, but clamp to viewport so it doesn't "nembus layar"
+      dropdown.classList.remove('mobile-floating');
+      mobileFloating = false;
+      try {
+        const anchorEl = (inlineInput && window.innerWidth > 768) ? inlineInput : searchBtn;
+        const btnRect = anchorEl.getBoundingClientRect();
+        const parentRect = dropdown.parentElement.getBoundingClientRect();
+
+        // compute initial left/top relative to parent
+        let left = Math.max(6, btnRect.left - parentRect.left);
+        let top = btnRect.bottom - parentRect.top + 8; // small gap
+
+        // Temporarily show invisible to measure size without flicker
+        const prevDisplay = dropdown.style.display;
+        const prevVis = dropdown.style.visibility;
+        dropdown.style.visibility = 'hidden';
+        dropdown.style.display = 'block';
+
+        const ddRect = dropdown.getBoundingClientRect();
+        const ddW = ddRect.width || dropdown.offsetWidth || 320;
+        const ddH = ddRect.height || dropdown.offsetHeight || 200;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        // absolute left on viewport for clamping
+        let absLeft = parentRect.left + left;
+
+        // If it would overflow right edge, shift left so it fits with 8px margin
+        if (absLeft + ddW + 8 > vw) {
+          const shiftLeft = Math.max(8, vw - ddW - 8 - parentRect.left);
+          left = shiftLeft;
+          absLeft = parentRect.left + left;
+        }
+
+        // If it would overflow left, clamp to 8px from viewport left
+        if (absLeft < 8) {
+          left = Math.max(8 - parentRect.left, 6);
+        }
+
+        // If it would overflow bottom of viewport, move it upwards where possible
+        let absTop = parentRect.top + top;
+        if (absTop + ddH + 8 > vh) {
+          const shiftTop = Math.max(8, vh - ddH - 8 - parentRect.top);
+          top = shiftTop;
+        }
+
+        // apply computed positions (use viewport coordinates because dropdown is fixed on desktop)
+        const finalAbsLeft = parentRect.left + left;
+        const finalAbsTop = parentRect.top + top;
+        dropdown.style.left = (finalAbsLeft) + 'px';
+        dropdown.style.top = (finalAbsTop) + 'px';
+        dropdown.style.right = 'auto';
+
+        // restore visibility
+        dropdown.style.visibility = prevVis || '';
+        dropdown.style.display = prevDisplay || 'block';
+      } catch(e) {
+        dropdown.style.left = '';
+        dropdown.style.top = '';
+        dropdown.style.right = '0';
+      }
+      dropdown.style.display = 'block';
+      dropdown.setAttribute('aria-hidden', 'false');
+      searchBtn.setAttribute('aria-expanded', 'true');
+      try { (inlineInput && window.innerWidth > 768 ? inlineInput : input).focus(); } catch(e) {}
+      try { if (inlineIcon && inlineIcon.parentElement) inlineIcon.parentElement.classList.add('active'); } catch(e) {}
+      // disable dropdown animation on desktop for instant show
+      try { dropdown.classList.add('no-anim'); } catch(e) {}
+      if (!input.value || input.value.trim() === '') renderResults(getDefaultSuggestions(), true);
+    }
+    open = true;
+  }
+
+  function closeDropdown() {
+    dropdown.style.display = 'none';
+    dropdown.setAttribute('aria-hidden', 'true');
+    searchBtn.setAttribute('aria-expanded', 'false');
+    input.value = '';
+    if (typeof inlineInput !== 'undefined' && inlineInput) inlineInput.value = '';
+    results.innerHTML = '';
+    open = false;
+    try { if (inlineIcon && inlineIcon.parentElement) inlineIcon.parentElement.classList.remove('active'); } catch(e) {}
+    try { dropdown.classList.remove('no-anim'); } catch(e) {}
+  }
+
+  searchBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (open) closeDropdown(); else openDropdown();
+  });
+
+  // clicking the inline icon focuses the input and opens the dropdown on desktop
+  if (inlineIcon && inlineInput) {
+    inlineIcon.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (!open) openDropdown();
+      try { inlineInput.focus(); } catch (err) {}
+    });
+  }
+
+  // Shared input handler for both inline (desktop) and dropdown (mobile) inputs
+  function handleInputEvent() {
+    const q = this.value.toLowerCase().trim();
+    if (!q) { results.innerHTML = ''; return; }
+    const filtered = menuItems.filter(i => i.name.toLowerCase().includes(q));
+    renderResults(filtered);
+  }
+
+  input.addEventListener('input', handleInputEvent);
+  if (inlineInput) {
+    inlineInput.addEventListener('input', handleInputEvent);
+    inlineInput.addEventListener('focus', function() {
+      if (!open) openDropdown();
+    });
+  }
+
+  function renderResults(items, isDefault = false) {
+    results.innerHTML = '';
+    if (!items || items.length === 0) {
+      results.innerHTML = '<div class="topbar-search-no-results" style="padding:12px;color:#6b7280;font-style:italic">Tidak ada hasil ditemukan</div>';
+      return;
+    }
+    // no suggestion header — show items directly
+    items.forEach(item => {
+      const a = document.createElement('a');
+      a.href = item.url;
+      a.className = 'topbar-search-result-item';
+      a.innerHTML = `<i class="${item.icon}"></i><span>${item.name}</span>`;
+      a.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = item.url;
+        closeDropdown();
+      });
+      results.appendChild(a);
+    });
+  }
+
+  // Close when clicking outside
+  document.addEventListener('click', function(e) {
+    const clickedOutsideAnchor = !dropdown.contains(e.target) && !searchBtn.contains(e.target) && !(inlineInput && inlineInput.contains(e.target)) && !(inlineIcon && inlineIcon.contains(e.target));
+    if (open && clickedOutsideAnchor) {
+      closeDropdown();
+    }
+  });
+
+  // Draggable behavior for mobile floating mode
+  const handle = document.getElementById('topbarSearchHandle');
+  if (handle) {
+    let dragging = false;
+    let startX, startY, startLeft, startTop;
+
+    handle.addEventListener('pointerdown', function(e) {
+      const isMobile = window.innerWidth <= 768;
+      if (!isMobile) return;
+      dragging = true;
+      handle.setPointerCapture(e.pointerId);
+      startX = e.clientX;
+      startY = e.clientY;
+      // current computed left/top
+      const rect = dropdown.getBoundingClientRect();
+      // ensure dropdown uses fixed positioning
+      dropdown.style.left = rect.left + 'px';
+      dropdown.style.top = rect.top + 'px';
+      startLeft = rect.left;
+      startTop = rect.top;
+      e.preventDefault();
+    });
+
+    handle.addEventListener('pointermove', function(e) {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      let nx = startLeft + dx;
+      let ny = startTop + dy;
+      // clamp to viewport
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const rect = dropdown.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+      nx = Math.max(6, Math.min(nx, vw - w - 6));
+      ny = Math.max(6, Math.min(ny, vh - h - 6));
+      dropdown.style.left = nx + 'px';
+      dropdown.style.top = ny + 'px';
+      e.preventDefault();
+    });
+
+    handle.addEventListener('pointerup', function(e) {
+      if (!dragging) return;
+      dragging = false;
+      try { handle.releasePointerCapture(e.pointerId); } catch (err) {}
+      // save position
+      const rect = dropdown.getBoundingClientRect();
+      const left = Math.round(rect.left);
+      const top = Math.round(rect.top);
+      try { localStorage.setItem(posKey, JSON.stringify({ left, top })); } catch (err) {}
+      e.preventDefault();
+    });
+  }
+
+  // Update floating behaviour on resize
+  function updateFloatingMode() {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      // keep last saved position if any
+      dropdown.classList.add('mobile-floating');
+    } else {
+      dropdown.classList.remove('mobile-floating');
+      // clear inlined positioning
+      dropdown.style.left = '';
+      dropdown.style.top = '';
+      dropdown.style.bottom = '';
+      dropdown.style.right = '';
+    }
+  }
+  window.addEventListener('resize', updateFloatingMode);
+  updateFloatingMode();
+
+  // Close on ESC
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && open) closeDropdown();
+  });
+
+  // Enter key on input: if single result or first result, navigate
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const first = results.querySelector('.topbar-search-result-item');
+      if (first) {
+        e.preventDefault();
+        window.location.href = first.getAttribute('href') || first.href;
+        closeDropdown();
+      }
+    }
+  });
+
+  if (inlineInput) {
+    inlineInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const first = results.querySelector('.topbar-search-result-item');
+        if (first) {
+          e.preventDefault();
+          window.location.href = first.getAttribute('href') || first.href;
+          closeDropdown();
+        }
+      }
+    });
+  }
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initTopbarSearch);
+} else {
+  initTopbarSearch();
+}
+</script>
+
+<script>
+// Topbar realtime clock
+function initTopbarClock() {
+  const el = document.getElementById('topbarClockTime');
+  if (!el) return;
+
+  function pad(n) { return n < 10 ? '0' + n : n; }
+  function update() {
+    const now = new Date();
+    const hh = pad(now.getHours());
+    const mm = pad(now.getMinutes());
+    const ss = pad(now.getSeconds());
+    el.textContent = hh + ':' + mm + ':' + ss;
+  }
+
+  update();
+  // update every second, aligned to system clock
+  let timeout = 1000 - (new Date().getMilliseconds());
+  setTimeout(function() {
+    update();
+    setInterval(update, 1000);
+  }, timeout);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initTopbarClock);
+} else {
+  initTopbarClock();
+}
 </script>

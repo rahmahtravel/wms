@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title><%= title %> - Rahmah Travel</title>
   
   <!-- Google Fonts - Poppins -->
@@ -25,9 +25,17 @@
     * {
       font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
     }
-    
+
+    /* Reset default margins so fixed topbar sits flush to the viewport edge */
+    html, body {
+      margin: 0;
+      padding: 0;
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background-clip: padding-box;
     }
     
     .bg-primary { background-color: var(--primary-color); }
@@ -100,6 +108,15 @@
       .sidebar.mobile-open {
         transform: translateX(0);
       }
+    }
+    /* Ensure top navigation stays in front of the mobile sidebar overlay and
+       respect device safe-area insets so it appears flush at the top edge */
+    nav.fixed {
+      z-index: 1200 !important;
+      top: 0;
+      /* iOS and modern browsers safe-area support */
+      padding-top: constant(safe-area-inset-top, 0);
+      padding-top: env(safe-area-inset-top, 0);
     }
   </style>
   

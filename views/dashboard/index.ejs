@@ -365,6 +365,87 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
   }
+
+  /* Date badge - calendar style to match app theme */
+  .date-badge {
+    position: relative;
+    background: #ffffff;
+    color: #1f2937;
+    border-radius: 10px;
+    padding: 0.35rem 0.7rem 0.5rem;
+    width: 92px; /* sedikit lebih lebar */
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(31,41,55,0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .date-head {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 22px; /* lebih pendek */
+    background: linear-gradient(90deg, var(--primary-color, #f9a825), var(--primary-dark, #f57f17));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    z-index: 2;
+  }
+
+  .date-head .ring {
+    width: 7px;
+    height: 7px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+
+  .date-body {
+    position: relative;
+    padding-top: 22px; /* leave space for top bar so content sits below it */
+    text-align: center;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .date-badge .day {
+    font-size: 1.35rem;
+    line-height: 1;
+    font-weight: 800;
+    margin-top: 0; /* ensure number stays within white body */
+    color: #0b1220;
+  }
+
+  .date-badge .month {
+    font-size: 0.78rem;
+    opacity: 0.95;
+    text-transform: capitalize;
+    margin-top: 2px;
+    color: #334155;
+  }
+
+  .date-badge .today {
+    font-size: 0.65rem;
+    color: rgba(31,41,55,0.65);
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @media (max-width: 1024px) {
+    .date-badge { width: 84px; padding: 0.4rem 0.55rem; }
+    .date-badge .day { font-size: 1.15rem; }
+    .date-head { height: 20px; }
+  }
 </style>
   
 <%- include('../partials/navbar') %>
@@ -527,15 +608,37 @@
               <p class="text-base md:text-lg text-white/90 font-medium max-w-2xl">
                 <i class="fas fa-chart-line mr-2"></i>Monitoring sistem Purchasing & Logistics Rahmah Travel secara real-time
               </p>
+
+              <% 
+                // last login display: accept multiple possible property names
+                const lastLoginRaw = (typeof user !== 'undefined' && (user.lastLogin || user.last_login || user.lastlogin || user.last_logged_in)) || null;
+                if (lastLoginRaw) {
+                  const lastDate = new Date(lastLoginRaw);
+                  const todayStr = new Date().toLocaleDateString('id-ID');
+                  const lastDateStr = lastDate.toLocaleDateString('id-ID');
+                  const isToday = (todayStr === lastDateStr);
+                  const timeStr = lastDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+              %>
+                <div class="mt-3">
+                  <span class="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold">
+                    <i class="far fa-clock mr-2"></i>
+                    Login terakhir: <%= isToday ? ('Hari ini pukul ' + timeStr) : (lastDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + ', pukul ' + timeStr) %>
+                  </span>
+                </div>
+              <% } %>
             </div>
 
             <!-- Quick Stats Badge -->
             <div class="flex-none hidden lg:block">
-              <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-4 border border-white/30">
-                <div class="text-center">
-                  <div class="text-3xl font-bold text-white"><%= new Date().toLocaleDateString('id-ID', { day: 'numeric' }) %></div>
-                  <div class="text-sm text-white/80"><%= new Date().toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) %></div>
-                  <div class="text-xs text-white/70 mt-1"><i class="far fa-calendar mr-1"></i>Today</div>
+              <div class="date-badge" role="group" aria-label="Tanggal hari ini">
+                <div class="date-head" aria-hidden="true">
+                  <span class="ring"></span>
+                  <span class="ring"></span>
+                </div>
+                <div class="date-body">
+                  <div class="day" aria-hidden="true"><%= new Date().toLocaleDateString('id-ID', { day: 'numeric' }) %></div>
+                  <div class="month" aria-hidden="true"><%= new Date().toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) %></div>
+                  <div class="today" aria-hidden="false"><i class="far fa-calendar mr-1"></i>Today</div>
                 </div>
               </div>
             </div>

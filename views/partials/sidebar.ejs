@@ -175,6 +175,7 @@
       box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
     }
   }
+  
 
   @media (max-width: 768px) {
     #sidebar {
@@ -274,6 +275,9 @@
     align-items: center;
     justify-content: center;
   }
+  
+
+  
 </style>
 
 <script>
@@ -319,9 +323,14 @@ if (document.readyState === 'loading') {
 }
 </script>
 
+ 
+
 <!-- Sidebar -->
 <aside id="sidebar" class="sidebar w-64 h-screen fixed left-0 top-16 shadow-xl overflow-y-auto">
   <div class="py-6">
+    
+    
+    
     <!-- Dashboard -->
     <div class="mb-2">
       <a href="/" class="sidebar-item <%= typeof currentPath !== 'undefined' && (currentPath === '/' || currentPath === '/dashboard' || currentPath.includes('dashboard')) ? 'active' : '' %>">

@@ -86,6 +86,28 @@ router.post('/login', async (req, res) => {
       isSuperAdmin: isSuperAdmin
     };
 
+    // Try to ensure last_login column exists, read previous value, then update it
+    try {
+      if (!isSuperAdmin) {
+        await db.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_login TIMESTAMP NULL DEFAULT NULL");
+        const [rows] = await db.execute("SELECT last_login FROM users WHERE id = ?", [user.id]);
+        if (rows && rows.length > 0 && rows[0].last_login) {
+          userData.lastLogin = rows[0].last_login; // previous login
+        }
+        await db.execute("UPDATE users SET last_login = NOW() WHERE id = ?", [user.id]);
+      } else {
+        await db.execute("ALTER TABLE super_admin ADD COLUMN IF NOT EXISTS last_login TIMESTAMP NULL DEFAULT NULL");
+        const [rows] = await db.execute("SELECT last_login FROM super_admin WHERE id = ?", [user.id]);
+        if (rows && rows.length > 0 && rows[0].last_login) {
+          userData.lastLogin = rows[0].last_login;
+        }
+        await db.execute("UPDATE super_admin SET last_login = NOW() WHERE id = ?", [user.id]);
+      }
+    } catch (e) {
+      console.warn('Could not read/update last_login column:', e.message);
+      // fallback: do not block login
+    }
+
     const token = generateToken(userData);
 
     // Set JWT token as HTTP-only cookie (more secure)
